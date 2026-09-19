@@ -415,11 +415,11 @@ function PainelPage() {
         <button type="button" onClick={logout} className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] text-[#8e857c]"><LogOut className="size-[18px]" /><span>Sair</span></button>
       </nav>
 
-      {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastrar paciente"} close={() => !saving && setModal(null)}>
+      {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastro de pacientes"} close={() => !saving && setModal(null)}>
         <form onSubmit={savePatient} className="space-y-5">
           <div className="space-y-4">
             <div className="pb-1 text-center">
-              <h3 className="text-sm font-semibold text-[#A97A3C]">Informações Pessoais</h3>
+              <h3 className="text-base font-semibold text-[#A97A3C]">Informações Pessoais</h3>
               <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
             </div>
             <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
@@ -455,7 +455,7 @@ function PainelPage() {
 
           <div className="border-t border-[#eee5d9] pt-5">
             <div className="mb-4 text-center">
-              <h3 className="text-sm font-semibold text-[#A97A3C]">Dados de Acesso</h3>
+              <h3 className="text-base font-semibold text-[#A97A3C]">Dados de Acesso</h3>
               <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
             </div>
             <div className="space-y-4">
@@ -465,7 +465,7 @@ function PainelPage() {
             </div>
           </div>
 
-          <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar paciente"} loading={saving} />
+          <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar Paciente"} loading={saving} />
         </form>
       </Modal>}
 
@@ -491,7 +491,7 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
 }
 
 function Patients({ patients, onAdd, onEdit, onDelete, deleting }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null }) {
-  return <section className="space-y-5"><Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar paciente" onAction={onAdd} /><div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="hidden grid-cols-[1.4fr_1fr_1fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div><div className="divide-y divide-[#f0e8dd]">{patients.length === 0 ? <Empty text="Nenhum paciente cadastrado ainda." /> : patients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.4fr_1fr_1fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}><div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div><div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div><div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div><div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>)}</div></div></section>;
+  return <section className="space-y-5"><Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar Paciente" onAction={onAdd} /><div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="hidden grid-cols-[1.4fr_1fr_1fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div><div className="divide-y divide-[#f0e8dd]">{patients.length === 0 ? <Empty text="Nenhum paciente cadastrado ainda." /> : patients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.4fr_1fr_1fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}><div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div><div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div><div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div><div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>)}</div></div></section>;
 }
 
 function Exercises({ exercises, onAdd, onEdit, onDelete, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; deleting: string | null }) {
