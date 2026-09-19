@@ -15,7 +15,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth";
-import logo from "@/assets/logo-erick-paulino.jpg.asset.json";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -241,7 +240,7 @@ function PainelPage() {
           />
           <aside className="relative flex h-full w-[min(82vw,300px)] flex-col border-r border-[#E6D8C5] bg-white shadow-[12px_0_45px_rgba(64,48,30,0.16)]">
             <div className="flex h-[88px] items-center justify-between border-b border-[#eee5d9] px-5">
-              <img src={logo.url} alt="Erick Paulino Fisioterapeuta" className="h-auto w-[138px] object-contain" />
+              <img src="/images/logo-editada-chatgpt.png" alt="Erick Paulino Fisioterapeuta" className="h-auto w-[138px] object-contain" />
               <button
                 type="button"
                 aria-label="Fechar menu"
