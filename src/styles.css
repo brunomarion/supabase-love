@@ -19,8 +19,8 @@
  */
 
 @theme inline {
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Jost", system-ui, sans-serif;
+  --font-display: "Poppins", system-ui, sans-serif;
+  --font-sans: "Poppins", system-ui, sans-serif;
   --color-ink: var(--ink);
   --color-ivory: var(--ivory);
   --radius-sm: calc(var(--radius) - 4px);
