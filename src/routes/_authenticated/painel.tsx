@@ -429,13 +429,12 @@ function PainelPage() {
         </div>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-around rounded-2xl border border-[#dfd0bb] bg-white/95 px-1 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 items-stretch gap-1 rounded-2xl border border-[#dfd0bb] bg-white/95 px-2 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
         {nav.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" onClick={() => setTab(id)} className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] font-medium ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c]"}`}>
+          <button key={id} type="button" onClick={() => setTab(id)} className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[9px] font-medium transition ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c] hover:bg-[#faf7f2]"}`}>
             <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
           </button>
         ))}
-        <button type="button" onClick={logout} className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] text-[#8e857c]"><LogOut className="size-[18px]" /><span>Sair</span></button>
       </nav>
 
       {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastro de pacientes"} close={() => !saving && setModal(null)}>
