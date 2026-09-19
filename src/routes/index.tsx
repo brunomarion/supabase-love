@@ -193,21 +193,17 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="relative z-10 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-3 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
+      <section className="relative z-10 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-3 py-1 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
         <div className="w-full max-w-md">
-          <div className="mb-1 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
-            <div className="relative flex items-center justify-center">
-              <div className="absolute h-[82%] w-[82%] rounded-full bg-white/25 blur-3xl" />
-              <div className="absolute inset-2 rounded-[2rem] border border-white/30 bg-white/[0.09] shadow-[0_22px_55px_rgba(68,45,20,0.22)] backdrop-blur-[3px]" />
-              <img
-                src="/images/logo-editada-chatgpt.png"
-                alt="Erick Paulino Fisioterapeuta"
-                className="relative z-10 h-auto max-h-[22vh] w-[min(78vw,320px)] object-contain drop-shadow-[0_24px_45px_rgba(55,37,18,0.34)]"
-              />
-            </div>
+          <div className="flex -translate-y-1 justify-center lg:hidden sm:-translate-y-2">
+            <img
+              src="/images/logo-editada-chatgpt.png"
+              alt="Erick Paulino Fisioterapeuta"
+              className="h-auto max-h-[20vh] w-[min(76vw,310px)] object-contain drop-shadow-[0_18px_35px_rgba(55,37,18,0.30)]"
+            />
           </div>
 
-          <div className="mx-auto w-[calc(100%-0.5rem)] rounded-[1.35rem] border border-white/80 bg-[#fffdfa]/95 p-5 shadow-[0_22px_60px_rgba(55,35,15,0.24),0_2px_12px_rgba(255,255,255,0.55)_inset] backdrop-blur-xl sm:w-full sm:rounded-3xl sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
+          <div className="mx-auto w-[calc(100%-0.5rem)] rounded-[1.35rem] border border-white/80 bg-[#fffdfa]/95 p-4 shadow-[0_22px_60px_rgba(55,35,15,0.24),0_2px_12px_rgba(255,255,255,0.55)_inset] backdrop-blur-xl sm:w-full sm:rounded-3xl sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
             <div className="mb-5 text-center lg:mb-8 lg:text-center">
               <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu <span className="text-[#ba9051] lg:text-[#2d2823]">login</span>
