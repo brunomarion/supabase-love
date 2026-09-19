@@ -169,16 +169,26 @@ function LoginPage() {
 
   return (
     <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[#f8f6f2] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto">
-      <section className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center">
-        <div className="absolute -right-40 top-1/4 size-[34rem] rounded-full border border-white/15" />
-        <div className="absolute -left-32 bottom-10 size-80 rounded-full border border-white/10" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_55%)]" />
+      <section
+        className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center"
+        style={{
+          backgroundImage:
+            "linear-gradient(90deg, rgba(47, 31, 15, 0.48) 0%, rgba(47, 31, 15, 0.28) 45%, rgba(47, 31, 15, 0.48) 100%), url('/images/fundo01.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.14),transparent_52%)]" />
+        <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 flex h-full w-full items-center justify-center p-10 xl:p-16">
-          <img
-            src="/images/logo-editada-chatgpt.png"
-            alt="Erick Paulino Fisioterapeuta"
-            className="h-auto w-full max-w-[min(78%,620px)] object-contain drop-shadow-[0_22px_45px_rgba(73,51,24,0.16)]"
-          />
+          <div className="flex items-center justify-center rounded-[2rem] bg-white/10 p-8 shadow-[0_25px_80px_rgba(0,0,0,0.16)] backdrop-blur-[2px] xl:p-12">
+            <img
+              src="/images/logo-editada-chatgpt.png"
+              alt="Erick Paulino Fisioterapeuta"
+              className="h-auto w-full max-w-[min(78%,620px)] object-contain drop-shadow-[0_24px_50px_rgba(0,0,0,0.32)]"
+            />
+          </div>
         </div>
       </section>
 
