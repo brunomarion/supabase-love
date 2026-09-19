@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, LockKeyhole, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[#ba9051] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto">
+    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[#ba9051] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
       <section
         className="relative hidden min-h-screen overflow-hidden lg:flex lg:items-center lg:justify-center"
         style={{
@@ -187,7 +187,7 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-[#ba9051] px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-transparent lg:px-12">
+      <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-[#ba9051] px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
         <div className="w-full max-w-md">
           <div className="mb-1 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
             <img
@@ -305,13 +305,26 @@ function LoginPage() {
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
-              <div className="flex items-center justify-center gap-3 text-xs font-semibold tracking-wide text-[#8e857c] lg:gap-4 lg:text-sm">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[#e4ded6] bg-[#faf8f5] px-3.5 py-2 lg:gap-2.5 lg:px-5 lg:py-2.5">
-                  <span className="text-base font-bold leading-none text-[#ba9051] lg:text-lg">✓</span> Acesso protegido
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#e4ded6] bg-[#faf8f5] px-2.5 py-1">
-                  <span className="text-base font-bold leading-none text-[#ba9051] lg:text-lg">⌁</span> Conexão segura
-                </span>
+              <div className="flex items-stretch justify-center gap-4 text-left lg:gap-7">
+                <div className="flex items-center gap-2.5 lg:gap-3.5">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
+                    <ShieldCheck className="size-5 lg:size-6" strokeWidth={1.8} />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-[11px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Acesso protegido</span>
+                    <span className="mt-0.5 text-[9px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Ambiente criptografado</span>
+                  </span>
+                </div>
+                <span className="w-px bg-[#e4ded6]" aria-hidden="true" />
+                <div className="flex items-center gap-2.5 lg:gap-3.5">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
+                    <LockKeyhole className="size-5 lg:size-6" strokeWidth={1.8} />
+                  </span>
+                  <span className="flex flex-col">
+                    <span className="text-[11px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Conexão segura</span>
+                    <span className="mt-0.5 text-[9px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Seus dados protegidos</span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
