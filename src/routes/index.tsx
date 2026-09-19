@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Eye, EyeOff, Loader2, LockKeyhole, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,13 @@ function LoginPage() {
   }
 
   return (
-    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[#ba9051] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
+    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.20),transparent_34%),radial-gradient(circle_at_10%_90%,rgba(255,255,255,0.10),transparent_30%),linear-gradient(145deg,#a77c42_0%,#ba9051_42%,#c9a064_70%,#9a713b_100%)] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
+      <div className="pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true">
+        <div className="absolute -left-20 -top-24 size-64 rounded-full border border-white/10 bg-white/5 blur-2xl" />
+        <div className="absolute -bottom-28 -right-20 size-72 rounded-full border border-white/10 bg-[#7d5a30]/20 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[70%] w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+      </div>
+
       <section
         className="relative hidden min-h-screen overflow-hidden lg:flex lg:items-center lg:justify-center"
         style={{
@@ -187,24 +193,24 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-[#ba9051] px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
+      <section className="relative z-10 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-3 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
         <div className="w-full max-w-md">
-          <div className="mb-2 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
+          <div className="mb-1 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
             <div className="relative flex items-center justify-center">
-              <div className="absolute h-[80%] w-[80%] rounded-full bg-white/20 blur-2xl" />
-              <div className="absolute inset-2 rounded-[2rem] border border-white/25 bg-white/10 shadow-[0_18px_45px_rgba(68,45,20,0.18)] backdrop-blur-[2px]" />
+              <div className="absolute h-[82%] w-[82%] rounded-full bg-white/25 blur-3xl" />
+              <div className="absolute inset-2 rounded-[2rem] border border-white/30 bg-white/[0.09] shadow-[0_22px_55px_rgba(68,45,20,0.22)] backdrop-blur-[3px]" />
               <img
                 src="/images/logo-editada-chatgpt.png"
                 alt="Erick Paulino Fisioterapeuta"
-                className="relative z-10 h-auto max-h-[24vh] w-[min(76vw,315px)] object-contain drop-shadow-[0_22px_40px_rgba(55,37,18,0.28)]"
+                className="relative z-10 h-auto max-h-[22vh] w-[min(78vw,320px)] object-contain drop-shadow-[0_24px_45px_rgba(55,37,18,0.34)]"
               />
             </div>
           </div>
 
-          <div className="mx-auto w-[calc(100%-1rem)] rounded-3xl border border-white/55 bg-white/95 p-5 shadow-[0_18px_50px_rgba(67,43,18,0.20),0_4px_14px_rgba(255,255,255,0.22)_inset] backdrop-blur-md sm:w-full sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
+          <div className="mx-auto w-[calc(100%-0.5rem)] rounded-[1.35rem] border border-white/80 bg-[#fffdfa]/95 p-5 shadow-[0_22px_60px_rgba(55,35,15,0.24),0_2px_12px_rgba(255,255,255,0.55)_inset] backdrop-blur-xl sm:w-full sm:rounded-3xl sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
             <div className="mb-5 text-center lg:mb-8 lg:text-center">
-              <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Faça seu login
+              <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
+                Faça seu <span className="text-[#ba9051] lg:text-[#2d2823]">login</span>
               </h1>
             </div>
 
@@ -213,6 +219,8 @@ function LoginPage() {
                 <Label htmlFor="email" className="text-sm font-medium text-[#403a35]">
                   E-mail
                 </Label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-4 top-1/2 z-10 size-4 -translate-y-1/2 text-[#a98558] lg:hidden" strokeWidth={1.8} />
                 <Input
                   id="email"
                   type="email"
@@ -222,8 +230,9 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting}
                   aria-invalid={Boolean(errors.email)}
-                  className="h-14 rounded-2xl border-[#e7dfd4] bg-white/80 px-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
+                  className="h-14 rounded-2xl border-[#dfd3c3] bg-white/90 px-4 pl-11 text-sm lg:pl-4" shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.16)]"
                 />
+                </div>
                 {errors.email ? (
                   <p className="text-xs text-destructive">{errors.email}</p>
                 ) : null}
@@ -234,6 +243,7 @@ function LoginPage() {
                   Senha
                 </Label>
                 <div className="relative">
+                  <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 z-10 size-4 -translate-y-1/2 text-[#a98558] lg:hidden" strokeWidth={1.8} />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -243,7 +253,7 @@ function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={submitting}
                     aria-invalid={Boolean(errors.password)}
-                    className="h-14 rounded-2xl border-[#e7dfd4] bg-white/80 px-4 pr-12 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
+                    className="h-14 rounded-2xl border-[#dfd3c3] bg-white/90 px-4 pl-11 pr-12 text-sm lg:pl-4" shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
                   />
                   <button
                     type="button"
@@ -290,7 +300,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="h-12 w-full rounded-xl bg-[#ba9051] text-sm font-semibold text-white shadow-[0_10px_25px_rgba(186,144,81,0.25)] transition hover:bg-[#a98148] hover:shadow-[0_12px_30px_rgba(186,144,81,0.32)]"
+                className="h-12 w-full rounded-xl bg-[linear-gradient(135deg,#c69a59_0%,#a97a3c_100%)] text-sm font-semibold text-white shadow-[0_10px_25px_rgba(132,88,35,0.26)] transition hover:bg-[#a98148] hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)] lg:bg-[#ba9051]"
               >
                 {submitting ? (
                   <>
@@ -298,7 +308,7 @@ function LoginPage() {
                     Entrando
                   </>
                 ) : (
-                  "Entrar"
+                  <>Entrar<span className="ml-2 lg:hidden">→</span></>
                 )}
               </Button>
             </form>
