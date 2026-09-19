@@ -1,8 +1,10 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, Plus, Settings, Users } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut, Pencil, Plus, RefreshCw, Settings, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
+import type { Tables } from "@/integrations/supabase/types";
 import logo from "@/assets/logo-erick-paulino.jpg.asset.json";
 
 export const Route = createFileRoute("/_authenticated/painel")({
@@ -15,8 +17,8 @@ export const Route = createFileRoute("/_authenticated/painel")({
 });
 
 type Tab = "dashboard" | "pacientes" | "exercicios" | "relatorios" | "configuracoes";
-type Patient = { name: string; age: string; responsible: string };
-type Exercise = { name: string; type: string; description: string };
+type Patient = Tables<"patients">;
+type Exercise = Tables<"exercises">;
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Dashboard", icon: Home },
@@ -26,54 +28,294 @@ const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "configuracoes", label: "Configurações", icon: Settings },
 ];
 
-const initialPatients: Patient[] = [
-  { name: "Miguel Oliveira", age: "8 meses", responsible: "Ana Oliveira" },
-  { name: "Lívia Santos", age: "5 meses", responsible: "Mariana Santos" },
-  { name: "Theo Almeida", age: "11 meses", responsible: "Carolina Almeida" },
-];
+const emptyPatient = {
+  full_name: "",
+  birth_date: "",
+  responsible_name: "",
+  responsible_phone: "",
+  responsible_email: "",
+  password: "",
+  notes: "",
+  status: "active" as "active" | "inactive",
+};
 
-const initialExercises: Exercise[] = [
-  { name: "Estimulação cervical", type: "Vídeo", description: "Exercícios para estímulo do controle cervical." },
-  { name: "Estimulação visual", type: "Vídeo", description: "Atividades para estímulo visual e acompanhamento do bebê." },
-  { name: "Controle de tronco", type: "Vídeo", description: "Exercícios para fortalecimento e controle de tronco." },
-];
+const emptyExercise = {
+  name: "",
+  description: "",
+  type: "Vídeo",
+  video_url: "",
+  thumbnail_url: "",
+  is_active: true,
+};
 
 function PainelPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("dashboard");
-  const [patients, setPatients] = useState(initialPatients);
-  const [exercises, setExercises] = useState(initialExercises);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [patientCount, setPatientCount] = useState(0);
+  const [exerciseCount, setExerciseCount] = useState(0);
+  const [physiotherapistId, setPhysiotherapistId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
-  const [patient, setPatient] = useState({ name: "", age: "", responsible: "" });
-  const [exercise, setExercise] = useState({ name: "", type: "Vídeo", description: "" });
+  const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [patient, setPatient] = useState(emptyPatient);
+  const [exercise, setExercise] = useState(emptyExercise);
+
+  useEffect(() => {
+    void loadData();
+  }, []);
+
+  useEffect(() => {
+    if (!notice && !error) return;
+    const timer = window.setTimeout(() => {
+      setNotice("");
+      setError("");
+    }, 4500);
+    return () => window.clearTimeout(timer);
+  }, [notice, error]);
+
+  async function getPhysiotherapistId() {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) throw new Error("Sessão do fisioterapeuta não encontrada.");
+
+    const { data, error: queryError } = await supabase
+      .from("physiotherapists")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (queryError) throw queryError;
+    if (!data) throw new Error("Fisioterapeuta autenticado não encontrado.");
+    return data.id;
+  }
+
+  async function loadData(showRefresh = false) {
+    try {
+      if (showRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError("");
+
+      const id = await getPhysiotherapistId();
+      setPhysiotherapistId(id);
+
+      const [patientsResult, exercisesResult, patientCountResult, exerciseCountResult] = await Promise.all([
+        supabase.from("patients").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
+        supabase.from("exercises").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
+        supabase.from("patients").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id).eq("status", "active"),
+        supabase.from("exercises").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id).eq("is_active", true),
+      ]);
+
+      if (patientsResult.error) throw patientsResult.error;
+      if (exercisesResult.error) throw exercisesResult.error;
+      if (patientCountResult.error) throw patientCountResult.error;
+      if (exerciseCountResult.error) throw exerciseCountResult.error;
+
+      setPatients(patientsResult.data ?? []);
+      setExercises(exercisesResult.data ?? []);
+      setPatientCount(patientCountResult.count ?? 0);
+      setExerciseCount(exerciseCountResult.count ?? 0);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível carregar os dados.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
 
   async function logout() {
     await signOut();
     navigate({ to: "/", replace: true });
   }
 
-  function addPatient(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!patient.name.trim()) return;
-    setPatients((items) => [...items, {
-      name: patient.name.trim(),
-      age: patient.age.trim() || "Não informado",
-      responsible: patient.responsible.trim() || "Não informado",
-    }]);
-    setPatient({ name: "", age: "", responsible: "" });
-    setModal(null);
+  function openPatientCreate() {
+    setEditingPatient(null);
+    setPatient(emptyPatient);
+    setModal("patient");
   }
 
-  function addExercise(e: FormEvent<HTMLFormElement>) {
+  function openPatientEdit(item: Patient) {
+    setEditingPatient(item);
+    setPatient({
+      ...emptyPatient,
+      full_name: item.full_name,
+      birth_date: item.birth_date ?? "",
+      responsible_name: item.responsible_name ?? "",
+      responsible_phone: item.responsible_phone ?? "",
+      responsible_email: item.responsible_email ?? "",
+      notes: item.notes ?? "",
+      status: item.status,
+    });
+    setModal("patient");
+  }
+
+  function openExerciseCreate() {
+    setEditingExercise(null);
+    setExercise(emptyExercise);
+    setModal("exercise");
+  }
+
+  function openExerciseEdit(item: Exercise) {
+    setEditingExercise(item);
+    setExercise({
+      name: item.name,
+      description: item.description ?? "",
+      type: item.type,
+      video_url: item.video_url ?? "",
+      thumbnail_url: item.thumbnail_url ?? "",
+      is_active: item.is_active,
+    });
+    setModal("exercise");
+  }
+
+  async function savePatient(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!exercise.name.trim()) return;
-    setExercises((items) => [...items, {
-      name: exercise.name.trim(),
-      type: exercise.type.trim() || "Vídeo",
-      description: exercise.description.trim() || "Sem descrição.",
-    }]);
-    setExercise({ name: "", type: "Vídeo", description: "" });
-    setModal(null);
+    if (!patient.full_name.trim()) {
+      setError("Informe o nome completo do paciente.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+      if (editingPatient) {
+        const { error: updateError } = await supabase
+          .from("patients")
+          .update({
+            full_name: patient.full_name.trim(),
+            birth_date: patient.birth_date || null,
+            responsible_name: patient.responsible_name.trim() || null,
+            responsible_phone: patient.responsible_phone.trim() || null,
+            responsible_email: patient.responsible_email.trim() || null,
+            notes: patient.notes.trim() || null,
+            status: patient.status,
+          })
+          .eq("id", editingPatient.id);
+
+        if (updateError) throw updateError;
+        setNotice("Paciente atualizado com sucesso.");
+      } else {
+        if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
+        if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
+        if (patient.password.length < 6) throw new Error("A senha deve ter pelo menos 6 caracteres.");
+
+        const { error: functionError } = await supabase.functions.invoke("create-patient", {
+          body: {
+            physiotherapist_id: physiotherapistId,
+            full_name: patient.full_name.trim(),
+            birth_date: patient.birth_date || null,
+            responsible_name: patient.responsible_name.trim() || null,
+            responsible_phone: patient.responsible_phone.trim() || null,
+            responsible_email: patient.responsible_email.trim(),
+            password: patient.password,
+            notes: patient.notes.trim() || null,
+            status: patient.status,
+          },
+        });
+
+        if (functionError) throw functionError;
+        setNotice("Paciente cadastrado com sucesso.");
+      }
+
+      setModal(null);
+      setEditingPatient(null);
+      setPatient(emptyPatient);
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível salvar o paciente.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function removePatient(item: Patient) {
+    if (!window.confirm(`Deseja realmente excluir o paciente "${item.full_name}"?`)) return;
+    try {
+      setDeleting(item.id);
+      const { error: deleteError } = await supabase.from("patients").delete().eq("id", item.id);
+      if (deleteError) throw deleteError;
+      setNotice("Paciente excluído com sucesso.");
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível excluir o paciente.");
+    } finally {
+      setDeleting(null);
+    }
+  }
+
+  async function saveExercise(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!exercise.name.trim()) {
+      setError("Informe o nome do exercício.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      if (editingExercise) {
+        const { error: updateError } = await supabase
+          .from("exercises")
+          .update({
+            name: exercise.name.trim(),
+            description: exercise.description.trim() || null,
+            type: exercise.type.trim() || "Vídeo",
+            video_url: exercise.video_url.trim() || null,
+            thumbnail_url: exercise.thumbnail_url.trim() || null,
+            is_active: exercise.is_active,
+          })
+          .eq("id", editingExercise.id);
+
+        if (updateError) throw updateError;
+        setNotice("Exercício atualizado com sucesso.");
+      } else {
+        if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
+
+        const { error: insertError } = await supabase.from("exercises").insert({
+          physiotherapist_id: physiotherapistId,
+          name: exercise.name.trim(),
+          description: exercise.description.trim() || null,
+          type: exercise.type.trim() || "Vídeo",
+          video_url: exercise.video_url.trim() || null,
+          thumbnail_url: exercise.thumbnail_url.trim() || null,
+          is_active: exercise.is_active,
+        });
+
+        if (insertError) throw insertError;
+        setNotice("Exercício adicionado com sucesso.");
+      }
+
+      setModal(null);
+      setEditingExercise(null);
+      setExercise(emptyExercise);
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível salvar o exercício.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function removeExercise(item: Exercise) {
+    if (!window.confirm(`Deseja realmente excluir o exercício "${item.name}"?`)) return;
+    try {
+      setDeleting(item.id);
+      const { error: deleteError } = await supabase.from("exercises").delete().eq("id", item.id);
+      if (deleteError) throw deleteError;
+      setNotice("Exercício excluído com sucesso.");
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível excluir o exercício.");
+    } finally {
+      setDeleting(null);
+    }
   }
 
   return (
@@ -85,45 +327,35 @@ function PainelPage() {
           </div>
           <nav className="flex-1 space-y-1 px-4 py-6">
             {nav.map(({ id, label, icon: Icon }) => (
-              <button key={id} type="button" onClick={() => setTab(id)}
-                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-[13px] font-medium transition ${
-                  tab === id ? "bg-[#BA9051]/10 text-[#A97A3C] shadow-[inset_3px_0_0_#BA9051]" : "text-[#746C64] hover:bg-[#faf7f2] hover:text-[#2D2823]"
-                }`}>
-                <Icon className={tab === id ? "size-[18px] text-[#BA9051]" : "size-[18px] text-[#9b9084]"} strokeWidth={1.8} />
-                {label}
+              <button key={id} type="button" onClick={() => setTab(id)} className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-[13px] font-medium transition ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C] shadow-[inset_3px_0_0_#BA9051]" : "text-[#746C64] hover:bg-[#faf7f2] hover:text-[#2D2823]"}`}>
+                <Icon className={tab === id ? "size-[18px] text-[#BA9051]" : "size-[18px] text-[#9b9084]"} strokeWidth={1.8} />{label}
               </button>
             ))}
           </nav>
           <div className="border-t border-[#eee5d9] p-4">
             <div className="mb-3 rounded-2xl bg-[linear-gradient(145deg,#fffdf9,#f6eee3)] p-4">
-              <div className="flex items-center gap-3">
-                <span className="flex size-9 items-center justify-center rounded-full bg-[#BA9051]/10 text-xs font-semibold text-[#A97A3C]">E</span>
-                <div><p className="text-xs font-semibold text-[#403a35]">Erick Paulino</p><p className="mt-0.5 text-[10px] text-[#9a9188]">Fisioterapeuta</p></div>
-              </div>
+              <div className="flex items-center gap-3"><span className="flex size-9 items-center justify-center rounded-full bg-[#BA9051]/10 text-xs font-semibold text-[#A97A3C]">E</span><div><p className="text-xs font-semibold text-[#403a35]">Erick Paulino</p><p className="mt-0.5 text-[10px] text-[#9a9188]">Fisioterapeuta</p></div></div>
             </div>
-            <button type="button" onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#8a8178] transition hover:bg-[#faf7f2] hover:text-[#A97A3C]">
-              <LogOut className="size-[18px]" /> Sair
-            </button>
+            <button type="button" onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#8a8178] transition hover:bg-[#faf7f2] hover:text-[#A97A3C]"><LogOut className="size-[18px]" /> Sair</button>
           </div>
         </aside>
 
         <div className="min-w-0 flex-1 pb-24 lg:pb-0">
           <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-10 lg:py-5">
             <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel administrativo</span>
-                <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] sm:text-2xl">Olá, Erick</h1>
-              </div>
-              <button type="button" onClick={logout} className="flex items-center gap-2 rounded-xl border border-[#E6D8C5] bg-white px-3 py-2 text-xs text-[#746C64] lg:hidden">
-                <LogOut className="size-4" /> Sair
-              </button>
+              <div><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel administrativo</span><h1 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] sm:text-2xl">Olá, Erick</h1></div>
+              <button type="button" onClick={logout} className="flex items-center gap-2 rounded-xl border border-[#E6D8C5] bg-white px-3 py-2 text-xs text-[#746C64] lg:hidden"><LogOut className="size-4" /> Sair</button>
             </div>
           </header>
 
           <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-8">
-            {tab === "dashboard" && <Dashboard patients={patients.length} exercises={exercises.length} />}
-            {tab === "pacientes" && <Patients patients={patients} onAdd={() => setModal("patient")} />}
-            {tab === "exercicios" && <Exercises exercises={exercises} onAdd={() => setModal("exercise")} />}
+            {(loading || refreshing) && <div className="mb-5 flex items-center gap-2 rounded-xl border border-[#e6d9c9] bg-white px-4 py-3 text-xs text-[#746c64]"><RefreshCw className="size-4 animate-spin text-[#BA9051]" />Atualizando dados...</div>}
+            {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
+            {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
+
+            {tab === "dashboard" && <Dashboard patients={patientCount} exercises={exerciseCount} />}
+            {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={removePatient} deleting={deleting} />}
+            {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
             {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
           </div>
@@ -132,131 +364,99 @@ function PainelPage() {
 
       <nav className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-around rounded-2xl border border-[#dfd0bb] bg-white/95 px-1 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
         {nav.map(({ id, label, icon: Icon }) => (
-          <button key={id} type="button" onClick={() => setTab(id)} className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] font-medium ${
-            tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c]"
-          }`}>
+          <button key={id} type="button" onClick={() => setTab(id)} className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] font-medium ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c]"}`}>
             <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
           </button>
         ))}
-        <button type="button" onClick={logout} className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] text-[#8e857c]">
-          <LogOut className="size-[18px]" /><span>Sair</span>
-        </button>
+        <button type="button" onClick={logout} className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] text-[#8e857c]"><LogOut className="size-[18px]" /><span>Sair</span></button>
       </nav>
 
-      {modal === "patient" && (
-        <Modal title="Cadastrar paciente" close={() => setModal(null)}>
-          <form onSubmit={addPatient} className="space-y-4">
-            <Field label="Nome do paciente" value={patient.name} onChange={(v) => setPatient({ ...patient, name: v })} placeholder="Ex.: Miguel Oliveira" required />
-            <Field label="Idade" value={patient.age} onChange={(v) => setPatient({ ...patient, age: v })} placeholder="Ex.: 8 meses" />
-            <Field label="Responsável" value={patient.responsible} onChange={(v) => setPatient({ ...patient, responsible: v })} placeholder="Ex.: Ana Oliveira" />
-            <Actions close={() => setModal(null)} label="Cadastrar paciente" />
-          </form>
-        </Modal>
-      )}
+      {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastrar paciente"} close={() => !saving && setModal(null)}>
+        <form onSubmit={savePatient} className="space-y-4">
+          <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
+          <Field label="Data de nascimento" type="date" value={patient.birth_date} onChange={(v) => setPatient({ ...patient, birth_date: v })} />
+          <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
+          <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
+          <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
+          {!editingPatient && <Field label="Senha de acesso" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
+          <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
+          <SelectField label="Status" value={patient.status} onChange={(v) => setPatient({ ...patient, status: v as "active" | "inactive" })} options={[["active", "Ativo"], ["inactive", "Inativo"]]} />
+          <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar paciente"} loading={saving} />
+        </form>
+      </Modal>}
 
-      {modal === "exercise" && (
-        <Modal title="Adicionar exercício" close={() => setModal(null)}>
-          <form onSubmit={addExercise} className="space-y-4">
-            <Field label="Nome do exercício" value={exercise.name} onChange={(v) => setExercise({ ...exercise, name: v })} placeholder="Ex.: Estimulação cervical" required />
-            <Field label="Tipo" value={exercise.type} onChange={(v) => setExercise({ ...exercise, type: v })} placeholder="Ex.: Vídeo" />
-            <Field label="Descrição" value={exercise.description} onChange={(v) => setExercise({ ...exercise, description: v })} placeholder="Descreva o exercício" />
-            <Actions close={() => setModal(null)} label="Adicionar exercício" />
-          </form>
-        </Modal>
-      )}
+      {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Adicionar exercício"} close={() => !saving && setModal(null)}>
+        <form onSubmit={saveExercise} className="space-y-4">
+          <Field label="Nome do exercício" value={exercise.name} onChange={(v) => setExercise({ ...exercise, name: v })} placeholder="Ex.: Estimulação cervical" required />
+          <Field label="Descrição" value={exercise.description} onChange={(v) => setExercise({ ...exercise, description: v })} placeholder="Descreva o exercício" multiline />
+          <Field label="Tipo" value={exercise.type} onChange={(v) => setExercise({ ...exercise, type: v })} placeholder="Ex.: Vídeo" />
+          <Field label="URL do vídeo" type="url" value={exercise.video_url} onChange={(v) => setExercise({ ...exercise, video_url: v })} placeholder="https://..." />
+          <Field label="URL da thumbnail" type="url" value={exercise.thumbnail_url} onChange={(v) => setExercise({ ...exercise, thumbnail_url: v })} placeholder="https://..." />
+          <SelectField label="Status" value={exercise.is_active ? "active" : "inactive"} onChange={(v) => setExercise({ ...exercise, is_active: v === "active" })} options={[["active", "Ativo"], ["inactive", "Inativo"]]} />
+          <Actions close={() => setModal(null)} label={editingExercise ? "Salvar alterações" : "Adicionar exercício"} loading={saving} />
+        </form>
+      </Modal>}
     </main>
   );
 }
 
 function Dashboard({ patients, exercises }: { patients: number; exercises: number }) {
-  return <section className="space-y-6">
-    <div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p>
-      <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Dashboard</h2>
-      <p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p>
-    </div>
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Summary icon={Users} label="Pacientes ativos" value={patients} />
-      <Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} />
-    </div>
-  </section>;
+  return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Dashboard</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
 }
 
-function Patients({ patients, onAdd }: { patients: Patient[]; onAdd: () => void }) {
-  return <section className="space-y-5">
-    <Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar paciente" onAction={onAdd} />
-    <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
-      <div className="hidden grid-cols-[1.4fr_1fr_1fr] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid">
-        <span>Paciente</span><span>Idade</span><span>Responsável</span>
-      </div>
-      <div className="divide-y divide-[#f0e8dd]">
-        {patients.map((p) => <div key={p.name} className="grid gap-2 px-4 py-4 sm:grid-cols-[1.4fr_1fr_1fr] sm:items-center sm:px-5">
-          <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{p.name.split(" ").slice(0,2).map(x => x[0]).join("")}</span>
-            <p className="text-sm font-semibold">{p.name}</p>
-          </div>
-          <p className="text-xs text-[#746c64]">{p.age}</p>
-          <p className="text-xs text-[#746c64]">{p.responsible}</p>
-        </div>)}
-      </div>
-    </div>
-  </section>;
+function Patients({ patients, onAdd, onEdit, onDelete, deleting }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null }) {
+  return <section className="space-y-5"><Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar paciente" onAction={onAdd} /><div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="hidden grid-cols-[1.4fr_1fr_1fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div><div className="divide-y divide-[#f0e8dd]">{patients.length === 0 ? <Empty text="Nenhum paciente cadastrado ainda." /> : patients.map((p) => <div key={p.id} className="grid gap-3 px-4 py-4 sm:grid-cols-[1.4fr_1fr_1fr_110px] sm:items-center sm:px-5"><div className="flex items-center gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-sm font-semibold">{p.full_name}</p><p className="text-[11px] text-[#948a81]">{formatDate(p.created_at)}</p></div></div><div className="text-xs text-[#746c64]"><span className="sm:hidden font-medium">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[10px] text-[#9a9087]">{p.responsible_phone}</span>}</div><div><Status active={p.status === "active"} /></div><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>)}</div></div></section>;
 }
 
-function Exercises({ exercises, onAdd }: { exercises: Exercise[]; onAdd: () => void }) {
-  return <section className="space-y-5">
-    <Header title="Exercícios" text="Lista de exercícios cadastrados." action="Adicionar exercício" onAction={onAdd} />
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {exercises.map((e) => <article key={e.name} className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
-        <div className="flex items-start gap-3">
-          <span className="flex size-11 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Dumbbell className="size-5" /></span>
-          <div><h3 className="text-sm font-semibold">{e.name}</h3><span className="mt-1 inline-flex rounded-full bg-[#BA9051]/10 px-2 py-1 text-[9px] text-[#A97A3C]">{e.type}</span></div>
-        </div>
-        <p className="mt-4 text-xs leading-relaxed text-[#81776e]">{e.description}</p>
-      </article>)}
-    </div>
-  </section>;
+function Exercises({ exercises, onAdd, onEdit, onDelete, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; deleting: string | null }) {
+  return <section className="space-y-5"><Header title="Exercícios" text="Lista de exercícios cadastrados." action="Adicionar exercício" onAction={onAdd} /><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{exercises.length === 0 ? <div className="md:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : exercises.map((e) => <article key={e.id} className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="flex items-start gap-3"><span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3e3cf] text-[#A97A3C]">{e.thumbnail_url ? <img src={e.thumbnail_url} alt="" className="size-full object-cover" /> : <Dumbbell className="size-5" />}</span><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{e.name}</h3><span className="mt-1 inline-flex rounded-full bg-[#BA9051]/10 px-2 py-1 text-[9px] text-[#A97A3C]">{e.type}</span></div></div><p className="mt-4 min-h-10 text-xs leading-relaxed text-[#81776e]">{e.description || "Sem descrição."}</p><div className="mt-4 flex items-center justify-between"><Status active={e.is_active} /><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(e)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(e)} disabled={deleting === e.id}>{deleting === e.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div></article>)}</div></section>;
 }
 
 function Header({ title, text, action, onAction }: { title: string; text: string; action: string; onAction: () => void }) {
-  return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-    <div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2><p className="mt-1 text-xs text-[#837970]">{text}</p></div>
-    <Button onClick={onAction} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />{action}</Button>
-  </div>;
+  return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2><p className="mt-1 text-xs text-[#837970]">{text}</p></div><Button onClick={onAction} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />{action}</Button></div>;
 }
 
 function Summary({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
-  return <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.05)] sm:p-6">
-    <span className="flex size-10 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#BA9051]"><Icon className="size-[18px]" /></span>
-    <p className="mt-5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#948a81]">{label}</p>
-    <p className="mt-1 text-[30px] font-semibold">{value}</p>
-  </div>;
+  return <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.05)] sm:p-6"><span className="flex size-10 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#BA9051]"><Icon className="size-[18px]" /></span><p className="mt-5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#948a81]">{label}</p><p className="mt-1 text-[30px] font-semibold">{value}</p></div>;
 }
 
 function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title: string; text: string }) {
-  return <section className="space-y-5"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Sistema</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2></div>
-    <div className="flex min-h-[280px] flex-col items-center justify-center rounded-[1.35rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center"><Icon className="size-6 text-[#BA9051]" /><h3 className="mt-4 text-sm font-semibold">{title}</h3><p className="mt-1 text-xs text-[#8c8178]">{text}</p></div>
-  </section>;
+  return <section className="space-y-5"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Sistema</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2></div><div className="flex min-h-[280px] flex-col items-center justify-center rounded-[1.35rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center"><Icon className="size-6 text-[#BA9051]" /><h3 className="mt-4 text-sm font-semibold">{title}</h3><p className="mt-1 text-xs text-[#8c8178]">{text}</p></div></section>;
 }
 
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm">
-    <div className="w-full max-w-md rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6">
-      <div className="mb-5 flex items-center justify-between"><h2 className="text-base font-semibold">{title}</h2><button type="button" onClick={close} className="size-8 rounded-lg text-xl text-[#91877e]">×</button></div>
-      {children}
-    </div>
-  </div>;
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm"><div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6"><div className="mb-5 flex items-center justify-between"><h2 className="text-base font-semibold">{title}</h2><button type="button" onClick={close} className="size-8 rounded-lg text-xl text-[#91877e]">×</button></div>{children}</div></div>;
 }
 
-function Field({ label, value, onChange, placeholder, required }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; required?: boolean }) {
-  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>
-    <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required}
-      className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10" />
-  </label>;
+function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; required?: boolean; type?: string; multiline?: boolean }) {
+  const className="w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10";
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} rows={3} className={`${className} min-h-24 py-3 resize-none`} /> : <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} className={`${className} h-11`} />}</label>;
 }
 
-function Actions({ close, label }: { close: () => void; label: string }) {
-  return <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
-    <Button type="button" variant="outline" onClick={close} className="h-10 rounded-xl text-xs">Cancelar</Button>
-    <Button type="submit" className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{label}</Button>
-  </div>;
+function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
+}
+
+function Actions({ close, label, loading }: { close: () => void; label: string; loading: boolean }) {
+  return <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end"><Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl text-xs">Cancelar</Button><Button type="submit" disabled={loading} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{loading ? <RefreshCw className="size-4 animate-spin" /> : null}{loading ? "Salvando..." : label}</Button></div>;
+}
+
+function IconButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: ReactNode }) {
+  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className="flex size-9 items-center justify-center rounded-lg border border-[#e6d8c5] bg-[#fdfbf8] text-[#81776e] transition hover:border-[#BA9051] hover:text-[#A97A3C] disabled:opacity-50">{children}</button>;
+}
+
+function Status({ active }: { active: boolean }) {
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-medium ${active ? "bg-[#e8f3e8] text-[#4f7b53]" : "bg-[#f1ece7] text-[#81776e]"}`}>{active ? "Ativo" : "Inativo"}</span>;
+}
+
+function Empty({ text }: { text: string }) {
+  return <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">{text}</div>;
+}
+
+function initials(name: string) {
+  return name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value));
 }
