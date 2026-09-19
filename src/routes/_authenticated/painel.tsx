@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
-import logo from "@/assets/logo-erick-paulino.jpg.asset.json";
+const logo = "/images/logo-editada-chatgpt.png";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({ meta: [
@@ -390,7 +390,7 @@ function PainelPage() {
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center justify-center border-b border-[#eee5d9] px-4">
-            <img src={logo.url} alt="Erick Paulino Fisioterapeuta" className="h-full w-full object-contain" />
+            <img src={logo} alt="Erick Paulino Fisioterapeuta" className="h-full w-full object-contain" />
           </div>
           <nav className="flex-1 space-y-1 px-4 py-6">
             {nav.map(({ id, label, icon: Icon }) => (
