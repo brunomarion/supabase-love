@@ -170,25 +170,22 @@ function LoginPage() {
   return (
     <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[#f8f6f2] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto">
       <section
-        className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center"
+        className="relative hidden min-h-screen overflow-hidden lg:flex lg:items-center lg:justify-center"
         style={{
-          backgroundImage:
-            "linear-gradient(90deg, rgba(250, 247, 242, 0.66) 0%, rgba(250, 247, 242, 0.54) 50%, rgba(250, 247, 242, 0.66) 100%), url('/images/fundo01.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
+          background:
+            "radial-gradient(circle at center, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 28%, transparent 52%), linear-gradient(135deg, #8d6838 0%, #ba9051 28%, #d4b078 50%, #ba9051 72%, #7d5a30 100%)",
         }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.30),transparent_48%)]" />
-        <div className="absolute inset-0 bg-white/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),transparent_38%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(0,0,0,0.12),transparent_35%,transparent_65%,rgba(0,0,0,0.12))]" />
         <div className="relative z-10 flex h-full w-full items-center justify-center p-10 xl:p-16">
           <img
             src="/images/logo-editada-chatgpt.png"
             alt="Erick Paulino Fisioterapeuta"
-            className="h-auto w-full max-w-[min(82%,680px)] object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.48)] drop-shadow-[0_0_18px_rgba(255,255,255,0.72)]"
+            className="h-auto w-full max-w-[min(82%,680px)] object-contain drop-shadow-[0_24px_45px_rgba(47,31,15,0.42)]"
           />
         </div>
-      </section>
+
 
       <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:px-12">
         <div className="w-full max-w-md">
