@@ -120,7 +120,7 @@ function LoginPage() {
         <img
           src={logo.url}
           alt="Erick Paulino Fisioterapeuta"
-          className="w-64 opacity-95 mix-blend-screen invert"
+          className="w-64 invert mix-blend-lighten"
         />
         <div className="max-w-md">
           <p className="eyebrow text-ivory/50">Plataforma clínica</p>
