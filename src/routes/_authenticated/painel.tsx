@@ -274,12 +274,16 @@ function PainelPage() {
   }
 
   async function removePatient(item: Patient) {
-    if (!window.confirm(`Deseja realmente excluir o paciente "${item.full_name}"?`)) return;
+    const confirmed = window.confirm(
+      `Excluir paciente?\\n\\n"${item.full_name}" será removido da lista de pacientes. Essa ação não pode ser desfeita.`,
+    );
+    if (!confirmed) return;
+
     try {
       setDeleting(item.id);
       const { error: deleteError } = await supabase.from("patients").delete().eq("id", item.id);
       if (deleteError) throw deleteError;
-      setNotice("Paciente excluído com sucesso.");
+      setNotice(`Paciente "${item.full_name}" excluído com sucesso.`);
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível excluir o paciente.");
@@ -444,7 +448,7 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
 }
 
 function Patients({ patients, onAdd, onEdit, onDelete, deleting }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null }) {
-  return <section className="space-y-5"><Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar paciente" onAction={onAdd} /><div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="hidden grid-cols-[1.4fr_1fr_1fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div><div className="divide-y divide-[#f0e8dd]">{patients.length === 0 ? <Empty text="Nenhum paciente cadastrado ainda." /> : patients.map((p) => <div key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.4fr_1fr_1fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4"><div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div><div className="text-[11px] text-[#746c64] sm:text-xs"><span className="sm:hidden font-medium">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[10px] text-[#9a9087]">{p.responsible_phone}</span>}</div><div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div><div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>)}</div></div></section>;
+  return <section className="space-y-5"><Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar paciente" onAction={onAdd} /><div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="hidden grid-cols-[1.4fr_1fr_1fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div><div className="divide-y divide-[#f0e8dd]">{patients.length === 0 ? <Empty text="Nenhum paciente cadastrado ainda." /> : patients.map((p) => <div key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.4fr_1fr_1fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4"><div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div><div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div><div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div><div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>)}</div></div></section>;
 }
 
 function Exercises({ exercises, onAdd, onEdit, onDelete, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; deleting: string | null }) {
@@ -486,7 +490,7 @@ function IconButton({ label, onClick, disabled, children }: { label: string; onC
 }
 
 function Status({ active }: { active: boolean }) {
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-[9px] font-medium ${active ? "bg-[#e8f3e8] text-[#4f7b53]" : "bg-[#f1ece7] text-[#81776e]"}`}>{active ? "Ativo" : "Inativo"}</span>;
+  return <span className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[#e8f3e8] text-[#4f7b53]" : "bg-[#f1ece7] text-[#81776e]"}`}>{active ? "Ativo" : "Inativo"}</span>;
 }
 
 function Empty({ text }: { text: string }) {
