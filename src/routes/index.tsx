@@ -114,7 +114,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f8f6f2] text-[#25211d] lg:grid lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="h-[100dvh] overflow-hidden bg-[#f8f6f2] text-[#25211d] lg:grid lg:grid-cols-[0.9fr_1.1fr]">
       <section className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center">
         <div className="absolute -right-40 top-1/4 size-[34rem] rounded-full border border-white/15" />
         <div className="absolute -left-32 bottom-10 size-80 rounded-full border border-white/10" />
@@ -128,24 +128,24 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
+      <section className="flex h-[100dvh] items-center justify-center overflow-hidden px-4 py-3 sm:px-8 sm:py-6 lg:px-12">
         <div className="w-full max-w-md">
-          <div className="mb-8 flex justify-center lg:hidden">
+          <div className="mb-3 flex justify-center lg:hidden sm:mb-5">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
-              className="h-auto w-[min(82vw,360px)] object-contain drop-shadow-[0_18px_35px_rgba(37,33,29,0.12)]"
+              className="h-auto max-h-[22vh] w-[min(72vw,300px)] object-contain drop-shadow-[0_18px_35px_rgba(37,33,29,0.12)]"
             />
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:p-9 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
-            <div className="mb-8 text-center lg:text-left">
-              <h1 className="font-display text-3xl font-light leading-tight tracking-tight text-[#2d2823] sm:text-4xl">
+          <div className="rounded-3xl bg-white p-5 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:p-7 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+            <div className="mb-5 text-center lg:mb-8 lg:text-left">
+              <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#2d2823] sm:text-4xl">
                 Faça seu login
               </h1>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4 sm:space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-[#403a35]">
                   E-mail
@@ -240,7 +240,7 @@ function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-8 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
+            <div className="mt-5 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
               <span className="h-px w-8 bg-[#e4ded6]" />
               Acesso seguro
               <span className="h-px w-8 bg-[#e4ded6]" />
