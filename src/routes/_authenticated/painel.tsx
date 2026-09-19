@@ -206,7 +206,7 @@ function PainelPage() {
       setError("");
 
       if (editingPatient) {
-        const { error: updateError } = await supabase
+        const { data: updatedPatient, error: updateError } = await supabase
           .from("patients")
           .update({
             full_name: patient.full_name.trim(),
@@ -217,9 +217,24 @@ function PainelPage() {
             notes: patient.notes.trim() || null,
             status: patient.status,
           })
-          .eq("id", editingPatient.id);
+          .eq("id", editingPatient.id)
+          .select("*")
+          .single();
 
-        if (updateError) throw updateError;
+        if (updateError) throw new Error(updateError.message);
+        if (!updatedPatient) throw new Error("O paciente não pôde ser atualizado.");
+
+        setPatients((currentPatients) =>
+          currentPatients.map((item) =>
+            item.id === updatedPatient.id ? updatedPatient : item,
+          ),
+        );
+        setPatientCount((currentCount) => {
+          const wasActive = editingPatient.status === "active";
+          const isActive = updatedPatient.status === "active";
+          if (wasActive === isActive) return currentCount;
+          return isActive ? currentCount + 1 : Math.max(0, currentCount - 1);
+        });
         setNotice("Paciente atualizado com sucesso.");
       } else {
         if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
@@ -250,7 +265,7 @@ function PainelPage() {
       setModal(null);
       setEditingPatient(null);
       setPatient(emptyPatient);
-      await loadData();
+      if (!editingPatient) await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível salvar o paciente.");
     } finally {
