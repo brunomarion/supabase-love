@@ -44,6 +44,107 @@ export type Database = {
         }
         Relationships: []
       }
+      patients: {
+        Row: {
+          auth_user_id: string | null
+          birth_date: string | null
+          created_at: string
+          full_name: string
+          id: string
+          notes: string | null
+          physiotherapist_id: string
+          responsible_email: string | null
+          responsible_name: string | null
+          responsible_phone: string | null
+          status: "active" | "inactive"
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          birth_date?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          physiotherapist_id: string
+          responsible_email?: string | null
+          responsible_name?: string | null
+          responsible_phone?: string | null
+          status?: "active" | "inactive"
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          birth_date?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          physiotherapist_id?: string
+          responsible_email?: string | null
+          responsible_name?: string | null
+          responsible_phone?: string | null
+          status?: "active" | "inactive"
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      exercises: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          physiotherapist_id: string
+          thumbnail_url: string | null
+          type: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          physiotherapist_id: string
+          thumbnail_url?: string | null
+          type?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          physiotherapist_id?: string
+          thumbnail_url?: string | null
+          type?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+
     }
     Views: {
       [_ in never]: never
