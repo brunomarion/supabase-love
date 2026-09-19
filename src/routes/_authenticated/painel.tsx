@@ -461,7 +461,25 @@ function PainelPage() {
             <div className="space-y-4">
               <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
               {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
-              <SelectField label="Status" value={patient.status} onChange={(v) => setPatient({ ...patient, status: v as "active" | "inactive" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
+              <div className="block">
+              <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Status</span>
+              <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3 transition hover:border-[#cdb894] hover:bg-[#fffaf2]">
+                <div>
+                  <p className="text-sm font-medium text-[#4f4841]">{patient.status === "active" ? "Paciente ativo" : "Paciente inativo"}</p>
+                  <p className="mt-0.5 text-[10px] text-[#91877e]">{patient.status === "active" ? "O paciente está ativo no sistema." : "O paciente está marcado como inativo."}</p>
+                </div>
+                <span className="relative ml-4 inline-flex shrink-0 items-center">
+                  <input
+                    type="checkbox"
+                    checked={patient.status === "active"}
+                    onChange={(e) => setPatient({ ...patient, status: e.target.checked ? "active" : "inactive" })}
+                    className="peer sr-only"
+                  />
+                  <span className="h-7 w-12 rounded-full bg-[#d8d0c7] shadow-inner transition-colors peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/30 peer-focus-visible:ring-offset-2" />
+                  <span className="pointer-events-none absolute left-1 size-5 rounded-full bg-white shadow-[0_2px_6px_rgba(64,48,30,0.22)] transition-transform peer-checked:translate-x-5" />
+                </span>
+              </label>
+            </div>
             </div>
           </div>
 
