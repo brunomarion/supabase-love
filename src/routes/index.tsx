@@ -173,19 +173,19 @@ function LoginPage() {
         className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center"
         style={{
           backgroundImage:
-            "linear-gradient(90deg, rgba(47, 31, 15, 0.48) 0%, rgba(47, 31, 15, 0.28) 45%, rgba(47, 31, 15, 0.48) 100%), url('/images/fundo01.jpg')",
+            "linear-gradient(90deg, rgba(250, 247, 242, 0.66) 0%, rgba(250, 247, 242, 0.54) 50%, rgba(250, 247, 242, 0.66) 100%), url('/images/fundo01.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.14),transparent_52%)]" />
-        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.30),transparent_48%)]" />
+        <div className="absolute inset-0 bg-white/10" />
         <div className="relative z-10 flex h-full w-full items-center justify-center p-10 xl:p-16">
           <img
             src="/images/logo-editada-chatgpt.png"
             alt="Erick Paulino Fisioterapeuta"
-            className="h-auto w-full max-w-[min(78%,620px)] object-contain drop-shadow-[0_24px_50px_rgba(0,0,0,0.38)]"
+            className="h-auto w-full max-w-[min(82%,680px)] object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.48)] drop-shadow-[0_0_18px_rgba(255,255,255,0.72)]"
           />
         </div>
       </section>
