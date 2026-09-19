@@ -193,24 +193,24 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="relative z-10 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-3 py-1 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
+      <section className="relative z-10 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-1.5 py-0.5 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
         <div className="w-full max-w-md">
           <div className="flex -translate-y-1 justify-center lg:hidden sm:-translate-y-2">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
-              className="h-auto max-h-[20vh] w-[min(76vw,310px)] object-contain drop-shadow-[0_18px_35px_rgba(55,37,18,0.30)]"
+              className="h-auto max-h-[27vh] w-[min(90vw,360px)] object-contain drop-shadow-[0_22px_42px_rgba(55,37,18,0.38)]"
             />
           </div>
 
-          <div className="mx-auto w-[calc(100%-0.5rem)] rounded-[1.35rem] border border-white/80 bg-[#fffdfa]/95 p-4 shadow-[0_22px_60px_rgba(55,35,15,0.24),0_2px_12px_rgba(255,255,255,0.55)_inset] backdrop-blur-xl sm:w-full sm:rounded-3xl sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
-            <div className="mb-5 text-center lg:mb-8 lg:text-center">
+          <div className="mx-auto w-[calc(100%-1.25rem)] max-w-[360px] rounded-[1.45rem] border border-white/90 bg-[#fffdfa]/96 p-3.5 shadow-[0_26px_65px_rgba(55,35,15,0.30),0_3px_16px_rgba(255,255,255,0.65)_inset] backdrop-blur-xl sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+            <div className="mb-3 text-center lg:mb-8 lg:text-center">
               <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu <span className="text-[#ba9051] lg:text-[#2d2823]">login</span>
               </h1>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-4 sm:space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-3 sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-[#403a35]">
                   E-mail
@@ -309,7 +309,7 @@ function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-5 space-y-3 text-center">
+            <div className="mt-3 space-y-2.5 text-center lg:mt-5 lg:space-y-3">
               <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
                 <span className="h-px w-8 bg-[#e4ded6]" />
                 Acesso seguro
