@@ -1,126 +1,79 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  Activity,
-  Baby,
-  Bell,
-  CalendarDays,
-  CheckCircle2,
-  ChevronRight,
-  ClipboardCheck,
-  Clock3,
-  Dumbbell,
-  FileText,
-  Home,
-  LogOut,
-  Menu,
-  MessageCircle,
-  MoreHorizontal,
-  PlayCircle,
-  Settings,
-  ShieldCheck,
-  Sparkles,
-  Users,
-  Video,
-} from "lucide-react";
-
+import { Dumbbell, FileText, Home, LogOut, Plus, Settings, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import logo from "@/assets/logo-erick-paulino.jpg.asset.json";
 
 export const Route = createFileRoute("/_authenticated/painel")({
-  head: () => ({
-    meta: [
-      { title: "Dashboard | Erick Paulino Fisioterapia" },
-      {
-        name: "description",
-        content: "Dashboard do fisioterapeuta na plataforma Erick Paulino.",
-      },
-      { name: "robots", content: "noindex" },
-    ],
-  }),
+  head: () => ({ meta: [
+    { title: "Painel | Erick Paulino Fisioterapia" },
+    { name: "description", content: "Painel administrativo do fisioterapeuta Erick Paulino." },
+    { name: "robots", content: "noindex" },
+  ]}),
   component: PainelPage,
 });
 
-const navigation = [
-  { label: "Dashboard", icon: Home },
-  { label: "Pacientes", icon: Users },
-  { label: "Agenda", icon: CalendarDays },
-  { label: "Exercícios", icon: Dumbbell },
-  { label: "Avaliações", icon: ClipboardCheck },
-  { label: "Evoluções", icon: Activity },
-  { label: "Orientações", icon: MessageCircle },
-  { label: "Configurações", icon: Settings },
+type Tab = "dashboard" | "pacientes" | "exercicios" | "relatorios" | "configuracoes";
+type Patient = { name: string; age: string; responsible: string };
+type Exercise = { name: string; type: string; description: string };
+
+const nav: { id: Tab; label: string; icon: typeof Home }[] = [
+  { id: "dashboard", label: "Dashboard", icon: Home },
+  { id: "pacientes", label: "Pacientes", icon: Users },
+  { id: "exercicios", label: "Exercícios", icon: Dumbbell },
+  { id: "relatorios", label: "Relatórios", icon: FileText },
+  { id: "configuracoes", label: "Configurações", icon: Settings },
 ];
 
-const appointments = [
-  {
-    patient: "Miguel Oliveira",
-    responsible: "Ana Oliveira",
-    time: "14:30",
-    type: "Fisioterapia domiciliar",
-    status: "Confirmado",
-  },
-  {
-    patient: "Lívia Santos",
-    responsible: "Mariana Santos",
-    time: "16:00",
-    type: "Avaliação fisioterapêutica",
-    status: "Pendente",
-  },
-  {
-    patient: "Theo Almeida",
-    responsible: "Carolina Almeida",
-    time: "17:30",
-    type: "Acompanhamento",
-    status: "Confirmado",
-  },
+const initialPatients: Patient[] = [
+  { name: "Miguel Oliveira", age: "8 meses", responsible: "Ana Oliveira" },
+  { name: "Lívia Santos", age: "5 meses", responsible: "Mariana Santos" },
+  { name: "Theo Almeida", age: "11 meses", responsible: "Carolina Almeida" },
 ];
 
-const recentPatients = [
-  { name: "Miguel Oliveira", age: "8 meses", responsible: "Ana Oliveira", last: "Hoje", initials: "MO" },
-  { name: "Lívia Santos", age: "5 meses", responsible: "Mariana Santos", last: "Ontem", initials: "LS" },
-  { name: "Theo Almeida", age: "11 meses", responsible: "Carolina Almeida", last: "18/09", initials: "TA" },
-];
-
-const activities = [
-  { text: "Nova avaliação registrada", patient: "Miguel Oliveira", time: "Há 20 min", icon: ClipboardCheck },
-  { text: "Exercício atribuído", patient: "Lívia Santos", time: "Há 1 h", icon: Dumbbell },
-  { text: "Evolução adicionada", patient: "Theo Almeida", time: "Há 2 h", icon: Activity },
-  { text: "Novo paciente cadastrado", patient: "Lívia Santos", time: "Ontem", icon: Baby },
-];
-
-const exercises = [
-  { name: "Estimulação cervical", patients: "12 pacientes", type: "Vídeo", icon: Video },
-  { name: "Estimulação visual", patients: "8 pacientes", type: "Vídeo", icon: PlayCircle },
-  { name: "Controle de tronco", patients: "6 pacientes", type: "Vídeo", icon: Activity },
+const initialExercises: Exercise[] = [
+  { name: "Estimulação cervical", type: "Vídeo", description: "Exercícios para estímulo do controle cervical." },
+  { name: "Estimulação visual", type: "Vídeo", description: "Atividades para estímulo visual e acompanhamento do bebê." },
+  { name: "Controle de tronco", type: "Vídeo", description: "Exercícios para fortalecimento e controle de tronco." },
 ];
 
 function PainelPage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const [tab, setTab] = useState<Tab>("dashboard");
+  const [patients, setPatients] = useState(initialPatients);
+  const [exercises, setExercises] = useState(initialExercises);
+  const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
+  const [patient, setPatient] = useState({ name: "", age: "", responsible: "" });
+  const [exercise, setExercise] = useState({ name: "", type: "Vídeo", description: "" });
 
-  const { data: profile } = useQuery({
-    queryKey: ["physiotherapist", "me"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("physiotherapists")
-        .select("full_name, email, role")
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const displayName = profile?.full_name?.split(" ")[0] || "Erick";
-
-  async function handleSignOut() {
-    await queryClient.cancelQueries();
-    queryClient.clear();
+  async function logout() {
     await signOut();
     navigate({ to: "/", replace: true });
+  }
+
+  function addPatient(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!patient.name.trim()) return;
+    setPatients((items) => [...items, {
+      name: patient.name.trim(),
+      age: patient.age.trim() || "Não informado",
+      responsible: patient.responsible.trim() || "Não informado",
+    }]);
+    setPatient({ name: "", age: "", responsible: "" });
+    setModal(null);
+  }
+
+  function addExercise(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!exercise.name.trim()) return;
+    setExercises((items) => [...items, {
+      name: exercise.name.trim(),
+      type: exercise.type.trim() || "Vídeo",
+      description: exercise.description.trim() || "Sem descrição.",
+    }]);
+    setExercise({ name: "", type: "Vídeo", description: "" });
+    setModal(null);
   }
 
   return (
@@ -128,349 +81,182 @@ function PainelPage() {
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center border-b border-[#eee5d9] px-7">
-            <img
-              src={logo.url}
-              alt="Erick Paulino Fisioterapeuta"
-              className="h-auto w-[148px] object-contain"
-            />
+            <img src={logo.url} alt="Erick Paulino Fisioterapeuta" className="h-auto w-[148px] object-contain" />
           </div>
-
           <nav className="flex-1 space-y-1 px-4 py-6">
-            {navigation.map((item, index) => {
-              const Icon = item.icon;
-              const active = index === 0;
-
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  className={`group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-[13px] font-medium transition-all duration-200 ${
-                    active
-                      ? "bg-[#BA9051]/10 text-[#A97A3C] shadow-[inset_3px_0_0_#BA9051]"
-                      : "text-[#746C64] hover:bg-[#faf7f2] hover:text-[#2D2823]"
-                  }`}
-                >
-                  <Icon className={`size-[18px] shrink-0 ${active ? "text-[#BA9051]" : "text-[#9b9084]"}`} strokeWidth={1.8} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+            {nav.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" onClick={() => setTab(id)}
+                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-[13px] font-medium transition ${
+                  tab === id ? "bg-[#BA9051]/10 text-[#A97A3C] shadow-[inset_3px_0_0_#BA9051]" : "text-[#746C64] hover:bg-[#faf7f2] hover:text-[#2D2823]"
+                }`}>
+                <Icon className={tab === id ? "size-[18px] text-[#BA9051]" : "size-[18px] text-[#9b9084]"} strokeWidth={1.8} />
+                {label}
+              </button>
+            ))}
           </nav>
-
           <div className="border-t border-[#eee5d9] p-4">
             <div className="mb-3 rounded-2xl bg-[linear-gradient(145deg,#fffdf9,#f6eee3)] p-4">
               <div className="flex items-center gap-3">
-                <span className="flex size-9 items-center justify-center rounded-full bg-[#BA9051]/10 text-xs font-semibold text-[#A97A3C]">
-                  {displayName.slice(0, 1)}
-                </span>
-                <div className="min-w-0">
-                  <p className="truncate text-xs font-semibold text-[#403a35]">{profile?.full_name || "Erick Paulino"}</p>
-                  <p className="mt-0.5 text-[10px] text-[#9a9188]">Fisioterapeuta</p>
-                </div>
+                <span className="flex size-9 items-center justify-center rounded-full bg-[#BA9051]/10 text-xs font-semibold text-[#A97A3C]">E</span>
+                <div><p className="text-xs font-semibold text-[#403a35]">Erick Paulino</p><p className="mt-0.5 text-[10px] text-[#9a9188]">Fisioterapeuta</p></div>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#8a8178] transition hover:bg-[#faf7f2] hover:text-[#A97A3C]"
-            >
-              <LogOut className="size-[18px]" strokeWidth={1.8} />
-              Sair
+            <button type="button" onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#8a8178] transition hover:bg-[#faf7f2] hover:text-[#A97A3C]">
+              <LogOut className="size-[18px]" /> Sair
             </button>
           </div>
         </aside>
 
         <div className="min-w-0 flex-1 pb-24 lg:pb-0">
           <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-10 lg:py-5">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="hidden rounded-full bg-[#BA9051]/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C] sm:inline-flex">
-                    Painel clínico
-                  </span>
-                  <span className="text-[11px] text-[#a39a91]">Hoje, 19 de setembro</span>
-                </div>
-                <h1 className="mt-1.5 truncate text-[22px] font-semibold tracking-[-0.03em] text-[#2D2823] sm:text-2xl">
-                  Olá, {displayName} <span className="text-base">👋</span>
-                </h1>
-                <p className="mt-0.5 hidden text-xs text-[#746C64] sm:block">
-                  Aqui está um resumo dos seus atendimentos.
-                </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel administrativo</span>
+                <h1 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] sm:text-2xl">Olá, Erick</h1>
               </div>
-
-              <div className="flex shrink-0 items-center gap-2.5">
-                <button
-                  type="button"
-                  aria-label="Notificações"
-                  className="relative flex size-10 items-center justify-center rounded-xl border border-[#E6D8C5] bg-white text-[#746C64] shadow-[0_5px_18px_rgba(64,48,30,0.05)] transition hover:border-[#d8c4a7] hover:text-[#A97A3C]"
-                >
-                  <Bell className="size-[18px]" strokeWidth={1.8} />
-                  <span className="absolute right-2.5 top-2 size-1.5 rounded-full bg-[#BA9051]" />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Perfil"
-                  className="flex size-10 items-center justify-center rounded-full border border-[#E6D8C5] bg-[linear-gradient(145deg,#f8ead7,#e8cfaa)] text-xs font-semibold text-[#7d5a30] shadow-[0_5px_18px_rgba(64,48,30,0.05)]"
-                >
-                  {displayName.slice(0, 1)}
-                </button>
-              </div>
+              <button type="button" onClick={logout} className="flex items-center gap-2 rounded-xl border border-[#E6D8C5] bg-white px-3 py-2 text-xs text-[#746C64] lg:hidden">
+                <LogOut className="size-4" /> Sair
+              </button>
             </div>
           </header>
 
-          <div className="mx-auto max-w-[1500px] space-y-5 px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-8">
-            <section className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
-              <SummaryCard icon={Users} label="Pacientes ativos" value="42" detail="+4 este mês" />
-              <SummaryCard icon={CalendarDays} label="Atendimentos hoje" value="5" detail="2 concluídos" />
-              <SummaryCard icon={Dumbbell} label="Exercícios atribuídos" value="26" detail="8 esta semana" />
-              <SummaryCard icon={Clock3} label="Próximo atendimento" value="14:30" detail="Miguel Oliveira" />
-            </section>
-
-            <section className="grid gap-5 xl:grid-cols-[1.45fr_0.85fr]">
-              <DashboardCard
-                title="Próximos atendimentos"
-                subtitle="Sua agenda de hoje"
-                action="Ver agenda"
-                icon={CalendarDays}
-              >
-                <div className="space-y-1">
-                  {appointments.map((appointment) => (
-                    <div
-                      key={`${appointment.patient}-${appointment.time}`}
-                      className="group flex items-center gap-3 rounded-2xl p-3 transition hover:bg-[#faf7f2] sm:gap-4 sm:p-4"
-                    >
-                      <div className="flex size-11 shrink-0 flex-col items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]">
-                        <span className="text-sm font-semibold leading-none">{appointment.time}</span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-sm font-semibold text-[#403a35]">{appointment.patient}</p>
-                          <Status status={appointment.status} />
-                        </div>
-                        <p className="mt-1 truncate text-xs text-[#8b8178]">
-                          {appointment.responsible} · {appointment.type}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        aria-label={`Abrir atendimento de ${appointment.patient}`}
-                        className="hidden size-8 items-center justify-center rounded-lg text-[#a39a91] transition hover:bg-white hover:text-[#A97A3C] sm:flex"
-                      >
-                        <ChevronRight className="size-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </DashboardCard>
-
-              <DashboardCard title="Atividade recente" subtitle="Últimas atualizações" icon={Activity}>
-                <div className="space-y-5">
-                  {activities.map((activity) => {
-                    const Icon = activity.icon;
-                    return (
-                      <div key={`${activity.text}-${activity.patient}`} className="flex gap-3">
-                        <span className="relative flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#BA9051]">
-                          <Icon className="size-4" strokeWidth={1.8} />
-                        </span>
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold leading-snug text-[#403a35]">{activity.text}</p>
-                          <p className="mt-0.5 text-[11px] text-[#8f867d]">{activity.patient} · {activity.time}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </DashboardCard>
-            </section>
-
-            <section className="grid gap-5 xl:grid-cols-[1.05fr_1fr]">
-              <DashboardCard title="Pacientes recentes" subtitle="Acompanhamentos mais recentes" icon={Users} action="Ver pacientes">
-                <div className="space-y-2">
-                  {recentPatients.map((patient) => (
-                    <div
-                      key={patient.name}
-                      className="flex items-center gap-3 rounded-2xl p-2.5 transition hover:bg-[#faf7f2] sm:p-3"
-                    >
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(145deg,#f8ead7,#ead5b5)] text-[11px] font-semibold text-[#8a6335]">
-                        {patient.initials}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-[#403a35]">{patient.name}</p>
-                        <p className="mt-0.5 truncate text-[11px] text-[#8f867d]">
-                          {patient.age} · {patient.responsible}
-                        </p>
-                      </div>
-                      <div className="hidden text-right sm:block">
-                        <p className="text-[10px] uppercase tracking-[0.12em] text-[#b0a79e]">Última sessão</p>
-                        <p className="mt-1 text-xs font-medium text-[#746C64]">{patient.last}</p>
-                      </div>
-                      <button
-                        type="button"
-                        className="flex size-8 items-center justify-center rounded-lg text-[#a39a91] transition hover:bg-white hover:text-[#A97A3C]"
-                        aria-label={`Ver ${patient.name}`}
-                      >
-                        <ChevronRight className="size-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </DashboardCard>
-
-              <DashboardCard title="Exercícios em destaque" subtitle="Mais utilizados recentemente" icon={Dumbbell} action="Ver exercícios">
-                <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                  {exercises.map((exercise) => {
-                    const Icon = exercise.icon;
-                    return (
-                      <div
-                        key={exercise.name}
-                        className="group flex items-center gap-3 rounded-2xl border border-[#eee5d9] bg-[#fdfbf8] p-3 transition hover:-translate-y-0.5 hover:border-[#d9c4a5] hover:shadow-[0_10px_25px_rgba(64,48,30,0.06)]"
-                      >
-                        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(145deg,#f8ead7,#ead5b5)] text-[#A97A3C]">
-                          <Icon className="size-5" strokeWidth={1.7} />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-semibold text-[#403a35]">{exercise.name}</p>
-                          <p className="mt-1 text-[10px] text-[#938a81]">{exercise.patients}</p>
-                        </div>
-                        <span className="hidden rounded-full bg-[#BA9051]/8 px-2 py-1 text-[9px] font-medium text-[#A97A3C] sm:inline-flex">
-                          {exercise.type}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </DashboardCard>
-            </section>
-
-            <section className="overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-[radial-gradient(circle_at_88%_0%,rgba(198,154,89,0.24),transparent_35%),linear-gradient(135deg,#fffdf9_0%,#f7ede0_100%)] p-5 shadow-[0_16px_45px_rgba(64,48,30,0.07)] sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/12 text-[#A97A3C]">
-                    <Sparkles className="size-5" strokeWidth={1.7} />
-                  </span>
-                  <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Acompanhamento</p>
-                    <h2 className="mt-1 text-base font-semibold text-[#2D2823]">Cuidado contínuo para cada pequeno paciente.</h2>
-                    <p className="mt-1 max-w-2xl text-xs leading-relaxed text-[#7d746c]">
-                      Organize exercícios, avaliações e orientações para manter o tratamento próximo da família.
-                    </p>
-                  </div>
-                </div>
-                <Button
-                  type="button"
-                  className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white shadow-[0_8px_22px_rgba(132,88,35,0.18)] hover:bg-[#A97A3C]"
-                >
-                  <Baby className="size-4" />
-                  Novo paciente
-                </Button>
-              </div>
-            </section>
+          <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-8">
+            {tab === "dashboard" && <Dashboard patients={patients.length} exercises={exercises.length} />}
+            {tab === "pacientes" && <Patients patients={patients} onAdd={() => setModal("patient")} />}
+            {tab === "exercicios" && <Exercises exercises={exercises} onAdd={() => setModal("exercise")} />}
+            {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
+            {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
           </div>
         </div>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-around rounded-2xl border border-[#dfd0bb] bg-white/95 px-1.5 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
-        {navigation.slice(0, 5).map((item, index) => {
-          const Icon = item.icon;
-          const active = index === 0;
-          return (
-            <button
-              key={item.label}
-              type="button"
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] font-medium transition ${
-                active ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c]"
-              }`}
-            >
-              <Icon className="size-[18px]" strokeWidth={1.8} />
-              <span className="truncate">{item.label}</span>
-            </button>
-          );
-        })}
-        <button
-          type="button"
-          aria-label="Mais opções"
-          className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] font-medium text-[#8e857c]"
-        >
-          <MoreHorizontal className="size-[18px]" strokeWidth={1.8} />
-          <span>Mais</span>
+      <nav className="fixed inset-x-3 bottom-3 z-30 flex items-center justify-around rounded-2xl border border-[#dfd0bb] bg-white/95 px-1 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
+        {nav.map(({ id, label, icon: Icon }) => (
+          <button key={id} type="button" onClick={() => setTab(id)} className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] font-medium ${
+            tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c]"
+          }`}>
+            <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
+          </button>
+        ))}
+        <button type="button" onClick={logout} className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-[9px] text-[#8e857c]">
+          <LogOut className="size-[18px]" /><span>Sair</span>
         </button>
       </nav>
+
+      {modal === "patient" && (
+        <Modal title="Cadastrar paciente" close={() => setModal(null)}>
+          <form onSubmit={addPatient} className="space-y-4">
+            <Field label="Nome do paciente" value={patient.name} onChange={(v) => setPatient({ ...patient, name: v })} placeholder="Ex.: Miguel Oliveira" required />
+            <Field label="Idade" value={patient.age} onChange={(v) => setPatient({ ...patient, age: v })} placeholder="Ex.: 8 meses" />
+            <Field label="Responsável" value={patient.responsible} onChange={(v) => setPatient({ ...patient, responsible: v })} placeholder="Ex.: Ana Oliveira" />
+            <Actions close={() => setModal(null)} label="Cadastrar paciente" />
+          </form>
+        </Modal>
+      )}
+
+      {modal === "exercise" && (
+        <Modal title="Adicionar exercício" close={() => setModal(null)}>
+          <form onSubmit={addExercise} className="space-y-4">
+            <Field label="Nome do exercício" value={exercise.name} onChange={(v) => setExercise({ ...exercise, name: v })} placeholder="Ex.: Estimulação cervical" required />
+            <Field label="Tipo" value={exercise.type} onChange={(v) => setExercise({ ...exercise, type: v })} placeholder="Ex.: Vídeo" />
+            <Field label="Descrição" value={exercise.description} onChange={(v) => setExercise({ ...exercise, description: v })} placeholder="Descreva o exercício" />
+            <Actions close={() => setModal(null)} label="Adicionar exercício" />
+          </form>
+        </Modal>
+      )}
     </main>
   );
 }
 
-function SummaryCard({
-  icon: Icon,
-  label,
-  value,
-  detail,
-}: {
-  icon: typeof Users;
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <div className="group rounded-2xl border border-[#e6d9c9] bg-white p-4 shadow-[0_10px_30px_rgba(64,48,30,0.05)] transition duration-300 hover:-translate-y-0.5 hover:border-[#d8c3a4] hover:shadow-[0_15px_35px_rgba(64,48,30,0.08)] sm:p-5">
-      <div className="flex items-start justify-between gap-2">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#BA9051] sm:size-10">
-          <Icon className="size-[18px]" strokeWidth={1.8} />
-        </span>
-        <MoreHorizontal className="size-4 text-[#c2b8ae]" />
-      </div>
-      <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.12em] text-[#948a81] sm:text-[11px]">{label}</p>
-      <p className="mt-1 text-[24px] font-semibold tracking-[-0.04em] text-[#2D2823] sm:text-[28px]">{value}</p>
-      <p className="mt-1 truncate text-[10px] text-[#a39a91] sm:text-[11px]">{detail}</p>
+function Dashboard({ patients, exercises }: { patients: number; exercises: number }) {
+  return <section className="space-y-6">
+    <div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p>
+      <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Dashboard</h2>
+      <p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p>
     </div>
-  );
+    <div className="grid gap-4 sm:grid-cols-2">
+      <Summary icon={Users} label="Pacientes ativos" value={patients} />
+      <Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} />
+    </div>
+  </section>;
 }
 
-function DashboardCard({
-  title,
-  subtitle,
-  icon: Icon,
-  action,
-  children,
-}: {
-  title: string;
-  subtitle: string;
-  icon: typeof Users;
-  action?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-4 shadow-[0_10px_30px_rgba(64,48,30,0.045)] sm:p-5">
-      <div className="mb-3 flex items-start justify-between gap-3 sm:mb-4">
-        <div className="flex items-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-[#faf4eb] text-[#BA9051]">
-            <Icon className="size-4" strokeWidth={1.8} />
-          </span>
-          <div>
-            <h2 className="text-sm font-semibold text-[#403a35]">{title}</h2>
-            <p className="mt-0.5 text-[10px] text-[#a09991]">{subtitle}</p>
-          </div>
-        </div>
-        {action ? (
-          <button type="button" className="shrink-0 text-[10px] font-semibold text-[#A97A3C] transition hover:text-[#7d5a30]">
-            {action}
-          </button>
-        ) : null}
+function Patients({ patients, onAdd }: { patients: Patient[]; onAdd: () => void }) {
+  return <section className="space-y-5">
+    <Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar paciente" onAction={onAdd} />
+    <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
+      <div className="hidden grid-cols-[1.4fr_1fr_1fr] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid">
+        <span>Paciente</span><span>Idade</span><span>Responsável</span>
       </div>
-      {children}
-    </section>
-  );
+      <div className="divide-y divide-[#f0e8dd]">
+        {patients.map((p) => <div key={p.name} className="grid gap-2 px-4 py-4 sm:grid-cols-[1.4fr_1fr_1fr] sm:items-center sm:px-5">
+          <div className="flex items-center gap-3">
+            <span className="flex size-10 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{p.name.split(" ").slice(0,2).map(x => x[0]).join("")}</span>
+            <p className="text-sm font-semibold">{p.name}</p>
+          </div>
+          <p className="text-xs text-[#746c64]">{p.age}</p>
+          <p className="text-xs text-[#746c64]">{p.responsible}</p>
+        </div>)}
+      </div>
+    </div>
+  </section>;
 }
 
-function Status({ status }: { status: string }) {
-  const confirmed = status === "Confirmado";
-  return (
-    <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-medium ${
-        confirmed ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"
-      }`}
-    >
-      {confirmed ? <CheckCircle2 className="size-2.5" /> : <Clock3 className="size-2.5" />}
-      {status}
-    </span>
-  );
+function Exercises({ exercises, onAdd }: { exercises: Exercise[]; onAdd: () => void }) {
+  return <section className="space-y-5">
+    <Header title="Exercícios" text="Lista de exercícios cadastrados." action="Adicionar exercício" onAction={onAdd} />
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {exercises.map((e) => <article key={e.name} className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
+        <div className="flex items-start gap-3">
+          <span className="flex size-11 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Dumbbell className="size-5" /></span>
+          <div><h3 className="text-sm font-semibold">{e.name}</h3><span className="mt-1 inline-flex rounded-full bg-[#BA9051]/10 px-2 py-1 text-[9px] text-[#A97A3C]">{e.type}</span></div>
+        </div>
+        <p className="mt-4 text-xs leading-relaxed text-[#81776e]">{e.description}</p>
+      </article>)}
+    </div>
+  </section>;
+}
+
+function Header({ title, text, action, onAction }: { title: string; text: string; action: string; onAction: () => void }) {
+  return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2><p className="mt-1 text-xs text-[#837970]">{text}</p></div>
+    <Button onClick={onAction} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />{action}</Button>
+  </div>;
+}
+
+function Summary({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
+  return <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.05)] sm:p-6">
+    <span className="flex size-10 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#BA9051]"><Icon className="size-[18px]" /></span>
+    <p className="mt-5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#948a81]">{label}</p>
+    <p className="mt-1 text-[30px] font-semibold">{value}</p>
+  </div>;
+}
+
+function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title: string; text: string }) {
+  return <section className="space-y-5"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Sistema</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2></div>
+    <div className="flex min-h-[280px] flex-col items-center justify-center rounded-[1.35rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center"><Icon className="size-6 text-[#BA9051]" /><h3 className="mt-4 text-sm font-semibold">{title}</h3><p className="mt-1 text-xs text-[#8c8178]">{text}</p></div>
+  </section>;
+}
+
+function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6">
+      <div className="mb-5 flex items-center justify-between"><h2 className="text-base font-semibold">{title}</h2><button type="button" onClick={close} className="size-8 rounded-lg text-xl text-[#91877e]">×</button></div>
+      {children}
+    </div>
+  </div>;
+}
+
+function Field({ label, value, onChange, placeholder, required }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; required?: boolean }) {
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>
+    <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required}
+      className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10" />
+  </label>;
+}
+
+function Actions({ close, label }: { close: () => void; label: string }) {
+  return <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+    <Button type="button" variant="outline" onClick={close} className="h-10 rounded-xl text-xs">Cancelar</Button>
+    <Button type="submit" className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{label}</Button>
+  </div>;
 }
