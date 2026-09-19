@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap");
-
 import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -20,6 +18,11 @@ import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" },
+    ],
     meta: [
       { title: "Entrar | Erick Paulino Fisioterapia" },
       {
@@ -257,11 +260,6 @@ function LoginPage() {
                 </span>
               </div>
             </div>
-            {/*
-              <span className="h-px w-8 bg-[#e4ded6]" />
-              Acesso seguro
-              <span className="h-px w-8 bg-[#e4ded6]" />
-            </div> */}
           </div>
         </div>
       </section>
