@@ -197,7 +197,7 @@ function LoginPage() {
             />
           </div>
 
-          <div className="mx-auto w-[calc(100%-1rem)] rounded-3xl bg-white p-5 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:w-full sm:p-7 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="mx-auto w-[calc(100%-1rem)] rounded-3xl bg-white p-5 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:w-full sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
             <div className="mb-5 text-center lg:mb-8 lg:text-center">
               <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu login
@@ -305,20 +305,20 @@ function LoginPage() {
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
-              <div className="flex items-stretch justify-center gap-4 text-left lg:gap-7">
+              <div className="flex items-stretch justify-center gap-3 text-left lg:gap-7">
                 <div className="flex items-center gap-2.5 lg:gap-3.5">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
-                    <ShieldCheck className="size-5 lg:size-6" strokeWidth={1.8} />
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
+                    <ShieldCheck className="size-4 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[11px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Acesso protegido</span>
-                    <span className="mt-0.5 text-[9px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Ambiente criptografado</span>
+                    <span className="text-[10px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Acesso protegido</span>
+                    <span className="mt-0.5 text-[8px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Ambiente criptografado</span>
                   </span>
                 </div>
                 <span className="w-px bg-[#e4ded6]" aria-hidden="true" />
                 <div className="flex items-center gap-2.5 lg:gap-3.5">
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
-                    <LockKeyhole className="size-5 lg:size-6" strokeWidth={1.8} />
+                    <LockKeyhole className="size-4 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
                     <span className="text-[11px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Conexão segura</span>
