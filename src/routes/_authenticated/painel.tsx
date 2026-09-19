@@ -60,6 +60,7 @@ function PainelPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
@@ -274,15 +275,11 @@ function PainelPage() {
   }
 
   async function removePatient(item: Patient) {
-    const confirmed = window.confirm(
-      `Excluir paciente?\\n\\n"${item.full_name}" será removido da lista de pacientes. Essa ação não pode ser desfeita.`,
-    );
-    if (!confirmed) return;
-
     try {
       setDeleting(item.id);
       const { error: deleteError } = await supabase.from("patients").delete().eq("id", item.id);
       if (deleteError) throw deleteError;
+      setConfirmPatient(null);
       setNotice(`Paciente "${item.full_name}" excluído com sucesso.`);
       await loadData();
     } catch (err) {
@@ -397,7 +394,7 @@ function PainelPage() {
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
             {tab === "dashboard" && <Dashboard patients={patientCount} exercises={exerciseCount} />}
-            {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={removePatient} deleting={deleting} />}
+            {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} />}
             {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
             {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
@@ -427,6 +424,8 @@ function PainelPage() {
           <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar paciente"} loading={saving} />
         </form>
       </Modal>}
+
+      {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Adicionar exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
@@ -469,6 +468,34 @@ function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title
 
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
   return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm"><div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6"><div className="mb-5 flex items-center justify-between"><h2 className="text-base font-semibold">{title}</h2><button type="button" onClick={close} className="size-8 rounded-lg text-xl text-[#91877e]">×</button></div>{children}</div></div>;
+}
+
+function DeletePatientModal({ patient, loading, close, confirm }: { patient: Patient; loading: boolean; close: () => void; confirm: () => void }) {
+  return <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fff1f1] text-[#d34f4f]">
+            <Trash2 className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Excluir paciente?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir o paciente:</p>
+            <p className="mt-1 text-sm font-semibold text-[#A97A3C]">{patient.full_name}</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita e o paciente será removido da lista.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">
+            {loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            {loading ? "Excluindo..." : "Sim, excluir paciente"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>;
 }
 
 function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false }: { label: string; value: string; onChange: (value: string) => void; placeholder: string; required?: boolean; type?: string; multiline?: boolean }) {
