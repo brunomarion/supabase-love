@@ -189,15 +189,19 @@ function LoginPage() {
 
       <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-[#ba9051] px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
         <div className="w-full max-w-md">
-          <div className="mb-1 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
-            <img
-              src="/images/logo-editada-chatgpt.png"
-              alt="Erick Paulino Fisioterapeuta"
-              className="h-auto max-h-[22vh] w-[min(72vw,300px)] object-contain drop-shadow-[0_18px_35px_rgba(37,33,29,0.12)]"
-            />
+          <div className="mb-2 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute h-[80%] w-[80%] rounded-full bg-white/20 blur-2xl" />
+              <div className="absolute inset-2 rounded-[2rem] border border-white/25 bg-white/10 shadow-[0_18px_45px_rgba(68,45,20,0.18)] backdrop-blur-[2px]" />
+              <img
+                src="/images/logo-editada-chatgpt.png"
+                alt="Erick Paulino Fisioterapeuta"
+                className="relative z-10 h-auto max-h-[24vh] w-[min(76vw,315px)] object-contain drop-shadow-[0_22px_40px_rgba(55,37,18,0.28)]"
+              />
+            </div>
           </div>
 
-          <div className="mx-auto w-[calc(100%-1rem)] rounded-3xl bg-white p-5 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:w-full sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
+          <div className="mx-auto w-[calc(100%-1rem)] rounded-3xl border border-white/55 bg-white/95 p-5 shadow-[0_18px_50px_rgba(67,43,18,0.20),0_4px_14px_rgba(255,255,255,0.22)_inset] backdrop-blur-md sm:w-full sm:p-7 lg:rounded-[2rem] lg:border lg:border-[#eadfce] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.14),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_55%,#f7f1e8_100%)] lg:p-10 lg:shadow-[0_24px_70px_rgba(64,48,30,0.10)]">
             <div className="mb-5 text-center lg:mb-8 lg:text-center">
               <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu login
