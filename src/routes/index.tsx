@@ -195,7 +195,7 @@ function LoginPage() {
 
       <section className="relative z-10 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-transparent px-1.5 py-0.5 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:bg-white lg:px-12">
         <div className="w-full max-w-md">
-          <div className="flex -translate-y-1 justify-center lg:hidden sm:-translate-y-2">
+          <div className="flex -translate-y-4 justify-center lg:hidden sm:-translate-y-2">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
@@ -203,14 +203,14 @@ function LoginPage() {
             />
           </div>
 
-          <div className="mx-auto w-[calc(100%-2rem)] max-w-[340px] rounded-[1.55rem] border border-[#d8c09f] bg-[radial-gradient(circle_at_88%_0%,rgba(186,144,81,0.22),transparent_34%),linear-gradient(145deg,#ffffff_0%,#fffdf9_48%,#f3eadf_100%)] p-3.5 shadow-[0_22px_55px_rgba(55,35,15,0.34),0_10px_28px_rgba(186,144,81,0.20),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(186,144,81,0.10)] backdrop-blur-xl sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
-            <div className="mb-3 text-center lg:mb-8 lg:text-center">
-              <h1 className="text-2xl font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
+          <div className="mx-auto w-[calc(100%-2rem)] max-w-[340px] rounded-[1.55rem] border border-[#d8c09f] bg-[radial-gradient(circle_at_88%_0%,rgba(186,144,81,0.22),transparent_34%),linear-gradient(145deg,#ffffff_0%,#fffdf9_48%,#f3eadf_100%)] p-5 shadow-[0_22px_55px_rgba(55,35,15,0.34),0_10px_28px_rgba(186,144,81,0.20),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(186,144,81,0.10)] backdrop-blur-xl sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+            <div className="mb-4 text-center lg:mb-8 lg:text-center">
+              <h1 className="text-[1.65rem] font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu <span className="text-[#ba9051] lg:text-[#2d2823]">login</span>
               </h1>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-2.5 sm:space-y-5 lg:space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="space-y-3 sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-[#403a35]">
                   E-mail
@@ -226,7 +226,7 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting}
                   aria-invalid={Boolean(errors.email)}
-                  className="h-12 rounded-xl border-[#dfd3c3] bg-white/90 px-4 pl-11 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.16)] lg:pl-4"
+                  className="h-[3.25rem] rounded-xl border-[#dfd3c3] bg-white/90 px-4 pl-11 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.16)] lg:pl-4"
                 />
                 </div>
                 {errors.email ? (
@@ -296,7 +296,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="h-11 w-full rounded-xl bg-[linear-gradient(135deg,#c69a59_0%,#a97a3c_100%)] sm:h-12 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(132,88,35,0.26)] transition hover:bg-[#a98148] hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)] lg:bg-[#ba9051]"
+                className="h-12 w-full rounded-xl bg-[linear-gradient(135deg,#c69a59_0%,#a97a3c_100%)] sm:h-12 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(132,88,35,0.26)] transition hover:bg-[#a98148] hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)] lg:bg-[#ba9051]"
               >
                 {submitting ? (
                   <>
