@@ -56,6 +56,7 @@ export type Database = {
           responsible_email: string | null
           responsible_name: string | null
           responsible_phone: string | null
+          sex: "male" | "female" | null
           status: "active" | "inactive"
           updated_at: string
         }
@@ -70,6 +71,7 @@ export type Database = {
           responsible_email?: string | null
           responsible_name?: string | null
           responsible_phone?: string | null
+          sex?: "male" | "female" | null
           status?: "active" | "inactive"
           updated_at?: string
         }
@@ -84,6 +86,7 @@ export type Database = {
           responsible_email?: string | null
           responsible_name?: string | null
           responsible_phone?: string | null
+          sex?: "male" | "female" | null
           status?: "active" | "inactive"
           updated_at?: string
         }
