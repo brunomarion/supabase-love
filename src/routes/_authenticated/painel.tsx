@@ -174,6 +174,26 @@ function PainelPage() {
     setModal("exercise");
   }
 
+  async function getCreatePatientErrorMessage(functionError: unknown) {
+    if (
+      functionError &&
+      typeof functionError === "object" &&
+      "context" in functionError &&
+      functionError.context instanceof Response
+    ) {
+      try {
+        const payload = await functionError.context.clone().json() as { error?: string };
+        if (payload?.error) return payload.error;
+      } catch {
+        // Mantém a mensagem padrão caso a resposta não seja JSON.
+      }
+    }
+
+    return functionError instanceof Error
+      ? functionError.message
+      : "Não foi possível cadastrar o paciente.";
+  }
+
   async function savePatient(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!patient.full_name.trim()) {
@@ -184,6 +204,7 @@ function PainelPage() {
     try {
       setSaving(true);
       setError("");
+
       if (editingPatient) {
         const { error: updateError } = await supabase
           .from("patients")
@@ -219,7 +240,10 @@ function PainelPage() {
           },
         });
 
-        if (functionError) throw functionError;
+        if (functionError) {
+          throw new Error(await getCreatePatientErrorMessage(functionError));
+        }
+
         setNotice("Paciente cadastrado com sucesso.");
       }
 
@@ -380,7 +404,7 @@ function PainelPage() {
           <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
           {!editingPatient && <Field label="Senha de acesso" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
           <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
-          <SelectField label="Status" value={patient.status} onChange={(v) => setPatient({ ...patient, status: v as "active" | "inactive" })} options={[["active", "Ativo"], ["inactive", "Inativo"]]} />
+          <SelectField label="Status" value={patient.status} onChange={(v) => setPatient({ ...patient, status: v as "active" | "inactive" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
           <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar paciente"} loading={saving} />
         </form>
       </Modal>}
@@ -392,7 +416,7 @@ function PainelPage() {
           <Field label="Tipo" value={exercise.type} onChange={(v) => setExercise({ ...exercise, type: v })} placeholder="Ex.: Vídeo" />
           <Field label="URL do vídeo" type="url" value={exercise.video_url} onChange={(v) => setExercise({ ...exercise, video_url: v })} placeholder="https://..." />
           <Field label="URL da thumbnail" type="url" value={exercise.thumbnail_url} onChange={(v) => setExercise({ ...exercise, thumbnail_url: v })} placeholder="https://..." />
-          <SelectField label="Status" value={exercise.is_active ? "active" : "inactive"} onChange={(v) => setExercise({ ...exercise, is_active: v === "active" })} options={[["active", "Ativo"], ["inactive", "Inativo"]]} />
+          <SelectField label="Status" value={exercise.is_active ? "active" : "inactive"} onChange={(v) => setExercise({ ...exercise, is_active: v === "active" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
           <Actions close={() => setModal(null)} label={editingExercise ? "Salvar alterações" : "Adicionar exercício"} loading={saving} />
         </form>
       </Modal>}
