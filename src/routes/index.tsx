@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import logo from "@/assets/logo-erick-paulino.jpg.asset.json";
 import { authErrorMessage } from "@/lib/auth-messages";
 import {
   getRememberedEmail,
@@ -116,56 +115,34 @@ function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[#f8f6f2] text-[#25211d] lg:grid lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="relative hidden overflow-hidden bg-[#ba9051] px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-16">
-        <div className="absolute -right-32 top-1/3 size-80 rounded-full border border-white/20" />
-        <div className="absolute -left-24 bottom-20 size-56 rounded-full border border-white/10" />
-
-        <img
-          src={logo.url}
-          alt="Erick Paulino Fisioterapeuta"
-          className="relative z-10 w-56 brightness-0 invert"
-        />
-
-        <div className="relative z-10 max-w-lg">
-          <span className="text-xs font-medium uppercase tracking-[0.28em] text-white/70">
-            Plataforma clínica
-          </span>
-          <h2 className="mt-6 font-display text-5xl font-light leading-[1.08] xl:text-6xl">
-            Cuidado, movimento e acompanhamento.
-          </h2>
-          <p className="mt-6 max-w-md text-sm leading-7 text-white/75">
-            Um ambiente exclusivo para organizar seus atendimentos e acompanhar seus pacientes.
-          </p>
+      <section className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center">
+        <div className="absolute -right-40 top-1/4 size-[34rem] rounded-full border border-white/15" />
+        <div className="absolute -left-32 bottom-10 size-80 rounded-full border border-white/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12),transparent_55%)]" />
+        <div className="relative z-10 flex h-full w-full items-center justify-center p-10 xl:p-16">
+          <img
+            src="/images/logo-editada-chatgpt.png"
+            alt="Erick Paulino Fisioterapeuta"
+            className="h-auto w-full max-w-[min(78%,620px)] object-contain drop-shadow-[0_22px_45px_rgba(73,51,24,0.16)]"
+          />
         </div>
-
-        <p className="relative z-10 text-xs text-white/60">
-          © {new Date().getFullYear()} Erick Paulino Fisioterapia
-        </p>
       </section>
 
       <section className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-md">
-          <div className="mb-9 flex justify-center lg:hidden">
-            <div className="flex size-28 items-center justify-center rounded-full bg-white p-5 shadow-[0_12px_35px_rgba(37,33,29,0.08)]">
-              <img
-                src={logo.url}
-                alt="Erick Paulino Fisioterapeuta"
-                className="max-h-full w-full object-contain"
-              />
-            </div>
+          <div className="mb-8 flex justify-center lg:hidden">
+            <img
+              src="/images/logo-editada-chatgpt.png"
+              alt="Erick Paulino Fisioterapeuta"
+              className="h-auto w-[min(82vw,360px)] object-contain drop-shadow-[0_18px_35px_rgba(37,33,29,0.12)]"
+            />
           </div>
 
           <div className="rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:p-9 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
-            <div className="mb-8">
-              <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ba9051]">
-                Área do fisioterapeuta
-              </span>
-              <h1 className="mt-3 font-display text-3xl font-light leading-tight sm:text-4xl">
-                Bem-vindo de volta
+            <div className="mb-8 text-center lg:text-left">
+              <h1 className="font-display text-3xl font-light leading-tight tracking-tight text-[#2d2823] sm:text-4xl">
+                Faça seu login
               </h1>
-              <p className="mt-3 text-sm leading-6 text-[#746c64]">
-                Entre com seus dados para acessar sua plataforma.
-              </p>
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -182,7 +159,7 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting}
                   aria-invalid={Boolean(errors.email)}
-                  className="h-12 rounded-xl border-[#e4ded6] bg-[#fbfaf8] px-4 text-sm shadow-none transition focus-visible:border-[#ba9051] focus-visible:ring-2 focus-visible:ring-[#ba9051]/15"
+                  className="h-14 rounded-2xl border-[#e7dfd4] bg-white/80 px-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
                 />
                 {errors.email ? (
                   <p className="text-xs text-destructive">{errors.email}</p>
@@ -203,7 +180,7 @@ function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={submitting}
                     aria-invalid={Boolean(errors.password)}
-                    className="h-12 rounded-xl border-[#e4ded6] bg-[#fbfaf8] px-4 pr-12 text-sm shadow-none transition focus-visible:border-[#ba9051] focus-visible:ring-2 focus-visible:ring-[#ba9051]/15"
+                    className="h-14 rounded-2xl border-[#e7dfd4] bg-white/80 px-4 pr-12 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
                   />
                   <button
                     type="button"
