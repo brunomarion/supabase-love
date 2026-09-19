@@ -247,7 +247,7 @@ function PainelPage() {
           return isActive ? currentCount + 1 : Math.max(0, currentCount - 1);
         });
         setNotice("");
-        setPatientToast("Paciente \" + updatedPatient.full_name + "\" atualizado com sucesso.");
+        setPatientToast(`Paciente "${updatedPatient.full_name}" atualizado com sucesso.`);
       } else {
         if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
         if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
@@ -293,7 +293,7 @@ function PainelPage() {
       if (deleteError) throw deleteError;
       setConfirmPatient(null);
       setNotice("");
-      setPatientToast("Paciente \" + item.full_name + "\" excluído com sucesso.");
+      setPatientToast(`Paciente "${item.full_name}" excluído com sucesso.`);
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível excluir o paciente.");
