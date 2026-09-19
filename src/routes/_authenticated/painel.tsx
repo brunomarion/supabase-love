@@ -31,6 +31,7 @@ const nav: { id: Tab; label: string; icon: typeof Home }[] = [
 const emptyPatient = {
   full_name: "",
   birth_date: "",
+  sex: "" as "" | "male" | "female",
   responsible_name: "",
   responsible_phone: "",
   responsible_email: "",
@@ -147,6 +148,7 @@ function PainelPage() {
       ...emptyPatient,
       full_name: item.full_name,
       birth_date: item.birth_date ?? "",
+      sex: item.sex ?? "",
       responsible_name: item.responsible_name ?? "",
       responsible_phone: item.responsible_phone ?? "",
       responsible_email: item.responsible_email ?? "",
@@ -212,6 +214,7 @@ function PainelPage() {
           .update({
             full_name: patient.full_name.trim(),
             birth_date: patient.birth_date || null,
+            sex: patient.sex || null,
             responsible_name: patient.responsible_name.trim() || null,
             responsible_phone: patient.responsible_phone.trim() || null,
             responsible_email: patient.responsible_email.trim() || null,
@@ -247,6 +250,7 @@ function PainelPage() {
             physiotherapist_id: physiotherapistId,
             full_name: patient.full_name.trim(),
             birth_date: patient.birth_date || null,
+            sex: patient.sex || null,
             responsible_name: patient.responsible_name.trim() || null,
             responsible_phone: patient.responsible_phone.trim() || null,
             responsible_email: patient.responsible_email.trim(),
@@ -415,6 +419,7 @@ function PainelPage() {
         <form onSubmit={savePatient} className="space-y-4">
           <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
           <Field label="Data de nascimento" type="date" value={patient.birth_date} onChange={(v) => setPatient({ ...patient, birth_date: v })} />
+          <SelectField label="Sexo" value={patient.sex} onChange={(v) => setPatient({ ...patient, sex: v as "" | "male" | "female" })} options={[[ "", "Selecione" ], [ "male", "Masculino" ], [ "female", "Feminino" ]]} />
           <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
           <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
           <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
