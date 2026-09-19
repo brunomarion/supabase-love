@@ -115,126 +115,160 @@ function LoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
-      <section className="relative hidden flex-col justify-between bg-ink px-14 py-14 text-ivory lg:flex">
+    <main className="min-h-screen bg-[#f8f6f2] text-[#25211d] lg:grid lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="relative hidden overflow-hidden bg-[#ba9051] px-12 py-12 text-white lg:flex lg:flex-col lg:justify-between xl:px-16">
+        <div className="absolute -right-32 top-1/3 size-80 rounded-full border border-white/20" />
+        <div className="absolute -left-24 bottom-20 size-56 rounded-full border border-white/10" />
+
         <img
           src={logo.url}
           alt="Erick Paulino Fisioterapeuta"
-          className="w-64 invert mix-blend-lighten"
+          className="relative z-10 w-56 brightness-0 invert"
         />
-        <div className="max-w-md">
-          <p className="eyebrow text-ivory/50">Plataforma clínica</p>
-          <h2 className="mt-5 font-display text-5xl leading-[1.1] font-light">
-            Cuidado, movimento e acompanhamento em um só lugar.
+
+        <div className="relative z-10 max-w-lg">
+          <span className="text-xs font-medium uppercase tracking-[0.28em] text-white/70">
+            Plataforma clínica
+          </span>
+          <h2 className="mt-6 font-display text-5xl font-light leading-[1.08] xl:text-6xl">
+            Cuidado, movimento e acompanhamento.
           </h2>
-          <p className="mt-6 text-sm leading-relaxed text-ivory/60">
-            Ambiente restrito ao fisioterapeuta responsável pelos atendimentos.
+          <p className="mt-6 max-w-md text-sm leading-7 text-white/75">
+            Um ambiente exclusivo para organizar seus atendimentos e acompanhar seus pacientes.
           </p>
         </div>
-        <p className="text-xs text-ivory/40">© {new Date().getFullYear()} Erick Paulino</p>
+
+        <p className="relative z-10 text-xs text-white/60">
+          © {new Date().getFullYear()} Erick Paulino Fisioterapia
+        </p>
       </section>
 
-      <section className="flex items-center justify-center px-6 py-12 sm:px-10">
-        <div className="w-full max-w-sm">
-          <img
-            src={logo.url}
-            alt="Erick Paulino Fisioterapeuta"
-            className="mx-auto mb-10 w-52 lg:hidden"
-          />
-
-          <p className="eyebrow">Área do fisioterapeuta</p>
-          <h1 className="mt-3 font-display text-4xl font-light sm:text-5xl">Bem-vindo de volta</h1>
-          <p className="mt-3 text-sm text-muted-foreground">Acesse sua conta para continuar</p>
-
-          <form onSubmit={handleSubmit} noValidate className="mt-10 space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="voce@clinica.com.br"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={submitting}
-                aria-invalid={Boolean(errors.email)}
-                className="h-12 rounded-none border-0 border-b bg-transparent px-0 shadow-none focus-visible:ring-0 focus-visible:border-foreground"
+      <section className="flex min-h-screen items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
+        <div className="w-full max-w-md">
+          <div className="mb-9 flex justify-center lg:hidden">
+            <div className="flex size-28 items-center justify-center rounded-full bg-white p-5 shadow-[0_12px_35px_rgba(37,33,29,0.08)]">
+              <img
+                src={logo.url}
+                alt="Erick Paulino Fisioterapeuta"
+                className="max-h-full w-full object-contain"
               />
-              {errors.email ? (
-                <p className="text-xs text-destructive">{errors.email}</p>
-              ) : null}
+            </div>
+          </div>
+
+          <div className="rounded-3xl bg-white p-6 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:p-9 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+            <div className="mb-8">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ba9051]">
+                Área do fisioterapeuta
+              </span>
+              <h1 className="mt-3 font-display text-3xl font-light leading-tight sm:text-4xl">
+                Bem-vindo de volta
+              </h1>
+              <p className="mt-3 text-sm leading-6 text-[#746c64]">
+                Entre com seus dados para acessar sua plataforma.
+              </p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
+            <form onSubmit={handleSubmit} noValidate className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-[#403a35]">
+                  E-mail
+                </Label>
                 <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="voce@clinica.com.br"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting}
-                  aria-invalid={Boolean(errors.password)}
-                  className="h-12 rounded-none border-0 border-b bg-transparent px-0 pr-10 shadow-none focus-visible:ring-0 focus-visible:border-foreground"
+                  aria-invalid={Boolean(errors.email)}
+                  className="h-12 rounded-xl border-[#e4ded6] bg-[#fbfaf8] px-4 text-sm shadow-none transition focus-visible:border-[#ba9051] focus-visible:ring-2 focus-visible:ring-[#ba9051]/15"
                 />
+                {errors.email ? (
+                  <p className="text-xs text-destructive">{errors.email}</p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-[#403a35]">
+                  Senha
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={submitting}
+                    aria-invalid={Boolean(errors.password)}
+                    className="h-12 rounded-xl border-[#e4ded6] bg-[#fbfaf8] px-4 pr-12 text-sm shadow-none transition focus-visible:border-[#ba9051] focus-visible:ring-2 focus-visible:ring-[#ba9051]/15"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#8a8178] transition hover:bg-[#ba9051]/10 hover:text-[#ba9051]"
+                  >
+                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  </button>
+                </div>
+                {errors.password ? (
+                  <p className="text-xs text-destructive">{errors.password}</p>
+                ) : null}
+              </div>
+
+              <div className="flex flex-col gap-3 pt-1 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-[#746c64]">
+                  <Checkbox
+                    checked={remember}
+                    onCheckedChange={(value) => setRemember(value === true)}
+                    disabled={submitting}
+                    className="data-[state=checked]:border-[#ba9051] data-[state=checked]:bg-[#ba9051] data-[state=checked]:text-white"
+                  />
+                  Lembrar de mim
+                </label>
                 <button
                   type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground transition-colors hover:text-foreground"
+                  onClick={handleForgotPassword}
+                  className="w-fit text-left text-sm font-medium text-[#ba9051] underline-offset-4 hover:underline"
                 >
-                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                  Esqueci minha senha
                 </button>
               </div>
-              {errors.password ? (
-                <p className="text-xs text-destructive">{errors.password}</p>
+
+              {errors.form ? (
+                <p
+                  role="alert"
+                  className="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+                >
+                  {errors.form}
+                </p>
               ) : null}
-            </div>
 
-            <div className="flex items-center justify-between pt-1">
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-                <Checkbox
-                  checked={remember}
-                  onCheckedChange={(value) => setRemember(value === true)}
-                  disabled={submitting}
-                />
-                Lembrar de mim
-              </label>
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-sm text-foreground underline-offset-4 hover:underline"
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="h-12 w-full rounded-xl bg-[#ba9051] text-sm font-semibold text-white shadow-[0_10px_25px_rgba(186,144,81,0.25)] transition hover:bg-[#a98148] hover:shadow-[0_12px_30px_rgba(186,144,81,0.32)]"
               >
-                Esqueci minha senha
-              </button>
+                {submitting ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" />
+                    Entrando
+                  </>
+                ) : (
+                  "Entrar"
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-8 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
+              <span className="h-px w-8 bg-[#e4ded6]" />
+              Acesso seguro
+              <span className="h-px w-8 bg-[#e4ded6]" />
             </div>
-
-            {errors.form ? (
-              <p
-                role="alert"
-                className="border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive"
-              >
-                {errors.form}
-              </p>
-            ) : null}
-
-            <Button
-              type="submit"
-              disabled={submitting}
-              className="h-12 w-full rounded-none text-xs tracking-[0.2em] uppercase"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  Entrando
-                </>
-              ) : (
-                "Entrar"
-              )}
-            </Button>
-          </form>
+          </div>
         </div>
       </section>
     </main>
