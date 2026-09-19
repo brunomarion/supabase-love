@@ -10,6 +10,7 @@ import {
   Users,
   Video,
   X,
+  type LucideIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -366,7 +367,7 @@ function SectionHeader({
   buttonLabel,
   onClick,
 }: {
-  icon: typeof Users;
+  icon: LucideIcon;
   title: string;
   subtitle: string;
   buttonLabel: string;
@@ -400,7 +401,7 @@ function EmptySection({
   title,
   subtitle,
 }: {
-  icon: typeof Users;
+  icon: LucideIcon;
   title: string;
   subtitle: string;
 }) {
