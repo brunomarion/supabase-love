@@ -64,6 +64,7 @@ function PainelPage() {
   const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [patientToast, setPatientToast] = useState("");
   const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
@@ -73,6 +74,12 @@ function PainelPage() {
   useEffect(() => {
     void loadData();
   }, []);
+
+  useEffect(() => {
+    if (!patientToast) return;
+    const timer = window.setTimeout(() => setPatientToast(""), 4000);
+    return () => window.clearTimeout(timer);
+  }, [patientToast]);
 
   useEffect(() => {
     if (!notice && !error) return;
@@ -239,7 +246,8 @@ function PainelPage() {
           if (wasActive === isActive) return currentCount;
           return isActive ? currentCount + 1 : Math.max(0, currentCount - 1);
         });
-        setNotice("Paciente atualizado com sucesso.");
+        setNotice("");
+        setPatientToast("Paciente \" + updatedPatient.full_name + "\" atualizado com sucesso.");
       } else {
         if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
         if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
@@ -284,7 +292,8 @@ function PainelPage() {
       const { error: deleteError } = await supabase.from("patients").delete().eq("id", item.id);
       if (deleteError) throw deleteError;
       setConfirmPatient(null);
-      setNotice(`Paciente "${item.full_name}" excluído com sucesso.`);
+      setNotice("");
+      setPatientToast("Paciente \" + item.full_name + "\" excluído com sucesso.");
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível excluir o paciente.");
@@ -364,6 +373,20 @@ function PainelPage() {
 
   return (
     <main className="min-h-screen bg-[#faf8f4] text-[#2D2823]">
+      {patientToast && (
+        <div className="fixed inset-x-4 top-4 z-[80] flex justify-center pointer-events-none sm:inset-x-auto sm:right-6 sm:top-6">
+          <div className="pointer-events-auto flex w-full max-w-[390px] items-center gap-3 rounded-2xl border border-[#dfc8a5] bg-white/95 px-4 py-3.5 shadow-[0_18px_50px_rgba(64,48,30,0.18)] backdrop-blur-xl animate-in slide-in-from-top-3 duration-300">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#BA9051]/12 text-[#A97A3C]">
+              <span className="text-base font-semibold">✓</span>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
+              <p className="mt-0.5 text-xs font-medium leading-relaxed text-[#4f4841]">{patientToast}</p>
+            </div>
+            <button type="button" onClick={() => setPatientToast("")} className="flex size-7 shrink-0 items-center justify-center rounded-lg text-lg leading-none text-[#91877e] transition hover:bg-[#faf7f2] hover:text-[#A97A3C]" aria-label="Fechar mensagem">×</button>
+          </div>
+        </div>
+      )}
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center border-b border-[#eee5d9] px-7">
