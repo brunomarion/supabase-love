@@ -119,7 +119,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="h-[100dvh] overflow-hidden bg-[#f8f6f2] text-[#25211d] lg:grid lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[#f8f6f2] text-[#25211d] lg:static lg:grid lg:min-h-screen lg:h-auto">
       <section className="relative hidden min-h-screen overflow-hidden bg-[#ba9051] lg:flex lg:items-center lg:justify-center">
         <div className="absolute -right-40 top-1/4 size-[34rem] rounded-full border border-white/15" />
         <div className="absolute -left-32 bottom-10 size-80 rounded-full border border-white/10" />
@@ -133,7 +133,7 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="flex h-[100dvh] items-center justify-center overflow-hidden px-4 py-3 sm:px-8 sm:py-6 lg:px-12">
+      <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:px-12">
         <div className="w-full max-w-md">
           <div className="mb-1 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
             <img
@@ -162,6 +162,11 @@ function LoginPage() {
                   placeholder="voce@clinica.com.br"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => {
+                    if (window.innerWidth < 1024) {
+                      requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+                    }
+                  }}
                   disabled={submitting}
                   aria-invalid={Boolean(errors.email)}
                   className="h-14 rounded-2xl border-[#e7dfd4] bg-white/80 px-4 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
@@ -183,6 +188,11 @@ function LoginPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onFocus={() => {
+                      if (window.innerWidth < 1024) {
+                        requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+                      }
+                    }}
                     disabled={submitting}
                     aria-invalid={Boolean(errors.password)}
                     className="h-14 rounded-2xl border-[#e7dfd4] bg-white/80 px-4 pr-12 text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
