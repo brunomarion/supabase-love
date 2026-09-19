@@ -426,18 +426,20 @@ function PainelPage() {
                 ["male", "Masculino"],
                 ["female", "Feminino"],
               ].map(([value, label]) => (
-                <button
+                <label
                   key={value}
-                  type="button"
-                  onClick={() => setPatient({ ...patient, sex: value as "" | "male" | "female" })}
-                  className={`h-11 rounded-xl border px-3 text-sm font-medium transition ${
-                    patient.sex === value
-                      ? "border-[#BA9051] bg-[#BA9051]/10 text-[#A97A3C] shadow-[0_4px_14px_rgba(186,144,81,0.12)]"
-                      : "border-[#e6d8c5] bg-[#fdfbf8] text-[#746c64] hover:border-[#cdb894] hover:bg-[#fffaf2]"
-                  }`}
+                  className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm font-medium text-[#746c64] transition hover:border-[#cdb894] hover:bg-[#fffaf2]"
                 >
-                  {label}
-                </button>
+                  <input
+                    type="radio"
+                    name="patient-sex"
+                    value={value}
+                    checked={patient.sex === value}
+                    onChange={() => setPatient({ ...patient, sex: value as "" | "male" | "female" })}
+                    className="size-4 accent-[#BA9051]"
+                  />
+                  <span>{label}</span>
+                </label>
               ))}
             </div>
           </div>
