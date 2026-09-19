@@ -416,39 +416,55 @@ function PainelPage() {
       </nav>
 
       {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastrar paciente"} close={() => !saving && setModal(null)}>
-        <form onSubmit={savePatient} className="space-y-4">
-          <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
-          <Field label="Data de nascimento" type="date" value={patient.birth_date} onChange={(v) => setPatient({ ...patient, birth_date: v })} />
-          <div className="block">
-            <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Sexo</span>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                ["male", "Masculino"],
-                ["female", "Feminino"],
-              ].map(([value, label]) => (
-                <label
-                  key={value}
-                  className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm font-medium text-[#746c64] transition hover:border-[#cdb894] hover:bg-[#fffaf2]"
-                >
-                  <input
-                    type="radio"
-                    name="patient-sex"
-                    value={value}
-                    checked={patient.sex === value}
-                    onChange={() => setPatient({ ...patient, sex: value as "" | "male" | "female" })}
-                    className="size-4 accent-[#BA9051]"
-                  />
-                  <span>{label}</span>
-                </label>
-              ))}
+        <form onSubmit={savePatient} className="space-y-5">
+          <div className="space-y-4">
+            <div className="pb-1 text-center">
+              <h3 className="text-sm font-semibold text-[#A97A3C]">Informações Pessoais</h3>
+              <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
+            </div>
+            <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
+            <Field label="Data de nascimento" type="date" value={patient.birth_date} onChange={(v) => setPatient({ ...patient, birth_date: v })} />
+            <div className="block">
+              <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Sexo</span>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  ["male", "Masculino"],
+                  ["female", "Feminino"],
+                ].map(([value, label]) => (
+                  <label
+                    key={value}
+                    className="flex h-11 cursor-pointer items-center gap-3 rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-sm font-medium text-[#746c64] transition hover:border-[#cdb894] hover:bg-[#fffaf2]"
+                  >
+                    <input
+                      type="radio"
+                      name="patient-sex"
+                      value={value}
+                      checked={patient.sex === value}
+                      onChange={() => setPatient({ ...patient, sex: value as "" | "male" | "female" })}
+                      className="size-4 accent-[#BA9051]"
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
+            <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
+            <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
+          </div>
+
+          <div className="border-t border-[#eee5d9] pt-5">
+            <div className="mb-4 text-center">
+              <h3 className="text-sm font-semibold text-[#A97A3C]">Dados de Acesso</h3>
+              <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
+            </div>
+            <div className="space-y-4">
+              <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
+              {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
+              <SelectField label="Status" value={patient.status} onChange={(v) => setPatient({ ...patient, status: v as "active" | "inactive" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
             </div>
           </div>
-          <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
-          <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
-          <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
-          {!editingPatient && <Field label="Senha de acesso" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
-          <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
-          <SelectField label="Status" value={patient.status} onChange={(v) => setPatient({ ...patient, status: v as "active" | "inactive" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
+
           <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar paciente"} loading={saving} />
         </form>
       </Modal>}
