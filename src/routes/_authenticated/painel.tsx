@@ -226,7 +226,7 @@ function PainelPage() {
         if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
         if (patient.password.length < 6) throw new Error("A senha deve ter pelo menos 6 caracteres.");
 
-        const { error: functionError } = await supabase.functions.invoke("create-patient", {
+        const { error: functionError } = await supabase.functions.invoke("criar_paciente", {
           body: {
             physiotherapist_id: physiotherapistId,
             full_name: patient.full_name.trim(),
