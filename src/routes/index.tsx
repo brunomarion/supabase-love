@@ -199,11 +199,11 @@ function LoginPage() {
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
-              className="h-auto max-h-[27vh] w-[min(90vw,360px)] object-contain drop-shadow-[0_22px_42px_rgba(55,37,18,0.38)]"
+              className="h-auto max-h-[23vh] w-[min(78vw,315px)] object-contain drop-shadow-[0_20px_38px_rgba(55,37,18,0.34)]"
             />
           </div>
 
-          <div className="mx-auto w-[calc(100%-1.25rem)] max-w-[360px] rounded-[1.45rem] border border-white/90 bg-[#fffdfa]/96 p-3.5 shadow-[0_26px_65px_rgba(55,35,15,0.30),0_3px_16px_rgba(255,255,255,0.65)_inset] backdrop-blur-xl sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="mx-auto w-[calc(100%-2rem)] max-w-[340px] rounded-[1.55rem] border border-white/90 bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.13),transparent_42%),linear-gradient(145deg,#ffffff_0%,#fffdfa_52%,#f6efe6_100%)] p-3.5 shadow-[0_28px_75px_rgba(55,35,15,0.32),0_8px_24px_rgba(186,144,81,0.10),0_2px_12px_rgba(255,255,255,0.70)_inset] backdrop-blur-xl sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
               <h1 className="text-3xl font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu <span className="text-[#ba9051] lg:text-[#2d2823]">login</span>
