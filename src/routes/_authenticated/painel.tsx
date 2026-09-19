@@ -419,7 +419,28 @@ function PainelPage() {
         <form onSubmit={savePatient} className="space-y-4">
           <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
           <Field label="Data de nascimento" type="date" value={patient.birth_date} onChange={(v) => setPatient({ ...patient, birth_date: v })} />
-          <SelectField label="Sexo" value={patient.sex} onChange={(v) => setPatient({ ...patient, sex: v as "" | "male" | "female" })} options={[[ "", "Selecione" ], [ "male", "Masculino" ], [ "female", "Feminino" ]]} />
+          <div className="block">
+            <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Sexo</span>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                ["male", "Masculino"],
+                ["female", "Feminino"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPatient({ ...patient, sex: value as "" | "male" | "female" })}
+                  className={`h-11 rounded-xl border px-3 text-sm font-medium transition ${
+                    patient.sex === value
+                      ? "border-[#BA9051] bg-[#BA9051]/10 text-[#A97A3C] shadow-[0_4px_14px_rgba(186,144,81,0.12)]"
+                      : "border-[#e6d8c5] bg-[#fdfbf8] text-[#746c64] hover:border-[#cdb894] hover:bg-[#fffaf2]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
           <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
           <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
