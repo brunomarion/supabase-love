@@ -185,7 +185,7 @@ function LoginPage() {
             className="h-auto w-full max-w-[min(82%,680px)] object-contain drop-shadow-[0_24px_45px_rgba(47,31,15,0.42)]"
           />
         </div>
-
+      </section>
 
       <section className="flex h-[100dvh] w-full items-center justify-center overflow-hidden px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:px-12">
         <div className="w-full max-w-md">
