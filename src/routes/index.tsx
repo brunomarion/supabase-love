@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap");
+
 import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -130,7 +132,7 @@ function LoginPage() {
 
       <section className="flex h-[100dvh] items-center justify-center overflow-hidden px-4 py-3 sm:px-8 sm:py-6 lg:px-12">
         <div className="w-full max-w-md">
-          <div className="mb-3 flex justify-center lg:hidden sm:mb-5">
+          <div className="mb-1 flex -translate-y-2 justify-center lg:hidden sm:mb-4 sm:-translate-y-2">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
@@ -138,9 +140,9 @@ function LoginPage() {
             />
           </div>
 
-          <div className="rounded-3xl bg-white p-5 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:p-7 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
-            <div className="mb-5 text-center lg:mb-8 lg:text-left">
-              <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#2d2823] sm:text-4xl">
+          <div className="mx-auto w-[calc(100%-1rem)] rounded-3xl bg-white p-5 shadow-[0_20px_60px_rgba(37,33,29,0.08)] sm:w-full sm:p-7 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+            <div className="mb-5 text-center lg:mb-8 lg:text-center">
+              <h1 className="text-3xl font-semibold leading-tight tracking-[-0.03em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça seu login
               </h1>
             </div>
@@ -240,11 +242,26 @@ function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-5 flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
+            <div className="mt-5 space-y-3 text-center">
+              <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
+                <span className="h-px w-8 bg-[#e4ded6]" />
+                Acesso seguro
+                <span className="h-px w-8 bg-[#e4ded6]" />
+              </div>
+              <div className="flex items-center justify-center gap-2 text-[10px] font-medium tracking-wide text-[#9a9188]">
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#e4ded6] bg-[#faf8f5] px-2.5 py-1">
+                  <span className="text-[#ba9051]">✓</span> Acesso protegido
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-[#e4ded6] bg-[#faf8f5] px-2.5 py-1">
+                  <span className="text-[#ba9051]">⌁</span> Conexão segura
+                </span>
+              </div>
+            </div>
+            {/*
               <span className="h-px w-8 bg-[#e4ded6]" />
               Acesso seguro
               <span className="h-px w-8 bg-[#e4ded6]" />
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
