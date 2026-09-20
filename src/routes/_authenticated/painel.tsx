@@ -425,8 +425,8 @@ function PainelPage() {
             {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
-            {tab === "dashboard" && <Dashboard patients={patientCount} activePatients={activePatientCount} exercises={exerciseCount} />}
-            {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
+            {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} />}
+            {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
             {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
             {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
@@ -532,11 +532,11 @@ function PainelPage() {
   );
 }
 
-function Dashboard({ patients, activePatients, exercises }: { patients: number; activePatients: number; exercises: number }) {
-  return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 md:grid-cols-3"><Summary icon={Users} label="Pacientes cadastrados" value={patients} /><Summary icon={Users} label="Pacientes ativos" value={activePatients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
+function Dashboard({ patients, exercises }: { patients: number; exercises: number }) {
+  return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
 }
 
-function Patients({ patients, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
+function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
   const filteredPatients = statusFilter === "all"
     ? patients
     : patients.filter((patient) => patient.status === statusFilter);
@@ -564,9 +564,10 @@ function Patients({ patients, onAdd, onEdit, onDelete, deleting, statusFilter, o
   );
 
   return <section className="space-y-5">
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-start justify-between gap-3 lg:items-end">
         <div className="min-w-0">
+          <div className="mb-3 flex items-center gap-3"><div className="flex items-baseline gap-2"><span className="text-[28px] font-semibold tracking-[-0.04em] text-[#302b26]">{patientCount}</span><span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">pacientes cadastrados</span></div></div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
           <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
           <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
