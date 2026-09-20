@@ -674,7 +674,17 @@ function Header({ title, text, action, onAction }: { title: string; text: string
 }
 
 function Summary({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
-  return <div className="group relative overflow-hidden rounded-[1.4rem] border border-[#e5d8c7] bg-white p-5 shadow-[0_12px_32px_rgba(64,48,30,0.055)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(64,48,30,0.09)] sm:p-6"><div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#BA9051,#D4B27D,#A97A3C)] opacity-80" /><div className="flex items-start justify-between gap-4"><span className="flex size-11 items-center justify-center rounded-2xl border border-[#eadcc9] bg-[linear-gradient(145deg,#fffaf2,#f7eee2)] text-[#BA9051] shadow-[0_5px_15px_rgba(186,144,81,0.12)]"><Icon className="size-[19px]" strokeWidth={1.8} /></span><span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#b0a59b]">Total</span></div><p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.13em] text-[#948a81]">{label}</p><p className="mt-1 text-[34px] font-semibold tracking-[-0.04em] text-[#302b26]">{value}</p><div className="mt-3 h-px w-full bg-[#f0e8dd]" /><p className="mt-2 text-[10px] text-[#a0968d]">Atualizado automaticamente</p></div>;
+  return <div className="group relative overflow-hidden rounded-2xl border border-[#e5d8c7] bg-white p-4 shadow-[0_10px_26px_rgba(64,48,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(64,48,30,0.08)] sm:rounded-[1.25rem] sm:p-5">
+    <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#BA9051,#D4B27D,#A97A3C)] opacity-80" />
+    <div className="flex items-start justify-between gap-3">
+      <span className="flex size-9 items-center justify-center rounded-xl border border-[#eadcc9] bg-[linear-gradient(145deg,#fffaf2,#f7eee2)] text-[#BA9051] shadow-[0_4px_12px_rgba(186,144,81,0.10)] sm:size-10 sm:rounded-2xl">
+        <Icon className="size-[17px] sm:size-[18px]" strokeWidth={1.8} />
+      </span>
+      <span className="mt-1 text-[8px] font-semibold uppercase tracking-[0.1em] text-[#b0a59b]">Total</span>
+    </div>
+    <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#948a81] sm:mt-4">{label}</p>
+    <p className="mt-0.5 text-[30px] font-semibold tracking-[-0.04em] text-[#302b26] sm:text-[32px]">{value}</p>
+  </div>;
 }
 
 function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title: string; text: string }) {
