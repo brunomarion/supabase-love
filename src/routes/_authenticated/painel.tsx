@@ -603,18 +603,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
   });
 
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-
-  useEffect(() => {
-    const updatePageSize = () => {
-      const nextSize = window.matchMedia("(min-width: 1024px)").matches ? 10 : 5;
-      setPageSize(nextSize);
-    };
-
-    updatePageSize();
-    window.addEventListener("resize", updatePageSize);
-    return () => window.removeEventListener("resize", updatePageSize);
-  }, []);
+  const pageSize = 5;
 
   useEffect(() => {
     setPage(1);
