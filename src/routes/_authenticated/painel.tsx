@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, Pencil, Plus, RefreshCw, Settings, Trash2, Users } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut, Pencil, Plus, RefreshCw, Search, Settings, Trash2, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -591,9 +591,16 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
 }
 
 function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
-  const filteredPatients = statusFilter === "all"
-    ? patients
-    : patients.filter((patient) => patient.status === statusFilter);
+  const [patientSearch, setPatientSearch] = useState("");
+
+  const filteredPatients = patients.filter((patient) => {
+    const matchesStatus = statusFilter === "all" || patient.status === statusFilter;
+    const search = patientSearch.trim().toLocaleLowerCase("pt-BR");
+    if (!search) return matchesStatus;
+    return matchesStatus && [patient.full_name, patient.responsible_name, patient.responsible_email, patient.responsible_phone]
+      .filter(Boolean)
+      .some((value) => value!.toLocaleLowerCase("pt-BR").includes(search));
+  });
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -611,7 +618,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
 
   useEffect(() => {
     setPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, patientSearch]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPatients.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -673,6 +680,13 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
             <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
           </div>
         </div>
+      </div>
+      <div className="rounded-2xl border border-[#e6d9c9] bg-white p-2 shadow-[0_6px_20px_rgba(64,48,30,0.045)]">
+        <label className="flex h-11 items-center gap-2.5 rounded-xl border border-[#e6d9c9] bg-[#fdfbf8] px-3 text-[#837970] focus-within:border-[#BA9051] focus-within:ring-2 focus-within:ring-[#BA9051]/10">
+          <Search className="size-[17px] shrink-0 text-[#BA9051]" strokeWidth={1.8} />
+          <input type="search" value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} placeholder="Pesquisar paciente, responsável, e-mail ou telefone..." aria-label="Pesquisar pacientes" className="min-w-0 flex-1 bg-transparent text-base text-[#403a35] outline-none placeholder:text-[#a79d94] sm:text-sm" />
+          {patientSearch && <button type="button" onClick={() => setPatientSearch("")} aria-label="Limpar pesquisa" className="flex size-7 shrink-0 items-center justify-center rounded-lg text-[#91877e] transition hover:bg-[#f2ece4] hover:text-[#A97A3C]"><X className="size-4" /></button>}
+        </label>
       </div>
       <div className="sm:hidden">
         <Button onClick={onAdd} className="h-10 w-full rounded-xl bg-[#BA9051] text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
