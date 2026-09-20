@@ -294,8 +294,23 @@ function PainelPage() {
   async function removePatient(item: Patient) {
     try {
       setDeleting(item.id);
-      const { error: deleteError } = await supabase.from("patients").delete().eq("id", item.id);
-      if (deleteError) throw deleteError;
+      setError("");
+
+      const { data, error: functionError } = await supabase.functions.invoke("criar_paciente", {
+        body: {
+          action: "delete_patient",
+          patient_id: item.id,
+        },
+      });
+
+      if (functionError) {
+        throw new Error(await getCreatePatientErrorMessage(functionError));
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
       setConfirmPatient(null);
       setNotice("");
       setPatientToast(`Paciente "${item.full_name}" excluído com sucesso.`);
