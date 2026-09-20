@@ -631,12 +631,14 @@ function PainelPage() {
             <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
             <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
 
+            <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
+
             <div className="border-t border-[#eee5d9] pt-5">
               <div className="mb-4 text-center">
                 <h3 className="text-base font-semibold text-[#A97A3C]">Endereço do Paciente</h3>
                 <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
               </div>
-              <div className="grid gap-4 sm:grid-cols-[1fr_1.4fr]">
+              <div className="space-y-4">
                 <label className="block">
                   <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">CEP</span>
                   <input
@@ -651,18 +653,17 @@ function PainelPage() {
                 </label>
                 <Field label="Rua" value={patient.street} onChange={(v) => setPatient({ ...patient, street: v })} placeholder="Ex.: Rua das Flores" />
               </div>
-              <div className="grid gap-4 sm:grid-cols-[0.7fr_1.3fr]">
+              <div className="grid gap-5 sm:grid-cols-[0.7fr_1.3fr]">
                 <Field label="Número" value={patient.number} onChange={(v) => setPatient({ ...patient, number: v })} placeholder="123" />
                 <Field label="Complemento" value={patient.complement} onChange={(v) => setPatient({ ...patient, complement: v })} placeholder="Apto, casa, bloco..." />
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2">
                 <Field label="Bairro" value={patient.neighborhood} onChange={(v) => setPatient({ ...patient, neighborhood: v })} placeholder="Ex.: Manaíra" />
                 <Field label="Cidade" value={patient.city} onChange={(v) => setPatient({ ...patient, city: v })} placeholder="Ex.: João Pessoa" />
               </div>
               <Field label="Estado" value={patient.state} onChange={(v) => setPatient({ ...patient, state: v.slice(0, 2).toUpperCase() })} placeholder="Ex.: PB" />
             </div>
 
-            <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
           </div>
 
           <div className="border-t border-[#eee5d9] pt-5">
