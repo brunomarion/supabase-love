@@ -414,7 +414,7 @@ function PainelPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#faf8f4] text-[#2D2823]">
+    <main className="h-screen overflow-hidden bg-[#faf8f4] text-[#2D2823]">
       {patientToast && (
         <div className="fixed inset-x-4 top-4 z-[80] flex justify-center pointer-events-none sm:inset-x-auto sm:right-6 sm:top-6">
           <div className="pointer-events-auto flex w-full max-w-[390px] items-center gap-3 rounded-2xl border border-[#dfc8a5] bg-white/95 px-4 py-3.5 shadow-[0_18px_50px_rgba(64,48,30,0.18)] backdrop-blur-xl animate-in slide-in-from-top-3 duration-300">
@@ -449,8 +449,8 @@ function PainelPage() {
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1 pb-24 lg:pb-0">
-          <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-10 lg:py-5">
+        <div className="min-w-0 flex-1 overflow-hidden pb-24 lg:pb-0">
+          <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden">
             <div className="flex items-center justify-center lg:hidden">
               <img
                 src={logo}
@@ -464,7 +464,7 @@ function PainelPage() {
             </div>
           </header>
 
-          <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-8">
+          <div className="mx-auto h-full max-w-[1400px] overflow-hidden px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-5">
             {(loading || refreshing) && <div className="mb-5 flex items-center gap-2 rounded-xl border border-[#e6d9c9] bg-white px-4 py-3 text-xs text-[#746c64]"><RefreshCw className="size-4 animate-spin text-[#BA9051]" />Atualizando dados...</div>}
             {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
@@ -694,7 +694,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
       <div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div>
-      <div className="h-[calc(100vh-420px)] min-h-[180px] max-h-[calc(100vh-360px)] overflow-y-auto overscroll-contain divide-y divide-[#f0e8dd] sm:h-auto sm:min-h-[220px] sm:max-h-[calc(100vh-340px)]">
+      <div className="h-[calc(100vh-420px)] min-h-[180px] max-h-[calc(100vh-360px)] overflow-y-auto overscroll-contain divide-y divide-[#f0e8dd] sm:h-auto sm:min-h-[220px] sm:max-h-[calc(100vh-250px)]">
         {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : paginatedPatients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
           <div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div>
           <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
