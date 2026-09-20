@@ -538,21 +538,26 @@ function Patients({ patients, onAdd, onEdit, onDelete, deleting, statusFilter, o
     : patients.filter((patient) => patient.status === statusFilter);
 
   return <section className="space-y-5">
-    <Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar Paciente" onAction={onAdd} />
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9a9087]">Filtrar pacientes</p>
-        <p className="mt-1 text-xs text-[#837970]">Visualize pacientes por status.</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
+        <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
+        <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
       </div>
-      <select
-        value={statusFilter}
-        onChange={(e) => onStatusFilterChange(e.target.value as "all" | "active" | "inactive")}
-        className="h-10 w-full rounded-xl border border-[#e6d8c5] bg-white px-3 text-xs font-medium text-[#5f574f] outline-none transition focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:w-[180px]"
-      >
-        <option value="all">Todos os pacientes</option>
-        <option value="active">Ativos</option>
-        <option value="inactive">Inativos</option>
-      </select>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-2 rounded-xl border border-[#e6d8c5] bg-white px-3 py-2.5 shadow-[0_4px_16px_rgba(64,48,30,0.04)]">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9a9087]">Filtrar:</span>
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-[#5f574f]">
+            <input type="checkbox" checked={statusFilter === "active"} onChange={(e) => onStatusFilterChange(e.target.checked ? "active" : "all")} className="size-4 accent-[#BA9051]" />
+            Ativos
+          </label>
+          <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-[#5f574f]">
+            <input type="checkbox" checked={statusFilter === "inactive"} onChange={(e) => onStatusFilterChange(e.target.checked ? "inactive" : "all")} className="size-4 accent-[#d66a6a]" />
+            Inativos
+          </label>
+        </div>
+        <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
+      </div>
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
       <div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div>
