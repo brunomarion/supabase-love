@@ -566,19 +566,28 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
   return <section className="space-y-5">
     <div className="space-y-3">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
-          <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
-          <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
+        <div className="flex min-w-0 items-center justify-between gap-4 lg:block">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
+            <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
+            <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-[#e6d8c5] bg-white/90 px-3 py-2 shadow-[0_4px_16px_rgba(64,48,30,0.05)] lg:hidden">
+            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#302b26]">{patientCount}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 lg:gap-4">
-          <div className="hidden lg:block text-right"><p className="text-sm font-semibold text-[#302b26]">{patientCount}</p><p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-[#948a81]">pacientes cadastrados</p></div>
+        <div className="flex items-center justify-end gap-3 lg:gap-4">
+          <div className="hidden items-center gap-2 lg:flex">
+            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#302b26]">{patientCount}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
+          </div>
           <div className="sm:hidden"><Filter mobile /></div>
-          <div className="hidden items-center gap-4 lg:flex"><Filter /><Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button></div>
+          <div className="hidden items-center gap-4 lg:flex">
+            <Filter />
+            <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
+          </div>
         </div>
-      </div>
-      <div className="sm:hidden flex items-center justify-end">
-        <div className="flex items-center gap-2 rounded-xl border border-[#e6d8c5] bg-white/90 px-3 py-2 shadow-[0_4px_16px_rgba(64,48,30,0.05)]"><span className="text-[18px] font-semibold tracking-[-0.03em] text-[#302b26]">{patientCount}</span><span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span></div>
       </div>
       <div className="sm:hidden">
         <Button onClick={onAdd} className="h-10 w-full rounded-xl bg-[#BA9051] text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
