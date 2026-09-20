@@ -148,7 +148,26 @@ function PainelPage() {
     navigate({ to: "/", replace: true });
   }
 
+  function closeModal() {
+    const scrollY = window.scrollY;
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
+
+    // iOS Safari can keep the visual viewport zoomed after the keyboard closes.
+    setModal(null);
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo(0, scrollY);
+      window.requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+      });
+    });
+  }
+
   function openPatientCreate() {
+    closeModal();
     setEditingPatient(null);
     setPatient(emptyPatient);
     setModal("patient");
@@ -283,7 +302,7 @@ function PainelPage() {
         setNotice("Paciente cadastrado com sucesso.");
       }
 
-      setModal(null);
+      closeModal();
       setEditingPatient(null);
       setPatient(emptyPatient);
       if (!editingPatient) await loadData();
@@ -368,7 +387,7 @@ function PainelPage() {
         setNotice("Exercício adicionado com sucesso.");
       }
 
-      setModal(null);
+      closeModal();
       setEditingExercise(null);
       setExercise(emptyExercise);
       await loadData();
