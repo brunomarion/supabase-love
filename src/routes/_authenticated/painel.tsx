@@ -450,10 +450,26 @@ function PainelPage() {
         </aside>
 
         <div className="min-w-0 flex-1 pb-24 lg:pb-0">
-          <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-10 lg:py-5">
-            <div className="flex items-center justify-between">
+          <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-10 lg:py-5">
+            <div className="lg:hidden">
+              <div className="flex justify-center">
+                <img
+                  src={logo}
+                  alt="Erick Paulino Fisioterapeuta"
+                  className="h-auto w-[min(52vw,210px)] object-contain"
+                />
+              </div>
+              <div className="mt-2 text-center">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">
+                  Painel Administrativo
+                </p>
+                <h1 className="mt-0.5 text-[20px] font-semibold tracking-[-0.03em] text-[#2D2823]">
+                  Olá, Erick! <span aria-hidden="true">👋</span>
+                </h1>
+              </div>
+            </div>
+            <div className="hidden items-center justify-between lg:flex">
               <div><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel administrativo</span><h1 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] sm:text-2xl">Olá, Erick</h1></div>
-              <button type="button" onClick={logout} className="flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d] lg:hidden"><LogOut className="size-4" /> Sair</button>
             </div>
           </header>
 
