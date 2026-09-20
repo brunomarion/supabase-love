@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, Pencil, Plus, RefreshCw, Search, Settings, Trash2, Users, X } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Plus, RefreshCw, Search, Settings, Trash2, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -35,6 +35,13 @@ const emptyPatient = {
   responsible_name: "",
   responsible_phone: "",
   responsible_email: "",
+  cep: "",
+  street: "",
+  number: "",
+  complement: "",
+  neighborhood: "",
+  city: "",
+  state: "",
   password: "",
   notes: "",
   status: "active" as "active" | "inactive",
@@ -183,6 +190,13 @@ function PainelPage() {
       responsible_name: item.responsible_name ?? "",
       responsible_phone: item.responsible_phone ?? "",
       responsible_email: item.responsible_email ?? "",
+      cep: item.cep ?? "",
+      street: item.street ?? "",
+      number: item.number ?? "",
+      complement: item.complement ?? "",
+      neighborhood: item.neighborhood ?? "",
+      city: item.city ?? "",
+      state: item.state ?? "",
       notes: item.notes ?? "",
       status: item.status,
     });
@@ -228,6 +242,58 @@ function PainelPage() {
       : "Não foi possível cadastrar o paciente.";
   }
 
+  async function fillAddressByCep() {
+    const cep = patient.cep.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      if (!response.ok) return;
+      const data = await response.json() as {
+        erro?: boolean;
+        logradouro?: string;
+        bairro?: string;
+        localidade?: string;
+        uf?: string;
+      };
+
+      if (data.erro) return;
+
+      setPatient((current) => ({
+        ...current,
+        cep: current.cep.replace(/\D/g, "").replace(/^(\d{5})(\d{3})$/, "$1-$2"),
+        street: data.logradouro ?? current.street,
+        neighborhood: data.bairro ?? current.neighborhood,
+        city: data.localidade ?? current.city,
+        state: data.uf ?? current.state,
+      }));
+    } catch {
+      // O endereço continua editável manualmente caso o serviço de CEP esteja indisponível.
+    }
+  }
+
+  function getPatientAddress(item: Patient) {
+    return [
+      item.street,
+      item.number,
+      item.complement,
+      item.neighborhood,
+      item.city,
+      item.state,
+      item.cep,
+    ].filter(Boolean).join(", ");
+  }
+
+  function openPatientMap(item: Patient) {
+    const address = getPatientAddress(item);
+    if (!address) return;
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }
+
   async function savePatient(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!patient.full_name.trim()) {
@@ -264,6 +330,22 @@ function PainelPage() {
           throw new Error(data.error);
         }
 
+        const { error: addressUpdateError } = await supabase
+          .from("patients")
+          .update({
+            cep: patient.cep.trim() || null,
+            street: patient.street.trim() || null,
+            number: patient.number.trim() || null,
+            complement: patient.complement.trim() || null,
+            neighborhood: patient.neighborhood.trim() || null,
+            city: patient.city.trim() || null,
+            state: patient.state.trim().toUpperCase() || null,
+          })
+          .eq("id", editingPatient.id)
+          .eq("physiotherapist_id", physiotherapistId);
+
+        if (addressUpdateError) throw addressUpdateError;
+
         const updatedPatient = data?.patient as Patient | undefined;
         if (!updatedPatient) throw new Error("O paciente não pôde ser atualizado.");
 
@@ -297,6 +379,33 @@ function PainelPage() {
 
         if (functionError) {
           throw new Error(await getCreatePatientErrorMessage(functionError));
+        }
+
+        const { data: createdPatient } = await supabase
+          .from("patients")
+          .select("id")
+          .eq("physiotherapist_id", physiotherapistId)
+          .eq("responsible_email", patient.responsible_email.trim())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (createdPatient?.id) {
+          const { error: addressUpdateError } = await supabase
+            .from("patients")
+            .update({
+              cep: patient.cep.trim() || null,
+              street: patient.street.trim() || null,
+              number: patient.number.trim() || null,
+              complement: patient.complement.trim() || null,
+              neighborhood: patient.neighborhood.trim() || null,
+              city: patient.city.trim() || null,
+              state: patient.state.trim().toUpperCase() || null,
+            })
+            .eq("id", createdPatient.id)
+            .eq("physiotherapist_id", physiotherapistId);
+
+          if (addressUpdateError) throw addressUpdateError;
         }
 
         setNotice("Paciente cadastrado com sucesso.");
@@ -470,7 +579,7 @@ function PainelPage() {
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
             {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} />}
-            {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
+            {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
             {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
             {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
@@ -521,6 +630,38 @@ function PainelPage() {
             </div>
             <Field label="Nome do responsável" value={patient.responsible_name} onChange={(v) => setPatient({ ...patient, responsible_name: v })} placeholder="Ex.: Ana Oliveira" />
             <Field label="Telefone do responsável" value={patient.responsible_phone} onChange={(v) => setPatient({ ...patient, responsible_phone: v })} placeholder="(83) 99999-9999" />
+
+            <div className="border-t border-[#eee5d9] pt-5">
+              <div className="mb-4 text-center">
+                <h3 className="text-base font-semibold text-[#A97A3C]">Endereço do Paciente</h3>
+                <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-[1fr_1.4fr]">
+                <label className="block">
+                  <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">CEP</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={patient.cep}
+                    onChange={(e) => setPatient({ ...patient, cep: e.target.value.replace(/\\D/g, "").slice(0, 8) })}
+                    onBlur={() => void fillAddressByCep()}
+                    placeholder="00000-000"
+                    className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-base outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:text-sm"
+                  />
+                </label>
+                <Field label="Rua" value={patient.street} onChange={(v) => setPatient({ ...patient, street: v })} placeholder="Ex.: Rua das Flores" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-[0.7fr_1.3fr]">
+                <Field label="Número" value={patient.number} onChange={(v) => setPatient({ ...patient, number: v })} placeholder="123" />
+                <Field label="Complemento" value={patient.complement} onChange={(v) => setPatient({ ...patient, complement: v })} placeholder="Apto, casa, bloco..." />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Bairro" value={patient.neighborhood} onChange={(v) => setPatient({ ...patient, neighborhood: v })} placeholder="Ex.: Manaíra" />
+                <Field label="Cidade" value={patient.city} onChange={(v) => setPatient({ ...patient, city: v })} placeholder="Ex.: João Pessoa" />
+              </div>
+              <Field label="Estado" value={patient.state} onChange={(v) => setPatient({ ...patient, state: v.slice(0, 2).toUpperCase() })} placeholder="Ex.: PB" />
+            </div>
+
             <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
           </div>
 
@@ -594,8 +735,12 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
   </section>;
 }
 
-function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
+function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; onMap: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
   const [patientSearch, setPatientSearch] = useState("");
+
+  function getPatientAddress(item: Patient) {
+    return [item.street, item.number, item.complement, item.neighborhood, item.city, item.state, item.cep].filter(Boolean).join(", ");
+  }
 
   const filteredPatients = patients.filter((patient) => {
     const matchesStatus = statusFilter === "all" || patient.status === statusFilter;
@@ -693,7 +838,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
           <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
           <div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div>
           <div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div>
-          <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+          <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2">{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
         </div>)}
       </div>
       {filteredPatients.length > 0 && (
