@@ -537,26 +537,46 @@ function Patients({ patients, onAdd, onEdit, onDelete, deleting, statusFilter, o
     ? patients
     : patients.filter((patient) => patient.status === statusFilter);
 
+  const Filter = ({ mobile = false }: { mobile?: boolean }) => (
+    <div className={`flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)] ${mobile ? "shrink-0" : ""}`}>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar</span>
+      <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
+        <span className="relative flex size-[17px] items-center justify-center">
+          <input type="checkbox" checked={statusFilter === "active"} onChange={(e) => onStatusFilterChange(e.target.checked ? "active" : "all")} className="peer sr-only" />
+          <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+          <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+        </span>
+        Ativos
+      </label>
+      <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#fff8f8]">
+        <span className="relative flex size-[17px] items-center justify-center">
+          <input type="checkbox" checked={statusFilter === "inactive"} onChange={(e) => onStatusFilterChange(e.target.checked ? "inactive" : "all")} className="peer sr-only" />
+          <span className="absolute inset-0 rounded-[5px] border border-[#e2baba] bg-[#fffafa] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#d66a6a] peer-checked:bg-[#d66a6a] peer-focus-visible:ring-2 peer-focus-visible:ring-[#d66a6a]/20" />
+          <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+        </span>
+        Inativos
+      </label>
+    </div>
+  );
+
   return <section className="space-y-5">
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
-        <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
-        <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
-      </div>
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-2 rounded-xl border border-[#e6d8c5] bg-white px-3 py-2.5 shadow-[0_4px_16px_rgba(64,48,30,0.04)]">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#9a9087]">Filtrar:</span>
-          <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-[#5f574f]">
-            <input type="checkbox" checked={statusFilter === "active"} onChange={(e) => onStatusFilterChange(e.target.checked ? "active" : "all")} className="size-4 accent-[#BA9051]" />
-            Ativos
-          </label>
-          <label className="flex cursor-pointer items-center gap-1.5 text-xs font-medium text-[#5f574f]">
-            <input type="checkbox" checked={statusFilter === "inactive"} onChange={(e) => onStatusFilterChange(e.target.checked ? "inactive" : "all")} className="size-4 accent-[#d66a6a]" />
-            Inativos
-          </label>
+    <div className="space-y-3">
+      <div className="flex items-start justify-between gap-3 lg:items-end">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
+          <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
+          <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
         </div>
-        <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
+        <div className="sm:hidden">
+          <Filter mobile />
+        </div>
+        <div className="hidden items-center gap-4 lg:flex">
+          <Filter />
+          <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
+        </div>
+      </div>
+      <div className="sm:hidden">
+        <Button onClick={onAdd} className="h-10 w-full rounded-xl bg-[#BA9051] text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
       </div>
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
