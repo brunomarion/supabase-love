@@ -572,17 +572,17 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
             <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
             <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
           </div>
-          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-[#e6d8c5] bg-white/90 px-3 py-2 shadow-[0_4px_16px_rgba(64,48,30,0.05)] lg:hidden">
-            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#302b26]">{patientCount}</span>
+          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)] lg:hidden">
+            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{patientCount}</span>
             <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
-          <div className="hidden items-center gap-2 lg:flex">
-            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#302b26]">{patientCount}</span>
+          <div className="hidden items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)] lg:flex">
+            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{patientCount}</span>
             <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
           </div>
-          <div className="sm:hidden"><Filter mobile /></div>
+          <div className="hidden sm:flex lg:hidden"><Filter mobile /></div>
           <div className="hidden items-center gap-4 lg:flex">
             <Filter />
             <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
