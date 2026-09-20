@@ -56,6 +56,7 @@ function PainelPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [patientCount, setPatientCount] = useState(0);
+  const [activePatientCount, setActivePatientCount] = useState(0);
   const [exerciseCount, setExerciseCount] = useState(0);
   const [physiotherapistId, setPhysiotherapistId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -115,9 +116,10 @@ function PainelPage() {
       const id = await getPhysiotherapistId();
       setPhysiotherapistId(id);
 
-      const [patientsResult, exercisesResult, patientCountResult, exerciseCountResult] = await Promise.all([
+      const [patientsResult, exercisesResult, patientCountResult, activePatientCountResult, exerciseCountResult] = await Promise.all([
         supabase.from("patients").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
         supabase.from("exercises").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
+        supabase.from("patients").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id),
         supabase.from("patients").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id).eq("status", "active"),
         supabase.from("exercises").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id).eq("is_active", true),
       ]);
@@ -125,11 +127,13 @@ function PainelPage() {
       if (patientsResult.error) throw patientsResult.error;
       if (exercisesResult.error) throw exercisesResult.error;
       if (patientCountResult.error) throw patientCountResult.error;
+      if (activePatientCountResult.error) throw activePatientCountResult.error;
       if (exerciseCountResult.error) throw exerciseCountResult.error;
 
       setPatients(patientsResult.data ?? []);
       setExercises(exercisesResult.data ?? []);
       setPatientCount(patientCountResult.count ?? 0);
+      setActivePatientCount(activePatientCountResult.count ?? 0);
       setExerciseCount(exerciseCountResult.count ?? 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível carregar os dados.");
@@ -421,7 +425,7 @@ function PainelPage() {
             {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
-            {tab === "dashboard" && <Dashboard patients={patientCount} exercises={exerciseCount} />}
+            {tab === "dashboard" && <Dashboard patients={patientCount} activePatients={activePatientCount} exercises={exerciseCount} />}
             {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
             {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
@@ -528,8 +532,8 @@ function PainelPage() {
   );
 }
 
-function Dashboard({ patients, exercises }: { patients: number; exercises: number }) {
-  return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
+function Dashboard({ patients, activePatients, exercises }: { patients: number; activePatients: number; exercises: number }) {
+  return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 md:grid-cols-3"><Summary icon={Users} label="Pacientes cadastrados" value={patients} /><Summary icon={Users} label="Pacientes ativos" value={activePatients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
 }
 
 function Patients({ patients, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
@@ -602,7 +606,7 @@ function Header({ title, text, action, onAction }: { title: string; text: string
 }
 
 function Summary({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
-  return <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.05)] sm:p-6"><span className="flex size-10 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#BA9051]"><Icon className="size-[18px]" /></span><p className="mt-5 text-[10px] font-medium uppercase tracking-[0.12em] text-[#948a81]">{label}</p><p className="mt-1 text-[30px] font-semibold">{value}</p></div>;
+  return <div className="group relative overflow-hidden rounded-[1.4rem] border border-[#e5d8c7] bg-white p-5 shadow-[0_12px_32px_rgba(64,48,30,0.055)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(64,48,30,0.09)] sm:p-6"><div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#BA9051,#D4B27D,#A97A3C)] opacity-80" /><div className="flex items-start justify-between gap-4"><span className="flex size-11 items-center justify-center rounded-2xl border border-[#eadcc9] bg-[linear-gradient(145deg,#fffaf2,#f7eee2)] text-[#BA9051] shadow-[0_5px_15px_rgba(186,144,81,0.12)]"><Icon className="size-[19px]" strokeWidth={1.8} /></span><span className="mt-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#b0a59b]">Total</span></div><p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.13em] text-[#948a81]">{label}</p><p className="mt-1 text-[34px] font-semibold tracking-[-0.04em] text-[#302b26]">{value}</p><div className="mt-3 h-px w-full bg-[#f0e8dd]" /><p className="mt-2 text-[10px] text-[#a0968d]">Atualizado automaticamente</p></div>;
 }
 
 function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title: string; text: string }) {
