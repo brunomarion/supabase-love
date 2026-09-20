@@ -48,14 +48,21 @@ export type Database = {
         Row: {
           auth_user_id: string | null
           birth_date: string | null
+          cep: string | null
+          city: string | null
+          complement: string | null
           created_at: string
           full_name: string
           id: string
+          neighborhood: string | null
           notes: string | null
+          number: string | null
           physiotherapist_id: string
           responsible_email: string | null
           responsible_name: string | null
           responsible_phone: string | null
+          state: string | null
+          street: string | null
           sex: "male" | "female" | null
           status: "active" | "inactive"
           updated_at: string
@@ -63,25 +70,39 @@ export type Database = {
         Insert: {
           auth_user_id?: string | null
           birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
           created_at?: string
           full_name: string
           id?: string
+          neighborhood?: string | null
           notes?: string | null
+          number?: string | null
           physiotherapist_id: string
           responsible_email?: string | null
           responsible_name?: string | null
           responsible_phone?: string | null
           sex?: "male" | "female" | null
+          state?: string | null
+          street?: string | null
+          state?: string | null
+          street?: string | null
           status?: "active" | "inactive"
           updated_at?: string
         }
         Update: {
           auth_user_id?: string | null
           birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
           created_at?: string
           full_name?: string
           id?: string
+          neighborhood?: string | null
           notes?: string | null
+          number?: string | null
           physiotherapist_id?: string
           responsible_email?: string | null
           responsible_name?: string | null
