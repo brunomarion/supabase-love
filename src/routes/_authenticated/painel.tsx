@@ -948,8 +948,19 @@ function Actions({ close, label, loading }: { close: () => void; label: string; 
 }
 
 function IconButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: ReactNode }) {
+  const location = label === "Abrir endereço no Google Maps";
   const destructive = label === "Excluir";
-  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 items-center justify-center rounded-lg border transition disabled:opacity-50 ${destructive ? "border-[#f0caca] bg-[#fff5f5] text-[#d34f4f] hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b93838]" : "border-[#c9d9ef] bg-[#f5f9ff] text-[#2f6fb3] hover:border-[#4d8dcc] hover:bg-[#edf5ff] hover:text-[#245d99]"}`}>{children}</button>;
+  const edit = label === "Editar";
+
+  const variant = location
+    ? "border-transparent bg-[linear-gradient(135deg,#4285F4_0%,#34A853_38%,#FBBC05_68%,#EA4335_100%)] text-white shadow-[0_4px_12px_rgba(66,133,244,0.22)] hover:-translate-y-0.5 hover:shadow-[0_7px_16px_rgba(66,133,244,0.28)]"
+    : destructive
+      ? "border-[#dc4c4c] bg-[#d94b4b] text-white shadow-[0_4px_12px_rgba(217,75,75,0.20)] hover:-translate-y-0.5 hover:border-[#c83e3e] hover:bg-[#c83e3e] hover:shadow-[0_7px_16px_rgba(217,75,75,0.26)]"
+      : edit
+        ? "border-[#3678c4] bg-[#3478c9] text-white shadow-[0_4px_12px_rgba(52,120,201,0.20)] hover:-translate-y-0.5 hover:border-[#2868b5] hover:bg-[#2868b5] hover:shadow-[0_7px_16px_rgba(52,120,201,0.26)]"
+        : "border-[#c9d9ef] bg-[#f5f9ff] text-[#2f6fb3] hover:border-[#4d8dcc] hover:bg-[#edf5ff] hover:text-[#245d99]";
+
+  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${variant}`}>{children}</button>;
 }
 
 function Status({ active }: { active: boolean }) {
