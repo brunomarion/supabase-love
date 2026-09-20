@@ -624,7 +624,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
 
   const Filter = ({ mobile = false }: { mobile?: boolean }) => (
     <div className={`flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)] ${mobile ? "shrink-0" : ""}`}>
-      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar</span>
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar por status:</span>
       <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
         <span className="relative flex size-[17px] items-center justify-center">
           <input type="checkbox" checked={statusFilter === "active"} onChange={(e) => onStatusFilterChange(e.target.checked ? "active" : "all")} className="peer sr-only" />
