@@ -451,22 +451,13 @@ function PainelPage() {
 
         <div className="min-w-0 flex-1 pb-24 lg:pb-0">
           <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-[#faf8f4]/95 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-10 lg:py-5">
-            <div className="lg:hidden">
-              <div className="flex justify-center">
-                <img
-                  src={logo}
-                  alt="Erick Paulino Fisioterapeuta"
-                  className="h-auto w-[min(52vw,210px)] object-contain"
-                />
-              </div>
-              <div className="mt-2 text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">
-                  Painel Administrativo
-                </p>
-                <h1 className="mt-0.5 text-[20px] font-semibold tracking-[-0.03em] text-[#2D2823]">
-                  Olá, Erick! <span aria-hidden="true">👋</span>
-                </h1>
-              </div>
+            <div className="flex items-center justify-center lg:hidden">
+              <img
+                src={logo}
+                alt="Erick Paulino Fisioterapeuta"
+                className="h-auto w-[min(52vw,210px)] object-contain"
+              />
+              <button type="button" onClick={logout} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-4" /> Sair</button>
             </div>
             <div className="hidden items-center justify-between lg:flex">
               <div><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel administrativo</span><h1 className="mt-1 text-[22px] font-semibold tracking-[-0.03em] sm:text-2xl">Olá, Erick</h1></div>
@@ -586,7 +577,18 @@ function PainelPage() {
 }
 
 function Dashboard({ patients, exercises }: { patients: number; exercises: number }) {
-  return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
+  return <section className="space-y-6">
+    <div className="lg:hidden">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel Administrativo</p>
+      <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[#2D2823]">Olá, Erick! <span aria-hidden="true">👋</span></h2>
+    </div>
+    <div className="hidden lg:block">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p>
+      <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2>
+      <p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p>
+    </div>
+    <div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div>
+  </section>;
 }
 
 function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
