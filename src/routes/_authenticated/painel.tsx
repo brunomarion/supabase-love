@@ -52,6 +52,7 @@ const emptyExercise = {
 function PainelPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [patientStatusFilter, setPatientStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [patientCount, setPatientCount] = useState(0);
@@ -421,7 +422,7 @@ function PainelPage() {
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
             {tab === "dashboard" && <Dashboard patients={patientCount} exercises={exerciseCount} />}
-            {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} />}
+            {tab === "pacientes" && <Patients patients={patients} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
             {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
             {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
@@ -531,10 +532,42 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
   return <section className="space-y-6"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2><p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p></div><div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div></section>;
 }
 
-function Patients({ patients, onAdd, onEdit, onDelete, deleting }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null }) {
-  return <section className="space-y-5"><Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar Paciente" onAction={onAdd} /><div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div><div className="divide-y divide-[#f0e8dd]">{patients.length === 0 ? <Empty text="Nenhum paciente cadastrado ainda." /> : patients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}><div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div><div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div><div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div><div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div><div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>)}</div></div></section>;
-}
+function Patients({ patients, onAdd, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
+  const filteredPatients = statusFilter === "all"
+    ? patients
+    : patients.filter((patient) => patient.status === statusFilter);
 
+  return <section className="space-y-5">
+    <Header title="Pacientes" text="Lista de pacientes cadastrados." action="Cadastrar Paciente" onAction={onAdd} />
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9a9087]">Filtrar pacientes</p>
+        <p className="mt-1 text-xs text-[#837970]">Visualize pacientes por status.</p>
+      </div>
+      <select
+        value={statusFilter}
+        onChange={(e) => onStatusFilterChange(e.target.value as "all" | "active" | "inactive")}
+        className="h-10 w-full rounded-xl border border-[#e6d8c5] bg-white px-3 text-xs font-medium text-[#5f574f] outline-none transition focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:w-[180px]"
+      >
+        <option value="all">Todos os pacientes</option>
+        <option value="active">Ativos</option>
+        <option value="inactive">Inativos</option>
+      </select>
+    </div>
+    <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
+      <div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div>
+      <div className="divide-y divide-[#f0e8dd]">
+        {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : filteredPatients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
+          <div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div>
+          <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
+          <div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div>
+          <div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div>
+          <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+        </div>)}
+      </div>
+    </div>
+  </section>;
+}
 function Exercises({ exercises, onAdd, onEdit, onDelete, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; deleting: string | null }) {
   return <section className="space-y-5"><Header title="Exercícios" text="Lista de exercícios cadastrados." action="Adicionar exercício" onAction={onAdd} /><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{exercises.length === 0 ? <div className="md:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : exercises.map((e) => <article key={e.id} className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="flex items-start gap-3"><span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3e3cf] text-[#A97A3C]">{e.thumbnail_url ? <img src={e.thumbnail_url} alt="" className="size-full object-cover" /> : <Dumbbell className="size-5" />}</span><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{e.name}</h3><span className="mt-1 inline-flex rounded-full bg-[#BA9051]/10 px-2 py-1 text-[9px] text-[#A97A3C]">{e.type}</span></div></div><p className="mt-4 min-h-10 text-xs leading-relaxed text-[#81776e]">{e.description || "Sem descrição."}</p><div className="mt-4 flex items-center justify-between"><Status active={e.is_active} /><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(e)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(e)} disabled={deleting === e.id}>{deleting === e.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div></article>)}</div></section>;
 }
@@ -602,7 +635,7 @@ function IconButton({ label, onClick, disabled, children }: { label: string; onC
 }
 
 function Status({ active }: { active: boolean }) {
-  return <span className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[#e8f3e8] text-[#4f7b53]" : "bg-[#f1ece7] text-[#81776e]"}`}>{active ? "Ativo" : "Inativo"}</span>;
+  return <span className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[#e8f3e8] text-[#4f7b53]" : "bg-[#fff0f0] text-[#d66a6a]"}`}>{active ? "Ativo" : "Inativo"}</span>;
 }
 
 function Empty({ text }: { text: string }) {
