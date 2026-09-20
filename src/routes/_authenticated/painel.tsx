@@ -493,7 +493,7 @@ function PainelPage() {
               <h3 className="text-base font-semibold text-[#A97A3C]">Informações Pessoais</h3>
               <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
             </div>
-            <Field label="Nome completo" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
+            <Field label="Nome Completo do Paciente" value={patient.full_name} onChange={(v) => setPatient({ ...patient, full_name: v })} placeholder="Ex.: Miguel Oliveira" required />
             <Field label="Data de nascimento" type="date" value={patient.birth_date} onChange={(v) => setPatient({ ...patient, birth_date: v })} />
             <div className="block">
               <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Sexo</span>
@@ -756,7 +756,7 @@ function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title
 }
 
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="size-8 rounded-lg text-xl text-[#91877e]">×</button></div>{children}</div></div>;
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="flex size-11 items-center justify-center rounded-xl text-3xl leading-none text-[#746c64] transition hover:bg-[#f6f0e8] hover:text-[#A97A3C]">×</button></div>{children}</div></div>;
 }
 
 function DeletePatientModal({ patient, loading, close, confirm }: { patient: Patient; loading: boolean; close: () => void; confirm: () => void }) {
