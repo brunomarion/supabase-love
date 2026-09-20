@@ -535,7 +535,11 @@ function PainelPage() {
               {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
               <div className="block">
               <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Status</span>
-              <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3 transition hover:border-[#cdb894] hover:bg-[#fffaf2]">
+              <label className={`flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3 transition ${
+                patient.status === "active"
+                  ? "border-[#dfc28f] bg-[#f3e3cf] hover:border-[#cdb894] hover:bg-[#eedbc0]"
+                  : "border-[#efcaca] bg-[#fff0f0] hover:border-[#e58a8a] hover:bg-[#ffe8e8]"
+              }`}>
                 <div>
                   <p className="text-sm font-medium text-[#4f4841]">{patient.status === "active" ? "Paciente ativo" : "Paciente inativo"}</p>
                   <p className="mt-0.5 text-[10px] text-[#91877e]">{patient.status === "active" ? "O paciente está ativo no sistema." : "O paciente está marcado como inativo."}</p>
