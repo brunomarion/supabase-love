@@ -583,9 +583,8 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
       <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[#2D2823]">Olá, Erick! <span aria-hidden="true">👋</span></h2>
     </div>
     <div className="hidden lg:block">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Visão geral</p>
-      <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Painel</h2>
-      <p className="mt-1 text-xs text-[#837970]">Resumo do seu painel administrativo.</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel Administrativo</p>
+      <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Olá, Erick! <span aria-hidden="true">👋</span></h2>
     </div>
     <div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div>
   </section>;
