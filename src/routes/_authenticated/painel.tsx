@@ -221,23 +221,31 @@ function PainelPage() {
       setError("");
 
       if (editingPatient) {
-        const { data: updatedPatient, error: updateError } = await supabase
-          .from("patients")
-          .update({
+        const { data, error: functionError } = await supabase.functions.invoke("criar_paciente", {
+          body: {
+            action: "update_patient",
+            patient_id: editingPatient.id,
             full_name: patient.full_name.trim(),
             birth_date: patient.birth_date || null,
             sex: patient.sex || null,
             responsible_name: patient.responsible_name.trim() || null,
             responsible_phone: patient.responsible_phone.trim() || null,
-            responsible_email: patient.responsible_email.trim() || null,
+            responsible_email: patient.responsible_email.trim(),
             notes: patient.notes.trim() || null,
             status: patient.status,
-          })
-          .eq("id", editingPatient.id)
-          .select("*")
-          .single();
+            password: patient.password.trim(),
+          },
+        });
 
-        if (updateError) throw new Error(updateError.message);
+        if (functionError) {
+          throw new Error(await getCreatePatientErrorMessage(functionError));
+        }
+
+        if (data?.error) {
+          throw new Error(data.error);
+        }
+
+        const updatedPatient = data?.patient as Patient | undefined;
         if (!updatedPatient) throw new Error("O paciente não pôde ser atualizado.");
 
         setPatients((currentPatients) =>
@@ -245,14 +253,9 @@ function PainelPage() {
             item.id === updatedPatient.id ? updatedPatient : item,
           ),
         );
-        setPatientCount((currentCount) => {
-          const wasActive = editingPatient.status === "active";
-          const isActive = updatedPatient.status === "active";
-          if (wasActive === isActive) return currentCount;
-          return isActive ? currentCount + 1 : Math.max(0, currentCount - 1);
-        });
         setNotice("");
         setPatientToast(`Paciente "${updatedPatient.full_name}" atualizado com sucesso.`);
+        await loadData();
       } else {
         if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
         if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
