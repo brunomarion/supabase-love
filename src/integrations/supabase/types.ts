@@ -86,8 +86,6 @@ export type Database = {
           sex?: "male" | "female" | null
           state?: string | null
           street?: string | null
-          state?: string | null
-          street?: string | null
           status?: "active" | "inactive"
           updated_at?: string
         }
