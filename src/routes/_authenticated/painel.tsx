@@ -638,7 +638,7 @@ function PainelPage() {
                 <h3 className="text-base font-semibold text-[#A97A3C]">Endereço do Paciente</h3>
                 <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
               </div>
-              <div className="grid gap-6 sm:grid-cols-[1fr_1.4fr]">
+              <div className="space-y-6"><div className="grid gap-6 sm:grid-cols-[1fr_1.4fr]">
                 <label className="block">
                   <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">CEP</span>
                   <input
@@ -662,6 +662,7 @@ function PainelPage() {
                 <Field label="Cidade" value={patient.city} onChange={(v) => setPatient({ ...patient, city: v })} placeholder="Ex.: João Pessoa" />
               </div>
               <Field label="Estado" value={patient.state} onChange={(v) => setPatient({ ...patient, state: v.slice(0, 2).toUpperCase() })} placeholder="Ex.: PB" />
+              </div>
             </div>
 
           </div>
