@@ -460,7 +460,7 @@ function PainelPage() {
               <button type="button" onClick={logout} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-4" /> Sair</button>
             </div>
             <div className="hidden items-center justify-between lg:flex">
-              <div><h1 className="text-[22px] font-semibold tracking-[-0.03em] sm:text-2xl">Olá, Erick</h1></div>
+              <div />
             </div>
           </header>
 
