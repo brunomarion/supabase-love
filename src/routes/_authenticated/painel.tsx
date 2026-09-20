@@ -595,6 +595,33 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
     ? patients
     : patients.filter((patient) => patient.status === statusFilter);
 
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  useEffect(() => {
+    const updatePageSize = () => {
+      const nextSize = window.matchMedia("(min-width: 1024px)").matches ? 10 : 5;
+      setPageSize(nextSize);
+    };
+
+    updatePageSize();
+    window.addEventListener("resize", updatePageSize);
+    return () => window.removeEventListener("resize", updatePageSize);
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredPatients.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedPatients = filteredPatients.slice(startIndex, startIndex + pageSize);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
   const Filter = ({ mobile = false }: { mobile?: boolean }) => (
     <div className={`flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)] ${mobile ? "shrink-0" : ""}`}>
       <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar</span>
@@ -654,7 +681,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
       <div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div>
       <div className="divide-y divide-[#f0e8dd]">
-        {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : filteredPatients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
+        {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : paginatedPatients.map((p) => <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
           <div className="flex min-w-0 items-center gap-2.5"><span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#f3e3cf] text-[11px] font-semibold text-[#8a6335]">{initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatDate(p.created_at)}</p></div></div>
           <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
           <div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div>
@@ -662,6 +689,36 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, deleting, s
           <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
         </div>)}
       </div>
+      {filteredPatients.length > 0 && (
+        <div className="flex items-center justify-between gap-3 border-t border-[#eee5d9] bg-[#fdfbf8] px-3 py-3 sm:px-5">
+          <span className="text-[10px] text-[#948a81]">
+            {startIndex + 1}–{Math.min(startIndex + pageSize, filteredPatients.length)} de {filteredPatients.length}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={currentPage === 1}
+              aria-label="Página anterior"
+              className="flex size-8 items-center justify-center rounded-lg border border-[#dfd2c1] bg-white text-[#746c64] transition hover:border-[#BA9051] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              ‹
+            </button>
+            <span className="flex min-w-8 items-center justify-center rounded-lg bg-[#BA9051]/10 px-2 py-1.5 text-[10px] font-semibold text-[#A97A3C]">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+              disabled={currentPage === totalPages}
+              aria-label="Próxima página"
+              className="flex size-8 items-center justify-center rounded-lg border border-[#dfd2c1] bg-white text-[#746c64] transition hover:border-[#BA9051] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   </section>;
 }
