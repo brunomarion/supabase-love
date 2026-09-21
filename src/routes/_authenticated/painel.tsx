@@ -362,7 +362,7 @@ function PainelPage() {
         if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
         if (patient.password.length < 6) throw new Error("A senha deve ter pelo menos 6 caracteres.");
 
-        const { error: functionError } = await supabase.functions.invoke("criar_paciente", {
+        const { data: createData, error: functionError } = await supabase.functions.invoke("criar_paciente", {
           body: {
             physiotherapist_id: physiotherapistId,
             full_name: patient.full_name.trim(),
@@ -381,31 +381,54 @@ function PainelPage() {
           throw new Error(await getCreatePatientErrorMessage(functionError));
         }
 
-        const { data: createdPatient } = await supabase
-          .from("patients")
-          .select("id")
-          .eq("physiotherapist_id", physiotherapistId)
-          .eq("responsible_email", patient.responsible_email.trim())
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        if (createData?.error) {
+          throw new Error(createData.error);
+        }
+
+        let createdPatient = createData?.patient as Patient | undefined;
+
+        if (!createdPatient?.id) {
+          const { data: queriedPatient, error: queryError } = await supabase
+            .from("patients")
+            .select("*")
+            .eq("physiotherapist_id", physiotherapistId)
+            .eq("responsible_email", patient.responsible_email.trim())
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          if (queryError) throw queryError;
+          createdPatient = queriedPatient ?? undefined;
+        }
 
         if (createdPatient?.id) {
+          const address = {
+            cep: patient.cep.trim() || null,
+            street: patient.street.trim() || null,
+            number: patient.number.trim() || null,
+            complement: patient.complement.trim() || null,
+            neighborhood: patient.neighborhood.trim() || null,
+            city: patient.city.trim() || null,
+            state: patient.state.trim().toUpperCase() || null,
+          };
+
           const { error: addressUpdateError } = await supabase
             .from("patients")
-            .update({
-              cep: patient.cep.trim() || null,
-              street: patient.street.trim() || null,
-              number: patient.number.trim() || null,
-              complement: patient.complement.trim() || null,
-              neighborhood: patient.neighborhood.trim() || null,
-              city: patient.city.trim() || null,
-              state: patient.state.trim().toUpperCase() || null,
-            })
+            .update(address)
             .eq("id", createdPatient.id)
             .eq("physiotherapist_id", physiotherapistId);
 
           if (addressUpdateError) throw addressUpdateError;
+
+          const patientForList = { ...createdPatient, ...address } as Patient;
+          setPatients((currentPatients) => [
+            patientForList,
+            ...currentPatients.filter((item) => item.id !== patientForList.id),
+          ]);
+          setPatientCount((count) => count + 1);
+          if (patientForList.status === "active") {
+            setActivePatientCount((count) => count + 1);
+          }
         }
 
         setNotice("Paciente cadastrado com sucesso.");
