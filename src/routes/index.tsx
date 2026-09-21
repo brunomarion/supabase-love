@@ -195,20 +195,20 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="relative z-10 flex h-[100dvh] w-full flex-col overflow-hidden bg-transparent px-4 py-2.5 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
-        <div className="flex min-h-0 w-full flex-1 flex-col lg:block lg:max-w-md">
-          <div className="flex min-h-0 flex-[0.76] items-center justify-center lg:hidden">
+      <section className="relative z-10 flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-transparent px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
+        <div className="flex min-h-0 w-full max-w-[520px] flex-col justify-center lg:block lg:max-w-md">
+          <div className="flex shrink-0 items-center justify-center lg:hidden">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
-              className="h-auto max-h-[24vh] w-[min(84vw,330px)] object-contain drop-shadow-[0_20px_38px_rgba(55,37,18,0.34)]"
+              className="h-auto max-h-[21vh] w-[min(82vw,320px)] object-contain drop-shadow-[0_18px_34px_rgba(55,37,18,0.34)]"
             />
           </div>
 
-          <div className="mx-auto w-full max-w-none -translate-y-1 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="mx-auto mt-1 w-full max-w-none rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
-              <h1 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[#2d2823]" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Faça o seu <span className="text-[#f4d79f] lg:text-[#2d2823]">login</span>
+              <h1 className="text-[1.45rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[#2d2823]" style={{ fontFamily: "Poppins, sans-serif" }}>
+                Acesse sua conta
               </h1>
             </div>
 
@@ -311,29 +311,29 @@ function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-2 space-y-1.5 text-center sm:mt-3 lg:mt-5 lg:space-y-3">
+            <div className="mt-3 space-y-2 text-center sm:mt-3 lg:mt-5 lg:space-y-3">
               <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/75 lg:text-[#a39a91]">
                 <span className="h-px w-8 bg-white/25 lg:bg-[#e4ded6]" />
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
-              <div className="flex items-stretch justify-center gap-3 text-left lg:gap-7">
-                <div className="flex items-center gap-2.5 lg:gap-3.5">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_4px_12px_rgba(58,35,14,0.14)] lg:size-11 lg:rounded-xl">
-                    <ShieldCheck className="size-4 lg:size-6" strokeWidth={1.8} />
+              <div className="flex items-stretch justify-center gap-4 text-left lg:gap-7">
+                <div className="flex items-center gap-3 lg:gap-3.5">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_5px_14px_rgba(58,35,14,0.16)] lg:size-11 lg:rounded-xl">
+                    <ShieldCheck className="size-5 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[10px] font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Acesso protegido</span>
-                    <span className="mt-0.5 text-[8px] font-normal leading-tight text-white/70 lg:text-[10px] lg:text-[#9a9188]">Ambiente criptografado</span>
+                    <span className="text-[11px] font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Acesso protegido</span>
+                    <span className="mt-0.5 text-[9px] font-normal leading-tight text-white/80 lg:text-[10px] lg:text-[#9a9188]">Ambiente criptografado</span>
                   </span>
                 </div>
                 <span className="w-px bg-white/35 lg:bg-[#e4ded6]" aria-hidden="true" />
                 <div className="flex items-center gap-2.5 lg:gap-3.5">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_4px_12px_rgba(58,35,14,0.14)] lg:size-11 lg:rounded-xl">
-                    <LockKeyhole className="size-4 lg:size-6" strokeWidth={1.8} />
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_5px_14px_rgba(58,35,14,0.16)] lg:size-11 lg:rounded-xl">
+                    <LockKeyhole className="size-5 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[11px] font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Conexão segura</span>
+                    <span className="text-[12px] font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Conexão segura</span>
                     <span className="mt-0.5 text-[9px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Seus dados protegidos</span>
                   </span>
                 </div>
