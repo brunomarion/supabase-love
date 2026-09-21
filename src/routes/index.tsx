@@ -197,7 +197,7 @@ function LoginPage() {
 
       <section className="relative z-10 flex h-[100dvh] w-full overflow-hidden bg-transparent px-0 lg:min-h-screen lg:h-auto lg:flex lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
         <div className="relative h-full w-full max-w-[520px] lg:h-auto lg:max-w-md">
-          <div className="absolute left-1/2 top-0 z-20 flex w-full -translate-x-1/2 items-center justify-center px-4 pt-0 lg:static lg:w-auto lg:translate-x-0 lg:p-0">
+          <div className="absolute left-1/2 top-0 z-20 flex w-full -translate-x-1/2 items-center justify-center px-4 pt-0 lg:hidden">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
@@ -298,7 +298,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="mt-2 h-11 w-full rounded-xl border border-[#f1cc7d] bg-[linear-gradient(135deg,#7b542a_0%,#4f3218_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_0_0_1px_rgba(244,215,159,0.16)] transition-all hover:-translate-y-0.5 hover:border-[#ffe0a0] hover:shadow-[0_15px_34px_rgba(57,34,13,0.45),0_0_18px_rgba(244,215,159,0.16)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
+                className="mt-2 h-11 w-full rounded-xl border border-[#f1cc7d] bg-[linear-gradient(135deg,#7b542a_0%,#4f3218_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_0_0_1px_rgba(244,215,159,0.16)] transition-all hover:-translate-y-0.5 hover:border-[#ffe0a0] hover:shadow-[0_15px_34px_rgba(57,34,13,0.45),0_0_18px_rgba(244,215,159,0.16)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:mt-0 lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
               >
                 {submitting ? (
                   <>
