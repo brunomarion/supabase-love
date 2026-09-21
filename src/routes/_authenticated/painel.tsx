@@ -770,7 +770,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
   }, [page, totalPages]);
 
   const Filter = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className={`flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)] ${mobile ? "shrink-0" : ""}`}>
+    <div className={`flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)] ${mobile ? "shrink-0 w-fit" : ""}`}>
       <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar por status:</span>
       <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
         <span className="relative flex size-[17px] items-center justify-center">
@@ -810,7 +810,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
                 <Button onClick={onAdd} className="h-10 w-full rounded-xl bg-[#BA9051] px-3 text-[10px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar</Button>
               </div>
             </div>
-            <div className="mt-2 lg:hidden"><Filter mobile /></div>
+            <div className="mt-1 lg:hidden"><Filter mobile /></div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
@@ -824,7 +824,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
           </div>
         </div>
       </div>
-      <div className="rounded-2xl border border-[#e6d9c9] bg-white p-2 shadow-[0_6px_20px_rgba(64,48,30,0.045)]">
+      <div className="-mt-3 rounded-2xl border border-[#e6d9c9] bg-white p-2 shadow-[0_6px_20px_rgba(64,48,30,0.045)] lg:mt-0">
         <label className="flex h-11 items-center gap-2.5 rounded-xl border border-[#e6d9c9] bg-[#fdfbf8] px-3 text-[#837970] focus-within:border-[#BA9051] focus-within:ring-2 focus-within:ring-[#BA9051]/10">
           <Search className="size-[17px] shrink-0 text-[#BA9051]" strokeWidth={1.8} />
           <input type="search" value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} placeholder="Pesquisar paciente, responsável, e-mail ou telefone..." aria-label="Pesquisar pacientes" className="min-w-0 flex-1 bg-transparent text-base text-[#403a35] outline-none placeholder:text-[#a79d94] sm:text-sm" />
