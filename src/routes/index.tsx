@@ -195,9 +195,9 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="relative z-10 flex h-[100dvh] w-full flex-col items-center justify-center overflow-hidden bg-transparent px-4 py-3 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
-        <div className="flex min-h-0 w-full max-w-[520px] flex-col justify-center lg:block lg:max-w-md">
-          <div className="flex shrink-0 items-center justify-center lg:hidden">
+      <section className="relative z-10 flex h-[100dvh] w-full overflow-hidden bg-transparent px-0 lg:min-h-screen lg:h-auto lg:flex lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
+        <div className="relative h-full w-full max-w-[520px] lg:h-auto lg:max-w-md">
+          <div className="absolute left-1/2 top-0 z-20 flex w-full -translate-x-1/2 items-center justify-center px-4 pt-0 lg:static lg:w-auto lg:translate-x-0 lg:p-0">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
@@ -205,7 +205,7 @@ function LoginPage() {
             />
           </div>
 
-          <div className="mx-auto mt-1 w-full max-w-none rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
               <h1 className="text-[1.45rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[#2d2823]" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Acesse sua conta
