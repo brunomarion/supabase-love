@@ -212,7 +212,7 @@ function LoginPage() {
               </h1>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="space-y-2.5 sm:space-y-5 lg:space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="mx-auto w-[92%] space-y-2.5 sm:w-full sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-medium text-white sm:text-sm lg:text-[#403a35]">
                   E-mail
@@ -319,7 +319,7 @@ function LoginPage() {
               </div>
               <div className="flex items-stretch justify-center gap-3 text-left lg:gap-7">
                 <div className="flex items-center gap-2.5 lg:gap-3.5">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_4px_12px_rgba(58,35,14,0.14)] lg:size-11 lg:rounded-xl">
                     <ShieldCheck className="size-4 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
@@ -327,9 +327,9 @@ function LoginPage() {
                     <span className="mt-0.5 text-[8px] font-normal leading-tight text-white/70 lg:text-[10px] lg:text-[#9a9188]">Ambiente criptografado</span>
                   </span>
                 </div>
-                <span className="w-px bg-[#e4ded6]" aria-hidden="true" />
+                <span className="w-px bg-white/35 lg:bg-[#e4ded6]" aria-hidden="true" />
                 <div className="flex items-center gap-2.5 lg:gap-3.5">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#ba9051]/45 bg-[#ba9051]/5 text-[#ba9051] lg:size-11 lg:rounded-xl">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_4px_12px_rgba(58,35,14,0.14)] lg:size-11 lg:rounded-xl">
                     <LockKeyhole className="size-4 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
