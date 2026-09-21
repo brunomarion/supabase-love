@@ -267,8 +267,8 @@ function LoginPage() {
                 ) : null}
               </div>
 
-              <div className="flex flex-col gap-2 pt-0.5 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
-                <label className="flex cursor-pointer items-center gap-2 text-xs text-white sm:text-sm lg:text-[#746c64]">
+              <div className="flex flex-col gap-3 pt-1 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+                <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 active:scale-[0.98] sm:text-sm lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0 lg:text-[#746c64] lg:hover:bg-transparent lg:active:scale-100">
                   <Checkbox
                     checked={remember}
                     onCheckedChange={(value) => setRemember(value === true)}
@@ -280,7 +280,7 @@ function LoginPage() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="w-fit text-left text-xs font-medium text-[#f4d79f] underline-offset-4 hover:underline sm:text-sm lg:text-[#ba9051]"
+                  className="w-fit rounded-lg px-2 py-1.5 text-left text-xs font-semibold text-[#ffe3ad] underline-offset-4 transition-all duration-200 hover:bg-white/10 hover:text-white hover:underline active:scale-[0.98] sm:text-sm lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0 lg:text-[#ba9051] lg:hover:bg-transparent lg:hover:text-[#a98148] lg:active:scale-100"
                 >
                   Esqueci minha senha
                 </button>
