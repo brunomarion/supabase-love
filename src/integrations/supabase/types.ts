@@ -14,111 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      physiotherapists: {
-        Row: {
-          created_at: string
-          email: string
-          full_name: string
-          id: string
-          role: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          email?: string
-          full_name?: string
-          id?: string
-          role?: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          full_name?: string
-          id?: string
-          role?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      patients: {
-        Row: {
-          auth_user_id: string | null
-          birth_date: string | null
-          cep: string | null
-          city: string | null
-          complement: string | null
-          created_at: string
-          full_name: string
-          id: string
-          neighborhood: string | null
-          notes: string | null
-          number: string | null
-          physiotherapist_id: string
-          responsible_email: string | null
-          responsible_name: string | null
-          responsible_phone: string | null
-          state: string | null
-          street: string | null
-          sex: "male" | "female" | null
-          status: "active" | "inactive"
-          updated_at: string
-        }
-        Insert: {
-          auth_user_id?: string | null
-          birth_date?: string | null
-          cep?: string | null
-          city?: string | null
-          complement?: string | null
-          created_at?: string
-          full_name: string
-          id?: string
-          neighborhood?: string | null
-          notes?: string | null
-          number?: string | null
-          physiotherapist_id: string
-          responsible_email?: string | null
-          responsible_name?: string | null
-          responsible_phone?: string | null
-          sex?: "male" | "female" | null
-          state?: string | null
-          street?: string | null
-          status?: "active" | "inactive"
-          updated_at?: string
-        }
-        Update: {
-          auth_user_id?: string | null
-          birth_date?: string | null
-          cep?: string | null
-          city?: string | null
-          complement?: string | null
-          created_at?: string
-          full_name?: string
-          id?: string
-          neighborhood?: string | null
-          notes?: string | null
-          number?: string | null
-          physiotherapist_id?: string
-          responsible_email?: string | null
-          responsible_name?: string | null
-          responsible_phone?: string | null
-          sex?: "male" | "female" | null
-          status?: "active" | "inactive"
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "patients_physiotherapist_id_fkey"
-            columns: ["physiotherapist_id"]
-            isOneToOne: false
-            referencedRelation: "physiotherapists"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       exercises: {
         Row: {
           created_at: string
@@ -163,16 +58,125 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "physiotherapists"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
-
+      patients: {
+        Row: {
+          auth_user_id: string | null
+          birth_date: string | null
+          cep: string | null
+          city: string | null
+          complement: string | null
+          created_at: string
+          full_name: string
+          id: string
+          neighborhood: string | null
+          notes: string | null
+          number: string | null
+          physiotherapist_id: string
+          responsible_email: string | null
+          responsible_name: string | null
+          responsible_phone: string | null
+          sex: string | null
+          state: string | null
+          status: string
+          street: string | null
+          updated_at: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          physiotherapist_id: string
+          responsible_email?: string | null
+          responsible_name?: string | null
+          responsible_phone?: string | null
+          sex?: string | null
+          state?: string | null
+          status?: string
+          street?: string | null
+          updated_at?: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          birth_date?: string | null
+          cep?: string | null
+          city?: string | null
+          complement?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          neighborhood?: string | null
+          notes?: string | null
+          number?: string | null
+          physiotherapist_id?: string
+          responsible_email?: string | null
+          responsible_name?: string | null
+          responsible_phone?: string | null
+          sex?: string | null
+          state?: string | null
+          status?: string
+          street?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      physiotherapists: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_physiotherapist_owner: {
+        Args: { p_physiotherapist_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
