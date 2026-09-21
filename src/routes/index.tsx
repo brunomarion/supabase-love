@@ -317,7 +317,7 @@ function LoginPage() {
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
-              <div className="flex items-stretch justify-center gap-4 text-left lg:gap-7">
+              <div className="flex w-full items-stretch justify-between gap-4 text-left lg:gap-7">
                 <div className="flex items-center gap-3 lg:gap-3.5">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_5px_14px_rgba(58,35,14,0.16)] lg:size-11 lg:rounded-xl">
                     <ShieldCheck className="size-5 lg:size-6" strokeWidth={1.8} />
