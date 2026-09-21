@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Plus, RefreshCw, Search, Settings, Trash2, UserRound, Users, X } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, Trash2, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -77,6 +77,7 @@ function PainelPage() {
   const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);
   const [patient, setPatient] = useState(emptyPatient);
   const [exercise, setExercise] = useState(emptyExercise);
 
@@ -604,7 +605,7 @@ function PainelPage() {
 
             {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} />}
             {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
-            {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} deleting={deleting} />}
+            {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} onView={setViewingExercise} deleting={deleting} />}
             {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
             {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
           </div>
@@ -618,6 +619,8 @@ function PainelPage() {
           </button>
         ))}
       </nav>
+
+      {viewingExercise && <ExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
 
       {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastro de pacientes"} close={() => !saving && setModal(null)}>
         <form onSubmit={savePatient} className="space-y-5">
@@ -912,8 +915,34 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
     </div>
   </section>;
 }
-function Exercises({ exercises, onAdd, onEdit, onDelete, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; deleting: string | null }) {
-  return <section className="space-y-5"><Header title="Exercícios" text="Lista de exercícios cadastrados." action="Adicionar exercício" onAction={onAdd} /><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{exercises.length === 0 ? <div className="md:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : exercises.map((e) => <article key={e.id} className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.045)]"><div className="flex items-start gap-3"><span className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#f3e3cf] text-[#A97A3C]">{e.thumbnail_url ? <img src={e.thumbnail_url} alt="" className="size-full object-cover" /> : <Dumbbell className="size-5" />}</span><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{e.name}</h3><span className="mt-1 inline-flex rounded-full bg-[#BA9051]/10 px-2 py-1 text-[9px] text-[#A97A3C]">{e.type}</span></div></div><p className="mt-4 min-h-10 text-xs leading-relaxed text-[#81776e]">{e.description || "Sem descrição."}</p><div className="mt-4 flex items-center justify-between"><Status active={e.is_active} /><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(e)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(e)} disabled={deleting === e.id}>{deleting === e.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div></article>)}</div></section>;
+function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
+  return <section className="space-y-5"><Header title="Exercícios" text="Biblioteca de exercícios em vídeo." action="Adicionar exercício" onAction={onAdd} /><div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{exercises.length === 0 ? <div className="sm:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : exercises.map((e) => <article key={e.id} className="group overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.055)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(64,48,30,0.11)]"><button type="button" onClick={() => onView(e)} className="relative block aspect-video w-full overflow-hidden bg-[linear-gradient(145deg,#f7eee2,#ead9bf)] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BA9051] focus-visible:ring-inset" aria-label={"Assistir " + e.name}>{e.thumbnail_url ? <img src={e.thumbnail_url} alt={"Capa do exercício " + e.name} className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.035]" /> : <div className="flex size-full items-center justify-center"><Dumbbell className="size-12 text-[#BA9051]/45" /></div>}<div className="absolute inset-0 bg-gradient-to-t from-[#2d2823]/45 via-transparent to-transparent" /><span className="absolute left-4 top-4 rounded-full border border-white/30 bg-[#2d2823]/55 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md">{e.type || "Vídeo"}</span><span className="absolute left-1/2 top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[#A97A3C] shadow-[0_10px_28px_rgba(45,40,35,0.25)] transition-transform duration-300 group-hover:scale-110"><Play className="ml-0.5 size-5 fill-current" /></span></button><div className="p-5"><h3 className="truncate text-sm font-semibold text-[#302b26]">{e.name}</h3><p className="mt-1.5 line-clamp-2 min-h-9 text-xs leading-relaxed text-[#81776e]">{e.description || "Exercício em vídeo."}</p><div className="mt-4 flex items-center justify-between gap-3"><Status active={e.is_active} /><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(e)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(e)} disabled={deleting === e.id}>{deleting === e.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div></div></article>)}</div></section>;
+}
+
+function getVideoEmbedUrl(url: string | null) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    if (host === "youtu.be") {
+      const id = parsed.pathname.slice(1).split("/")[0];
+      return id ? "https://www.youtube.com/embed/" + id + "?rel=0" : null;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      const id = parsed.searchParams.get("v") || parsed.pathname.match(/\/(?:shorts|embed)\/([^/?]+)/)?.[1];
+      return id ? "https://www.youtube.com/embed/" + id + "?rel=0" : null;
+    }
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const id = parsed.pathname.match(/\/(?:video\/)?(\d+)/)?.[1];
+      return id ? "https://player.vimeo.com/video/" + id : null;
+    }
+    return url;
+  } catch { return null; }
+}
+
+function ExerciseVideoModal({ exercise, close }: { exercise: Exercise; close: () => void }) {
+  const embedUrl = getVideoEmbedUrl(exercise.video_url);
+  return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#2D2823]/55 p-3 backdrop-blur-sm sm:p-5" onClick={(e) => e.target === e.currentTarget && close()}><div className="w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.32)]"><div className="flex items-center justify-between gap-4 border-b border-[#eee5d9] px-4 py-3 sm:px-5 sm:py-4"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{exercise.type || "Vídeo"}</p><h2 className="mt-0.5 truncate text-base font-semibold text-[#302b26] sm:text-lg">{exercise.name}</h2></div><button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar vídeo"><X className="size-5" /></button></div><div className="bg-[#171412]">{embedUrl ? <div className="aspect-video w-full"><iframe src={embedUrl} title={exercise.name} className="size-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div> : <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/70">Este exercício ainda não possui um link de vídeo válido.</div>}</div><div className="px-5 py-4 sm:px-6 sm:py-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A97A3C]">Orientações</p><p className="mt-2 text-sm leading-relaxed text-[#746c64]">{exercise.description || "Nenhuma orientação cadastrada para este exercício."}</p></div></div></div>;
 }
 
 function Header({ title, text, action, onAction }: { title: string; text: string; action: string; onAction: () => void }) {
