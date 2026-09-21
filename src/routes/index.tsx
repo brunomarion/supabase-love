@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Entrar | Erick Paulino Fisioterapia" },
       {
         property: "og:description",
-        content: "Área restrita do fisioterapeuta. Acesse sua conta para continuar.",
+        content: "Área restrita do fisioterapeuta. Faça o seu login para continuar.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -328,7 +328,7 @@ function LoginPage() {
                   </span>
                 </div>
                 <span className="w-px bg-white/35 lg:bg-[#e4ded6]" aria-hidden="true" />
-                <div className="flex items-center gap-2.5 lg:gap-3.5">
+                <div className="ml-auto flex items-center gap-2.5 lg:gap-3.5">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_5px_14px_rgba(58,35,14,0.16)] lg:size-11 lg:rounded-xl">
                     <LockKeyhole className="size-5 lg:size-6" strokeWidth={1.8} />
                   </span>
