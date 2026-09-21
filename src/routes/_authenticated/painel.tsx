@@ -74,6 +74,7 @@ function PainelPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
+  const [exerciseToast, setExerciseToast] = useState("");
   const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
@@ -90,6 +91,12 @@ function PainelPage() {
     const timer = window.setTimeout(() => setPatientToast(""), 4000);
     return () => window.clearTimeout(timer);
   }, [patientToast]);
+
+  useEffect(() => {
+    if (!exerciseToast) return;
+    const timer = window.setTimeout(() => setExerciseToast(""), 4000);
+    return () => window.clearTimeout(timer);
+  }, [exerciseToast]);
 
   useEffect(() => {
     if (!notice && !error) return;
@@ -538,7 +545,8 @@ function PainelPage() {
       setDeleting(item.id);
       const { error: deleteError } = await supabase.from("exercises").delete().eq("id", item.id);
       if (deleteError) throw deleteError;
-      setNotice("Exercício excluído com sucesso.");
+      setNotice("");
+      setExerciseToast(`Vídeo "${item.name}" excluído com sucesso.`);
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível excluir o exercício.");
@@ -560,6 +568,20 @@ function PainelPage() {
               <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#4f4841] sm:text-sm">{patientToast}</p>
             </div>
             <button type="button" onClick={() => setPatientToast("")} className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#eadcc8] text-[#91877e] transition hover:border-[#d8c09a] hover:bg-[#faf5ed] hover:text-[#A97A3C]" aria-label="Fechar mensagem">×</button>
+          </div>
+        </div>
+      )}
+      {exerciseToast && (
+        <div className="fixed inset-x-4 top-4 z-[80] flex justify-center pointer-events-none sm:inset-x-auto sm:right-6 sm:top-6">
+          <div className="pointer-events-auto flex w-full max-w-[460px] items-center gap-4 rounded-[1.25rem] border border-[#dcc29a] bg-white/98 px-5 py-4 shadow-[0_20px_55px_rgba(64,48,30,0.20)] backdrop-blur-xl animate-in slide-in-from-top-3 duration-300">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[#e5cfa9] bg-[#faf2e5] text-[#A97A3C] shadow-[0_4px_12px_rgba(186,144,81,0.12)]">
+              <span className="text-lg font-bold">✓</span>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#A97A3C]">Exclusão feita</p>
+              <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#4f4841] sm:text-sm">{exerciseToast}</p>
+            </div>
+            <button type="button" onClick={() => setExerciseToast("")} className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#eadcc8] text-[#91877e] transition hover:border-[#d8c09a] hover:bg-[#faf5ed] hover:text-[#A97A3C]" aria-label="Fechar mensagem">×</button>
           </div>
         </div>
       )}
@@ -942,7 +964,7 @@ function getVideoEmbedUrl(url: string | null) {
 
 function ExerciseVideoModal({ exercise, close }: { exercise: Exercise; close: () => void }) {
   const embedUrl = getVideoEmbedUrl(exercise.video_url);
-  return <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#2D2823]/55 p-3 backdrop-blur-sm sm:p-5" onClick={(e) => e.target === e.currentTarget && close()}><div className="w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.32)]"><div className="flex items-center justify-between gap-4 border-b border-[#eee5d9] px-4 py-3 sm:px-5 sm:py-4"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{exercise.type || "Vídeo"}</p><h2 className="mt-0.5 truncate text-base font-semibold text-[#302b26] sm:text-lg">{exercise.name}</h2></div><button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar vídeo"><X className="size-5" /></button></div><div className="bg-[#171412]">{embedUrl ? <div className="aspect-video w-full"><iframe src={embedUrl} title={exercise.name} className="size-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen playsInline /></div> : <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/70">Este exercício ainda não possui um link de vídeo válido.</div>}</div><div className="px-5 py-4 sm:px-6 sm:py-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A97A3C]">Orientações</p><p className="mt-2 text-sm leading-relaxed text-[#746c64]">{exercise.description || "Nenhuma orientação cadastrada para este exercício."}</p></div></div></div>;
+  return <div className="fixed inset-0 z-[70] flex items-center justify-center overflow-hidden bg-[#2D2823]/55 p-3 backdrop-blur-sm sm:p-5" onClick={(e) => e.target === e.currentTarget && close()}><div className="max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.32)] sm:max-h-[calc(100dvh-2.5rem)]"><div className="flex items-center justify-between gap-4 border-b border-[#eee5d9] px-4 py-3 sm:px-5 sm:py-4"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{exercise.type || "Vídeo"}</p><h2 className="mt-0.5 truncate text-base font-semibold text-[#302b26] sm:text-lg">{exercise.name}</h2></div><button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar vídeo"><X className="size-5" /></button></div><div className="bg-[#171412]">{embedUrl ? <div className="aspect-video w-full"><iframe src={embedUrl} title={exercise.name} className="size-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen playsInline /></div> : <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/70">Este exercício ainda não possui um link de vídeo válido.</div>}</div><div className="px-5 py-4 sm:px-6 sm:py-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A97A3C]">Orientações</p><p className="mt-2 text-sm leading-relaxed text-[#746c64]">{exercise.description || "Nenhuma orientação cadastrada para este exercício."}</p></div></div></div>;
 }
 
 function Header({ title, text, action, onAction }: { title: string; text: string; action: string; onAction: () => void }) {
