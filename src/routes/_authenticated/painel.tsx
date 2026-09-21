@@ -409,6 +409,7 @@ function PainelPage() {
         }
 
         setNotice("Paciente cadastrado com sucesso.");
+        setPatientToast(`Paciente "${patient.full_name.trim()}" cadastrado com sucesso.`);
       }
 
       closeModal();
@@ -526,15 +527,15 @@ function PainelPage() {
     <main className="h-screen overflow-hidden bg-[#faf8f4] text-[#2D2823]">
       {patientToast && (
         <div className="fixed inset-x-4 top-4 z-[80] flex justify-center pointer-events-none sm:inset-x-auto sm:right-6 sm:top-6">
-          <div className="pointer-events-auto flex w-full max-w-[390px] items-center gap-3 rounded-2xl border border-[#dfc8a5] bg-white/95 px-4 py-3.5 shadow-[0_18px_50px_rgba(64,48,30,0.18)] backdrop-blur-xl animate-in slide-in-from-top-3 duration-300">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#BA9051]/12 text-[#A97A3C]">
-              <span className="text-base font-semibold">✓</span>
+          <div className="pointer-events-auto flex w-full max-w-[460px] items-center gap-4 rounded-[1.25rem] border border-[#dcc29a] bg-white/98 px-5 py-4 shadow-[0_20px_55px_rgba(64,48,30,0.20)] backdrop-blur-xl animate-in slide-in-from-top-3 duration-300">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[#e5cfa9] bg-[#faf2e5] text-[#A97A3C] shadow-[0_4px_12px_rgba(186,144,81,0.12)]">
+              <span className="text-lg font-bold">✓</span>
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
-              <p className="mt-0.5 text-xs font-medium leading-relaxed text-[#4f4841]">{patientToast}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#A97A3C]">Atualização realizada</p>
+              <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#4f4841] sm:text-sm">{patientToast}</p>
             </div>
-            <button type="button" onClick={() => setPatientToast("")} className="flex size-7 shrink-0 items-center justify-center rounded-lg text-lg leading-none text-[#91877e] transition hover:bg-[#faf7f2] hover:text-[#A97A3C]" aria-label="Fechar mensagem">×</button>
+            <button type="button" onClick={() => setPatientToast("")} className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#eadcc8] text-[#91877e] transition hover:border-[#d8c09a] hover:bg-[#faf5ed] hover:text-[#A97A3C]" aria-label="Fechar mensagem">×</button>
           </div>
         </div>
       )}
