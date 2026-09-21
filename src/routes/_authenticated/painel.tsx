@@ -796,18 +796,21 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex min-w-0 items-center justify-between gap-4 lg:block">
           <div className="min-w-0">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
                 <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
                 <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
               </div>
-              <div className="flex shrink-0 items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)] lg:hidden">
-                <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{patientCount}</span>
-                <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
+              <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
+                <div className="flex items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)]">
+                  <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{patientCount}</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
+                </div>
+                <Button onClick={onAdd} className="h-8 rounded-lg bg-[#BA9051] px-3 text-[10px] font-semibold shadow-[0_5px_14px_rgba(186,144,81,0.16)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar</Button>
               </div>
             </div>
-            <div className="mt-3 lg:hidden"><Filter mobile /></div>
+            <div className="mt-2 lg:hidden"><Filter mobile /></div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
@@ -828,9 +831,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
           {patientSearch && <button type="button" onClick={() => setPatientSearch("")} aria-label="Limpar pesquisa" className="flex size-7 shrink-0 items-center justify-center rounded-lg text-[#91877e] transition hover:bg-[#f2ece4] hover:text-[#A97A3C]"><X className="size-4" /></button>}
         </label>
       </div>
-      <div className="sm:hidden">
-        <Button onClick={onAdd} className="h-10 w-full rounded-xl bg-[#BA9051] text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
-      </div>
+      
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
       <div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div>
