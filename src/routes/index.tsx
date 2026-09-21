@@ -208,8 +208,9 @@ function LoginPage() {
           <div className="absolute left-1/2 top-[53%] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl p-4 sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
               <h1 className="text-[1.55rem] font-semibold leading-tight tracking-[-0.045em] text-white drop-shadow-[0_3px_12px_rgba(66,39,13,0.38)] sm:text-4xl lg:text-[#2d2823] lg:drop-shadow-none" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Acesse sua conta
+                Faça o seu login
               </h1>
+              <div className="mx-auto mt-2 h-[2px] w-20 rounded-full bg-gradient-to-r from-transparent via-[#f3d08b] to-transparent shadow-[0_0_12px_rgba(243,208,139,0.5)] lg:mt-3 lg:bg-gradient-to-r lg:from-transparent lg:via-[#ba9051] lg:to-transparent lg:shadow-none" />
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="mx-auto w-full space-y-2.5 sm:w-full sm:space-y-5 lg:space-y-5">
@@ -317,7 +318,7 @@ function LoginPage() {
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
-              <div className="flex w-full items-stretch justify-between gap-4 text-left lg:gap-7">
+              <div className="flex w-full items-stretch justify-between gap-4 text-left lg:justify-center lg:gap-7">
                 <div className="flex items-center gap-3 lg:gap-3.5">
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#f3d08b] bg-[#f8e9ca] text-[#6b4523] shadow-[0_5px_14px_rgba(58,35,14,0.16)] lg:size-11 lg:rounded-xl">
                     <ShieldCheck className="size-5 lg:size-6" strokeWidth={1.8} />
