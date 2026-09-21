@@ -810,7 +810,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
                 <Button onClick={onAdd} className="h-10 w-full rounded-xl bg-[#BA9051] px-3 text-[10px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar</Button>
               </div>
             </div>
-            <div className="mt-1 lg:hidden"><Filter mobile /></div>
+            <div className="mt-4 lg:hidden"><Filter mobile /></div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
