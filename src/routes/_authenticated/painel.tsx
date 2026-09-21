@@ -807,7 +807,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
                   <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{patientCount}</span>
                   <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
                 </div>
-                <Button onClick={onAdd} className="h-8 rounded-lg bg-[#BA9051] px-3 text-[10px] font-semibold shadow-[0_5px_14px_rgba(186,144,81,0.16)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar</Button>
+                <Button onClick={onAdd} className="h-8 rounded-lg border border-[#dfc28f] bg-white/95 px-3 text-[10px] font-semibold text-[#A97A3C] shadow-[0_6px_20px_rgba(186,144,81,0.12)] hover:bg-[#fffaf2]"><Plus className="size-3.5" />Cadastrar</Button>
               </div>
             </div>
             <div className="mt-2 lg:hidden"><Filter mobile /></div>
