@@ -205,14 +205,14 @@ function LoginPage() {
             />
           </div>
 
-          <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="absolute left-1/2 top-1/2 w-full -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl p-4 sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
               <h1 className="text-[1.45rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[#2d2823]" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Acesse sua conta
               </h1>
             </div>
 
-            <form onSubmit={handleSubmit} noValidate className="mx-auto w-[92%] space-y-2.5 sm:w-full sm:space-y-5 lg:space-y-5">
+            <form onSubmit={handleSubmit} noValidate className="mx-auto w-full space-y-2.5 sm:w-full sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-white lg:text-sm lg:text-[#403a35]">
                   E-mail
@@ -298,7 +298,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="h-11 w-full rounded-xl border border-[#f1cc7d] bg-[linear-gradient(135deg,#7b542a_0%,#4f3218_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_0_0_1px_rgba(244,215,159,0.16)] transition-all hover:-translate-y-0.5 hover:border-[#ffe0a0] hover:shadow-[0_15px_34px_rgba(57,34,13,0.45),0_0_18px_rgba(244,215,159,0.16)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
+                className="mt-2 h-11 w-full rounded-xl border border-[#f1cc7d] bg-[linear-gradient(135deg,#7b542a_0%,#4f3218_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_0_0_1px_rgba(244,215,159,0.16)] transition-all hover:-translate-y-0.5 hover:border-[#ffe0a0] hover:shadow-[0_15px_34px_rgba(57,34,13,0.45),0_0_18px_rgba(244,215,159,0.16)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
               >
                 {submitting ? (
                   <>
