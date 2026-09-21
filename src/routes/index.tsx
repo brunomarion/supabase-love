@@ -173,6 +173,8 @@ function LoginPage() {
         <div className="absolute -left-20 -top-24 size-64 rounded-full border border-white/10 bg-white/5 blur-2xl" />
         <div className="absolute -bottom-28 -right-20 size-72 rounded-full border border-white/10 bg-[#7d5a30]/20 blur-3xl" />
         <div className="absolute left-1/2 top-1/2 h-[70%] w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+        <div className="absolute -bottom-24 -left-16 h-40 w-[125%] rotate-[18deg] rounded-[50%] border-t border-white/20" />
+        <div className="absolute -bottom-28 -right-20 h-44 w-[125%] -rotate-[12deg] rounded-[50%] border-t border-white/10" />
       </div>
 
       <section
@@ -193,26 +195,26 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="relative z-10 flex h-[100dvh] w-full flex-col overflow-hidden bg-transparent px-3 py-2 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
+      <section className="relative z-10 flex h-[100dvh] w-full flex-col overflow-hidden bg-transparent px-4 py-2.5 sm:px-8 sm:py-6 lg:min-h-screen lg:h-auto lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
         <div className="flex min-h-0 w-full flex-1 flex-col lg:block lg:max-w-md">
-          <div className="flex min-h-0 flex-[0.72] items-center justify-center lg:hidden">
+          <div className="flex min-h-0 flex-[0.76] items-center justify-center lg:hidden">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
-              className="h-auto max-h-[25vh] w-[min(82vw,330px)] object-contain drop-shadow-[0_20px_38px_rgba(55,37,18,0.34)]"
+              className="h-auto max-h-[24vh] w-[min(84vw,330px)] object-contain drop-shadow-[0_20px_38px_rgba(55,37,18,0.34)]"
             />
           </div>
 
-          <div className="mx-auto w-full max-w-none -translate-y-2 rounded-[1.4rem] border border-[#d8c09f] bg-[radial-gradient(circle_at_88%_0%,rgba(186,144,81,0.22),transparent_34%),linear-gradient(145deg,#ffffff_0%,#fffdf9_48%,#f3eadf_100%)] p-4 shadow-[0_22px_55px_rgba(55,35,15,0.34),0_10px_28px_rgba(186,144,81,0.20),inset_0_1px_0_rgba(255,255,255,0.95),inset_0_-1px_0_rgba(186,144,81,0.10)] backdrop-blur-xl sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="mx-auto w-full max-w-none -translate-y-1 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:max-w-md lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
-              <h1 className="text-[1.45rem] font-semibold leading-tight tracking-[-0.04em] text-[#2d2823] sm:text-4xl" style={{ fontFamily: "Poppins, sans-serif" }}>
-                Faça o seu <span className="text-[#ba9051] lg:text-[#2d2823]">login</span>
+              <h1 className="text-[1.5rem] font-semibold leading-tight tracking-[-0.04em] text-white sm:text-4xl lg:text-[#2d2823]" style={{ fontFamily: "Poppins, sans-serif" }}>
+                Faça o seu <span className="text-[#f4d79f] lg:text-[#2d2823]">login</span>
               </h1>
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="space-y-2.5 sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-medium text-[#403a35] sm:text-sm">
+                <Label htmlFor="email" className="text-xs font-medium text-white sm:text-sm lg:text-[#403a35]">
                   E-mail
                 </Label>
                 <div className="relative">
@@ -226,7 +228,7 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={submitting}
                   aria-invalid={Boolean(errors.email)}
-                  className="h-11 rounded-xl border-[#dfd3c3] bg-white/90 px-4 pl-11 text-base lg:text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.16)] lg:pl-4"
+                  className="h-11 rounded-xl border-white/80 bg-white px-4 pl-11 text-base text-[#3a332d] shadow-[0_8px_22px_rgba(62,39,16,0.14),inset_0_1px_0_rgba(255,255,255,1)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#a49a90] hover:border-[#f5dfb4] focus-visible:border-[#f5dfb4] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#f5dfb4]/25 focus-visible:shadow-[0_10px_30px_rgba(62,39,16,0.18)] lg:border-[#dfd3c3] lg:bg-white/90 lg:px-4 lg:pl-4 lg:text-sm lg:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] lg:focus-visible:border-[#ba9051] lg:focus-visible:ring-[#ba9051]/10 lg:focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.16)]"
                 />
                 </div>
                 {errors.email ? (
@@ -235,7 +237,7 @@ function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-[#403a35]">
+                <Label htmlFor="password" className="text-sm font-medium text-white lg:text-[#403a35]">
                   Senha
                 </Label>
                 <div className="relative">
@@ -249,7 +251,7 @@ function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={submitting}
                     aria-invalid={Boolean(errors.password)}
-                    className="h-11 rounded-xl border-[#dfd3c3] bg-white/90 px-4 pl-11 pr-12 text-base lg:text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#b7aea4] hover:border-[#d4c2aa] focus-visible:border-[#ba9051] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#ba9051]/10 focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)] lg:pl-4"
+                    className="h-11 rounded-xl border-white/80 bg-white px-4 pl-11 pr-12 text-base text-[#3a332d] shadow-[0_8px_22px_rgba(62,39,16,0.14),inset_0_1px_0_rgba(255,255,255,1)] backdrop-blur-sm transition-all duration-300 placeholder:text-[#a49a90] hover:border-[#f5dfb4] focus-visible:border-[#f5dfb4] focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-[#f5dfb4]/25 focus-visible:shadow-[0_10px_30px_rgba(62,39,16,0.18)] lg:border-[#dfd3c3] lg:bg-white/90 lg:pl-4 lg:text-sm lg:shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_25px_rgba(37,33,29,0.05)] lg:focus-visible:border-[#ba9051] lg:focus-visible:ring-[#ba9051]/10 lg:focus-visible:shadow-[0_10px_30px_rgba(186,144,81,0.12)]"
                   />
                   <button
                     type="button"
@@ -266,7 +268,7 @@ function LoginPage() {
               </div>
 
               <div className="flex flex-col gap-2 pt-0.5 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
-                <label className="flex cursor-pointer items-center gap-2 text-xs sm:text-sm text-[#746c64]">
+                <label className="flex cursor-pointer items-center gap-2 text-xs text-white sm:text-sm lg:text-[#746c64]">
                   <Checkbox
                     checked={remember}
                     onCheckedChange={(value) => setRemember(value === true)}
@@ -278,7 +280,7 @@ function LoginPage() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="w-fit text-left text-xs font-medium sm:text-sm text-[#ba9051] underline-offset-4 hover:underline"
+                  className="w-fit text-left text-xs font-medium text-[#f4d79f] underline-offset-4 hover:underline sm:text-sm lg:text-[#ba9051]"
                 >
                   Esqueci minha senha
                 </button>
@@ -296,7 +298,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="h-11 w-full rounded-xl bg-[linear-gradient(135deg,#c69a59_0%,#a97a3c_100%)] sm:h-12 text-base font-semibold text-white shadow-[0_10px_25px_rgba(132,88,35,0.26)] transition hover:bg-[#a98148] hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)] lg:bg-[#ba9051]"
+                className="h-11 w-full rounded-xl border border-[#f1cc7d] bg-[linear-gradient(135deg,#7b542a_0%,#4f3218_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_0_0_1px_rgba(244,215,159,0.16)] transition-all hover:-translate-y-0.5 hover:border-[#ffe0a0] hover:shadow-[0_15px_34px_rgba(57,34,13,0.45),0_0_18px_rgba(244,215,159,0.16)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
               >
                 {submitting ? (
                   <>
@@ -310,8 +312,8 @@ function LoginPage() {
             </form>
 
             <div className="mt-2 space-y-1.5 text-center sm:mt-3 lg:mt-5 lg:space-y-3">
-              <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
-                <span className="h-px w-8 bg-[#e4ded6]" />
+              <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/75 lg:text-[#a39a91]">
+                <span className="h-px w-8 bg-white/25 lg:bg-[#e4ded6]" />
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
@@ -321,8 +323,8 @@ function LoginPage() {
                     <ShieldCheck className="size-4 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[10px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Acesso protegido</span>
-                    <span className="mt-0.5 text-[8px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Ambiente criptografado</span>
+                    <span className="text-[10px] font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Acesso protegido</span>
+                    <span className="mt-0.5 text-[8px] font-normal leading-tight text-white/70 lg:text-[10px] lg:text-[#9a9188]">Ambiente criptografado</span>
                   </span>
                 </div>
                 <span className="w-px bg-[#e4ded6]" aria-hidden="true" />
@@ -331,7 +333,7 @@ function LoginPage() {
                     <LockKeyhole className="size-4 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-[11px] font-semibold leading-tight text-[#4d463f] lg:text-xs">Conexão segura</span>
+                    <span className="text-[11px] font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Conexão segura</span>
                     <span className="mt-0.5 text-[9px] font-normal leading-tight text-[#9a9188] lg:text-[10px]">Seus dados protegidos</span>
                   </span>
                 </div>
