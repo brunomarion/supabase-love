@@ -532,7 +532,7 @@ function PainelPage() {
               <span className="text-lg font-bold">✓</span>
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#A97A3C]">Atualização realizada</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#A97A3C]">{patientToast.startsWith("Paciente \"") && patientToast.includes("cadastrado com sucesso") ? "Criação feita" : "Atualização"}</p>
               <p className="mt-1 text-[13px] font-medium leading-relaxed text-[#4f4841] sm:text-sm">{patientToast}</p>
             </div>
             <button type="button" onClick={() => setPatientToast("")} className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-[#eadcc8] text-[#91877e] transition hover:border-[#d8c09a] hover:bg-[#faf5ed] hover:text-[#A97A3C]" aria-label="Fechar mensagem">×</button>
