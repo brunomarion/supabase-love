@@ -803,7 +803,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
                 <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
-                <Button onClick={onAdd} className="h-[44px] w-[calc(100%+0px)] rounded-xl bg-[#BA9051] px-3 text-[12px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Paciente</Button>
+                <Button onClick={onAdd} className="h-[50px] w-[calc(100%+0px)] rounded-xl bg-[#BA9051] px-3 text-[12px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Paciente</Button>
                 <div className="flex h-[44px] w-full items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)]">
                   <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{patientCount}</span>
                   <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
