@@ -214,7 +214,7 @@ function LoginPage() {
 
             <form onSubmit={handleSubmit} noValidate className="mx-auto w-[92%] space-y-2.5 sm:w-full sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-xs font-medium text-white sm:text-sm lg:text-[#403a35]">
+                <Label htmlFor="email" className="text-sm font-medium text-white lg:text-sm lg:text-[#403a35]">
                   E-mail
                 </Label>
                 <div className="relative">
@@ -237,7 +237,7 @@ function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-white lg:text-[#403a35]">
+                <Label htmlFor="password" className="text-sm font-medium text-white lg:text-sm lg:text-[#403a35]">
                   Senha
                 </Label>
                 <div className="relative">
