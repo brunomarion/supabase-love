@@ -205,7 +205,7 @@ function LoginPage() {
             />
           </div>
 
-          <div className="absolute left-1/2 top-[16vh] w-[calc(100%-2rem)] -translate-x-1/2 translate-y-0 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl p-4 sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="absolute left-1/2 top-[50%] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl p-4 sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
               <h1 className="text-[1.55rem] font-semibold leading-tight tracking-[-0.045em] text-white drop-shadow-[0_3px_12px_rgba(66,39,13,0.38)] sm:text-4xl lg:text-[#2d2823] lg:drop-shadow-none" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça o seu login
