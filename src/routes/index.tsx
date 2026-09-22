@@ -168,7 +168,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[linear-gradient(to_top,#c09a66_0%,#ffffff_100%)] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
+    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[linear-gradient(to_top,#ba9051_0%,#ffffff_100%)] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
       <div className="pointer-events-none absolute inset-0 lg:hidden" aria-hidden="true">
         <div className="absolute -left-20 -top-24 size-64 rounded-full border border-white/10 bg-white/5 blur-2xl" />
         <div className="absolute -bottom-28 -right-20 size-72 rounded-full border border-white/10 bg-[#7d5a30]/20 blur-3xl" />
