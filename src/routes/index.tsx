@@ -168,7 +168,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[linear-gradient(to_top,#a77c42_0%,#ba9051_42%,#c9a064_72%,#9a713b_100%)] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
+    <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.55, ease: "easeOut" }} className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[linear-gradient(to_top,#a77c42_0%,#ba9051_42%,#c9a064_72%,#9a713b_100%)] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
       <section
         className="relative hidden min-h-screen overflow-hidden lg:flex lg:items-center lg:justify-center"
         style={{
@@ -335,6 +335,6 @@ function LoginPage() {
           </div>
         </div>
       </section>
-    </main>
+    </motion.main>
   );
 }
