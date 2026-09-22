@@ -554,12 +554,21 @@ function PainelPage() {
   async function removeExercise(item: Exercise) {
     try {
       setDeleting(item.id);
-      const { error: deleteError } = await supabase.from("exercises").delete().eq("id", item.id);
+      setError("");
+
+      const { error: deleteError } = await supabase
+        .from("exercises")
+        .delete()
+        .eq("id", item.id)
+        .eq("physiotherapist_id", physiotherapistId!);
+
       if (deleteError) throw deleteError;
+
+      setExercises((currentExercises) => currentExercises.filter((exercise) => exercise.id !== item.id));
+      setExerciseCount((currentCount) => Math.max(0, currentCount - (item.is_active ? 1 : 0)));
       setConfirmExercise(null);
       setNotice("");
       setExerciseToast(`Vídeo "${item.name}" excluído com sucesso.`);
-      await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível excluir o exercício.");
     } finally {
