@@ -940,16 +940,19 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
 function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [mobileSlide, setMobileSlide] = useState(0);
   const pageSize = 3;
 
   const filteredExercises = exercises.filter((exercise) => {
     const term = search.trim().toLowerCase();
     if (!term) return true;
-    return [exercise.name, exercise.description, exercise.type].filter(Boolean).some((value) => value!.toLowerCase().includes(term));
+    return [exercise.name, exercise.description, exercise.type]
+      .filter(Boolean)
+      .some((value) => value!.toLowerCase().includes(term));
   });
 
-  useEffect(() => setPage(1), [search]);
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   const totalPages = Math.max(1, Math.ceil(filteredExercises.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -958,45 +961,33 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
 
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
-    setMobileSlide(0);
   }, [page, totalPages]);
 
   return <section className="space-y-5">
     <Header title="Exercícios" text="Biblioteca de exercícios em vídeo." action="Adicionar exercício" onAction={onAdd} />
     <div className="relative w-full">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
-      <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-10 text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:text-sm" />
+      <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-10 text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:text-sm" />
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-3 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C]"><X className="size-4" /></button>}
     </div>
     <div className="-mx-1 overflow-hidden sm:mx-0 sm:overflow-visible">
       {exercises.length === 0 ? <div className="sm:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : filteredExercises.length === 0 ? <div className="rounded-[1.2rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center text-xs text-[#8c8178]">Nenhum exercício encontrado para sua pesquisa.</div> : <>
         <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-2 shadow-[0_10px_30px_rgba(64,48,30,0.045)] sm:p-3">
-          <div data-exercise-carousel onScroll={(event) => {
-            if (window.innerWidth < 640) {
-              const target = event.currentTarget;
-              const card = target.querySelector<HTMLElement>("[data-exercise-card]");
-              if (card) setMobileSlide(Math.round(target.scrollLeft / (card.offsetWidth + 16)));
-            }
-          }} className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:max-h-[calc(100vh-390px)] sm:grid-cols-2 sm:gap-5 sm:overflow-y-auto sm:overflow-x-hidden sm:px-1 sm:pb-1 sm:snap-none xl:grid-cols-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#f3ede5] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#c9ad82] hover:[&::-webkit-scrollbar-thumb]:bg-[#A97A3C]">
-            {paginatedExercises.map((exercise) => <article data-exercise-card key={exercise.id} className="group w-[78vw] max-w-[270px] shrink-0 snap-center overflow-hidden rounded-[1.2rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.055)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(64,48,30,0.11)] sm:w-auto sm:max-w-none sm:shrink sm:snap-none sm:rounded-[1.35rem] xl:w-full xl:max-w-none">
-              <button type="button" onClick={() => onView(exercise)} className="relative block aspect-video w-full overflow-hidden bg-[linear-gradient(145deg,#f7eee2,#ead9bf)] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BA9051] focus-visible:ring-inset touch-manipulation">
-                {exercise.thumbnail_url ? <img src={exercise.thumbnail_url} alt={"Capa do exercício " + exercise.name} className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.035]" /> : <div className="flex size-full items-center justify-center"><Dumbbell className="size-12 text-[#BA9051]/45" /></div>}
+          <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:max-h-[calc(100vh-390px)] sm:grid-cols-2 sm:gap-5 sm:overflow-y-auto sm:overflow-x-hidden sm:px-1 sm:pb-1 sm:snap-none xl:grid-cols-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#f3ede5] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#c9ad82] hover:[&::-webkit-scrollbar-thumb]:bg-[#A97A3C]">
+            {paginatedExercises.map((e) => <article data-exercise-card key={e.id} className="group w-[78vw] max-w-[270px] shrink-0 snap-center overflow-hidden rounded-[1.2rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.055)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(64,48,30,0.11)] sm:w-auto sm:max-w-none sm:shrink sm:snap-none sm:rounded-[1.35rem] xl:w-full xl:max-w-none">
+              <button type="button" onClick={() => onView(e)} className="relative block aspect-video w-full overflow-hidden bg-[linear-gradient(145deg,#f7eee2,#ead9bf)] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BA9051] focus-visible:ring-inset touch-manipulation">
+                {e.thumbnail_url ? <img src={e.thumbnail_url} alt={"Capa do exercício " + e.name} className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.035]" /> : <div className="flex size-full items-center justify-center"><Dumbbell className="size-12 text-[#BA9051]/45" /></div>}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#2d2823]/45 via-transparent to-transparent" />
-                <span className="absolute left-3 top-3 rounded-full border border-white/30 bg-[#2d2823]/55 px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md sm:left-4 sm:top-4 sm:px-2.5 sm:py-1 sm:text-[9px]">{exercise.type || "Vídeo"}</span>
+                <span className="absolute left-3 top-3 rounded-full border border-white/30 bg-[#2d2823]/55 px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.12em] text-white backdrop-blur-md sm:left-4 sm:top-4 sm:px-2.5 sm:py-1 sm:text-[9px]">{e.type || "Vídeo"}</span>
                 <span className="absolute left-1/2 top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-white/90 text-[#A97A3C] shadow-[0_10px_28px_rgba(45,40,35,0.25)] transition-transform duration-300 group-hover:scale-110 sm:size-12"><Play className="ml-0.5 size-5 fill-current" /></span>
               </button>
               <div className="p-4 sm:p-5">
-                <h3 className="truncate text-sm font-semibold text-[#302b26]">{exercise.name}</h3>
-                <p className="mt-1.5 line-clamp-2 min-h-9 text-xs leading-relaxed text-[#81776e]">{exercise.description || "Exercício em vídeo."}</p>
-                <div className="mt-3 flex items-center justify-end gap-3 sm:mt-4"><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(exercise)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(exercise)} disabled={deleting === exercise.id}>{deleting === exercise.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
+                <h3 className="truncate text-sm font-semibold text-[#302b26]">{e.name}</h3>
+                <p className="mt-1.5 line-clamp-2 min-h-9 text-xs leading-relaxed text-[#81776e]">{e.description || "Exercício em vídeo."}</p>
+                <div className="mt-3 flex items-center justify-end gap-3 sm:mt-4"><div className="flex gap-2"><IconButton label="Editar" onClick={() => onEdit(e)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(e)} disabled={deleting === e.id}>{deleting === e.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
               </div>
             </article>)}
           </div>
-          {paginatedExercises.length > 1 && <div className="relative mt-2 sm:hidden">
-            <button type="button" onClick={() => { const el = document.querySelector<HTMLElement>("[data-exercise-carousel]"); el?.scrollBy({ left: -(el.clientWidth * 0.86 + 16), behavior: "smooth" }); }} className="absolute left-0 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#e6d8c5] bg-white text-lg text-[#A97A3C] shadow-[0_5px_14px_rgba(64,48,30,0.12)]" aria-label="Exercício anterior">‹</button>
-            <div className="flex justify-center gap-1.5 py-1.5">{paginatedExercises.map((exercise, index) => <button key={exercise.id} type="button" onClick={() => { const el = document.querySelector<HTMLElement>("[data-exercise-carousel]"); const card = el?.querySelector<HTMLElement>("[data-exercise-card]"); el?.scrollTo({ left: index * ((card?.offsetWidth ?? 0) + 16), behavior: "smooth" }); }} className={`h-1.5 rounded-full transition-all ${index === mobileSlide ? "w-4 bg-[#A97A3C]" : "w-1.5 bg-[#d9c8b2]"}`} aria-label={`Ir para o exercício ${index + 1}`} />)}</div>
-            <button type="button" onClick={() => { const el = document.querySelector<HTMLElement>("[data-exercise-carousel]"); el?.scrollBy({ left: el.clientWidth * 0.86 + 16, behavior: "smooth" }); }} className="absolute right-0 top-1/2 z-10 flex size-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#e6d8c5] bg-white text-lg text-[#A97A3C] shadow-[0_5px_14px_rgba(64,48,30,0.12)]" aria-label="Próximo exercício">›</button>
-          </div>}
         </div>
         {filteredExercises.length > 0 && <div className="hidden items-center justify-between gap-3 border-t border-[#eee5d9] bg-[#fdfbf8] px-3 py-3 sm:flex sm:px-5">
           <span className="text-[10px] text-[#948a81]">{startIndex + 1}–{Math.min(startIndex + pageSize, filteredExercises.length)} de {filteredExercises.length}</span>
@@ -1009,4 +1000,136 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
       </>}
     </div>
   </section>;
-}0
+}
+function getVideoEmbedUrl(url: string | null) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    if (host === "youtu.be") {
+      const id = parsed.pathname.slice(1).split("/")[0];
+      return id ? "https://www.youtube.com/embed/" + id + "?rel=0" : null;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com") {
+      const id = parsed.searchParams.get("v") || parsed.pathname.match(/\/(?:shorts|embed)\/([^/?]+)/)?.[1];
+      return id ? "https://www.youtube.com/embed/" + id + "?rel=0" : null;
+    }
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const id = parsed.pathname.match(/\/(?:video\/)?(\d+)/)?.[1];
+      return id ? "https://player.vimeo.com/video/" + id : null;
+    }
+    return url;
+  } catch { return null; }
+}
+
+function ExerciseVideoModal({ exercise, close }: { exercise: Exercise; close: () => void }) {
+  const embedUrl = getVideoEmbedUrl(exercise.video_url);
+  return <div className="fixed inset-0 z-[70] flex items-center justify-center overflow-hidden bg-[#2D2823]/55 p-3 backdrop-blur-sm sm:p-5" onClick={(e) => e.target === e.currentTarget && close()}><div className="max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.32)] sm:max-h-[calc(100dvh-2.5rem)]"><div className="flex items-center justify-between gap-4 border-b border-[#eee5d9] px-4 py-3 sm:px-5 sm:py-4"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{exercise.type || "Vídeo"}</p><h2 className="mt-0.5 truncate text-base font-semibold text-[#302b26] sm:text-lg">{exercise.name}</h2></div><button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar vídeo"><X className="size-5" /></button></div><div className="bg-[#171412]">{embedUrl ? <div className="aspect-video w-full"><iframe src={embedUrl} title={exercise.name} className="size-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div> : <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/70">Este exercício ainda não possui um link de vídeo válido.</div>}</div><div className="px-5 py-4 sm:px-6 sm:py-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A97A3C]">Orientações</p><p className="mt-2 text-sm leading-relaxed text-[#746c64]">{exercise.description || "Nenhuma orientação cadastrada para este exercício."}</p></div></div></div>;
+}
+
+function Header({ title, text, action, onAction }: { title: string; text: string; action: string; onAction: () => void }) {
+  return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2><p className="mt-1 text-xs text-[#837970]">{text}</p></div><Button onClick={onAction} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />{action}</Button></div>;
+}
+
+function Summary({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
+  return <div className="group relative overflow-hidden rounded-2xl border border-[#e5d8c7] bg-white p-4 shadow-[0_10px_26px_rgba(64,48,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(64,48,30,0.08)] sm:rounded-[1.25rem] sm:p-5">
+    <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#BA9051,#D4B27D,#A97A3C)] opacity-80" />
+    <div className="flex items-start justify-between gap-3">
+      <span className="flex size-9 items-center justify-center rounded-xl border border-[#eadcc9] bg-[linear-gradient(145deg,#fffaf2,#f7eee2)] text-[#BA9051] shadow-[0_4px_12px_rgba(186,144,81,0.10)] sm:size-10 sm:rounded-2xl">
+        <Icon className="size-[17px] sm:size-[18px]" strokeWidth={1.8} />
+      </span>
+      <span className="mt-1 text-[8px] font-semibold uppercase tracking-[0.1em] text-[#b0a59b]">Total</span>
+    </div>
+    <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#948a81] sm:mt-4">{label}</p>
+    <p className="mt-0.5 text-[30px] font-semibold tracking-[-0.04em] text-[#302b26] sm:text-[32px]">{value}</p>
+  </div>;
+}
+
+function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title: string; text: string }) {
+  return <section className="space-y-5"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Sistema</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2></div><div className="flex min-h-[280px] flex-col items-center justify-center rounded-[1.35rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center"><Icon className="size-6 text-[#BA9051]" /><h3 className="mt-4 text-sm font-semibold">{title}</h3><p className="mt-1 text-xs text-[#8c8178]">{text}</p></div></section>;
+}
+
+function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="flex size-11 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-2xl leading-none text-[#746c64] shadow-[0_4px_14px_rgba(64,48,30,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C] hover:shadow-[0_6px_18px_rgba(186,144,81,0.16)]">×</button></div>{children}</div></div>;
+}
+
+function DeletePatientModal({ patient, loading, close, confirm }: { patient: Patient; loading: boolean; close: () => void; confirm: () => void }) {
+  return <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}>
+    <div className="w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fff1f1] text-[#d34f4f]">
+            <Trash2 className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Excluir paciente?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir o paciente:</p>
+            <p className="mt-1 text-sm font-semibold text-[#A97A3C]">{patient.full_name}</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita e o paciente será removido da lista.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">
+            {loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            {loading ? "Excluindo..." : "Sim, excluir paciente"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false, inputMode }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: "text" | "tel" | "numeric" | "email"; required?: boolean; type?: string; multiline?: boolean }) {
+  const className="w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10";
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} rows={3} className={`${className} min-h-24 py-3 resize-none`} /> : <input type={type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} className={`${className} h-11`} />}</label>;
+}
+
+function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
+}
+
+function Actions({ close, label, loading }: { close: () => void; label: string; loading: boolean }) {
+  return <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end"><Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl text-xs">Cancelar</Button><Button type="submit" disabled={loading} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{loading ? <RefreshCw className="size-4 animate-spin" /> : null}{loading ? "Salvando..." : label}</Button></div>;
+}
+
+function IconButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: ReactNode }) {
+  const location = label === "Abrir endereço no Google Maps";
+  const destructive = label === "Excluir";
+  const edit = label === "Editar";
+
+  const variant = location
+    ? "border-transparent bg-[linear-gradient(135deg,#4285F4_0%,#34A853_38%,#FBBC05_68%,#EA4335_100%)] text-white shadow-[0_4px_12px_rgba(66,133,244,0.22)] hover:-translate-y-0.5 hover:shadow-[0_7px_16px_rgba(66,133,244,0.28)]"
+    : destructive
+      ? "border-[#dc4c4c] bg-[#d94b4b] text-white shadow-[0_4px_12px_rgba(217,75,75,0.20)] hover:-translate-y-0.5 hover:border-[#c83e3e] hover:bg-[#c83e3e] hover:shadow-[0_7px_16px_rgba(217,75,75,0.26)]"
+      : edit
+        ? "border-[#3678c4] bg-[#3478c9] text-white shadow-[0_4px_12px_rgba(52,120,201,0.20)] hover:-translate-y-0.5 hover:border-[#2868b5] hover:bg-[#2868b5] hover:shadow-[0_7px_16px_rgba(52,120,201,0.26)]"
+        : "border-[#c9d9ef] bg-[#f5f9ff] text-[#2f6fb3] hover:border-[#4d8dcc] hover:bg-[#edf5ff] hover:text-[#245d99]";
+
+  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${variant}`}>{children}</button>;
+}
+
+function Status({ active }: { active: boolean }) {
+  return <span className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-semibold ${active ? "bg-[#e8f3e8] text-[#4f7b53]" : "bg-[#fff0f0] text-[#d66a6a]"}`}>{active ? "Ativo" : "Inativo"}</span>;
+}
+
+function Empty({ text }: { text: string }) {
+  return <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">{text}</div>;
+}
+
+function initials(name: string) {
+  return name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+
+  if (digits.length <= 2) return digits.length ? `(${digits}` : "";
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value));
+}
