@@ -71,7 +71,8 @@ function PainelPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);\n  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
+  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
+  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
