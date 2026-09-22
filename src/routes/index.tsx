@@ -169,7 +169,7 @@ function LoginPage() {
   }
 
   return (
-    <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.55, ease: "easeOut" }} className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-[linear-gradient(to_top,#a77c42_0%,#ba9051_42%,#c9a064_72%,#9a713b_100%)] text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
+    <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.55, ease: "easeOut" }} className="fixed inset-0 h-[100dvh] w-full overflow-hidden bg-white text-[#25211d] lg:static lg:grid lg:grid-cols-2 lg:min-h-screen lg:h-auto lg:bg-white">
       <section
         className="relative hidden min-h-screen overflow-hidden lg:flex lg:items-center lg:justify-center"
         style={{
@@ -188,9 +188,9 @@ function LoginPage() {
         </div>
       </section>
 
-      <section className="relative z-10 flex h-[100dvh] w-full overflow-hidden bg-transparent px-0 lg:min-h-screen lg:h-auto lg:flex lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
+      <section className="relative z-10 flex h-[100dvh] w-full overflow-hidden bg-white px-0 lg:min-h-screen lg:h-auto lg:flex lg:flex-row lg:items-center lg:justify-center lg:bg-white lg:px-12">
         <div className="relative h-full w-full max-w-[520px] lg:h-auto lg:max-w-md">
-          <div className="absolute left-1/2 top-0 z-20 flex w-full -translate-x-1/2 items-center justify-center px-4 pt-0 lg:hidden">
+          <div className="absolute left-1/2 top-[7vh] z-20 flex w-full -translate-x-1/2 items-center justify-center px-4 pt-0 lg:hidden">
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
@@ -198,17 +198,17 @@ function LoginPage() {
             />
           </div>
 
-          <div className="absolute left-1/2 top-[50%] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border-0 bg-transparent p-1 shadow-none backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl p-4 sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
+          <div className="absolute left-1/2 top-[50%] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-[1.4rem] border border-[#eadfce] bg-white p-4 shadow-[0_18px_45px_rgba(64,48,30,0.10),0_4px_16px_rgba(186,144,81,0.08)] backdrop-blur-0 sm:w-full sm:max-w-md sm:rounded-3xl sm:p-7 lg:static lg:max-w-md lg:translate-x-0 lg:translate-y-0 lg:rounded-[2.15rem] lg:border lg:border-[#e6d8c5] lg:bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] lg:p-10 lg:shadow-[0_32px_90px_rgba(64,48,30,0.16),0_8px_24px_rgba(186,144,81,0.08)]">
             <div className="mb-3 text-center lg:mb-8 lg:text-center">
-              <h1 className="text-[1.55rem] font-semibold leading-tight tracking-[-0.045em] text-white drop-shadow-[0_3px_12px_rgba(66,39,13,0.38)] sm:text-4xl lg:text-[#2d2823] lg:drop-shadow-none" style={{ fontFamily: "Poppins, sans-serif" }}>
+              <h1 className="text-[1.55rem] font-semibold leading-tight tracking-[-0.045em] text-[#2d2823] sm:text-4xl lg:text-[#2d2823] lg:drop-shadow-none" style={{ fontFamily: "Poppins, sans-serif" }}>
                 Faça o seu login
               </h1>
-              <div className="mx-auto mt-2 h-[2px] w-20 rounded-full bg-gradient-to-r from-transparent via-[#f3d08b] to-transparent shadow-[0_0_12px_rgba(243,208,139,0.5)] lg:mt-3 lg:bg-gradient-to-r lg:from-transparent lg:via-[#ba9051] lg:to-transparent lg:shadow-none" />
+              <div className="mx-auto mt-2 h-[2px] w-20 rounded-full bg-gradient-to-r from-transparent via-[#ba9051] to-transparent lg:mt-3 lg:bg-gradient-to-r lg:from-transparent lg:via-[#ba9051] lg:to-transparent lg:shadow-none" />
             </div>
 
             <form onSubmit={handleSubmit} noValidate className="mx-auto w-full space-y-2.5 sm:w-full sm:space-y-5 lg:space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-white lg:text-sm lg:text-[#403a35]">
+                <Label htmlFor="email" className="text-sm font-medium text-[#403a35]">
                   E-mail
                 </Label>
                 <div className="relative">
@@ -231,7 +231,7 @@ function LoginPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-white lg:text-sm lg:text-[#403a35]">
+                <Label htmlFor="password" className="text-sm font-medium text-[#403a35]">
                   Senha
                 </Label>
                 <div className="relative">
@@ -262,7 +262,7 @@ function LoginPage() {
               </div>
 
               <div className="flex flex-col gap-3 pt-1 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
-                <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 active:scale-[0.98] sm:text-sm lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0 lg:text-[#746c64] lg:hover:bg-transparent lg:active:scale-100">
+                <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-medium text-[#746c64] transition-all duration-200 hover:bg-[#ba9051]/10 active:scale-[0.98] sm:text-sm lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0 lg:text-[#746c64] lg:hover:bg-transparent lg:active:scale-100">
                   <Checkbox
                     checked={remember}
                     onCheckedChange={(value) => setRemember(value === true)}
@@ -274,7 +274,7 @@ function LoginPage() {
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="w-fit rounded-lg px-2 py-1.5 text-left text-xs font-semibold text-[#ffe3ad] underline-offset-4 transition-all duration-200 hover:bg-white/10 hover:text-white hover:underline active:scale-[0.98] sm:text-sm lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0 lg:text-[#ba9051] lg:hover:bg-transparent lg:hover:text-[#a98148] lg:active:scale-100"
+                  className="w-fit rounded-lg px-2 py-1.5 text-left text-xs font-semibold text-[#ba9051] underline-offset-4 transition-all duration-200 hover:bg-[#ba9051]/10 hover:text-[#a98148] hover:underline active:scale-[0.98] sm:text-sm lg:rounded-none lg:bg-transparent lg:px-0 lg:py-0 lg:text-[#ba9051] lg:hover:bg-transparent lg:hover:text-[#a98148] lg:active:scale-100"
                 >
                   Esqueci minha senha
                 </button>
@@ -292,7 +292,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="mt-7 h-11 w-full rounded-xl border border-[#f6d28e] bg-[linear-gradient(135deg,#8b6232_0%,#5a391b_48%,#3f2612_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_2px_0_rgba(255,255,255,0.12)_inset,0_0_0_1px_rgba(244,215,159,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ffe3a8] hover:bg-[linear-gradient(135deg,#9b713c_0%,#64411f_48%,#472b15_100%)] hover:shadow-[0_16px_38px_rgba(57,34,13,0.46),0_0_22px_rgba(244,215,159,0.18)] active:translate-y-0 active:scale-[0.99] active:shadow-[0_8px_18px_rgba(57,34,13,0.34),0_0_12px_rgba(244,215,159,0.12)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:mt-0 lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
+                className="mt-7 h-11 w-full rounded-xl border border-[#c9a878] bg-[#ba9051] text-base font-semibold text-white shadow-[0_10px_25px_rgba(132,88,35,0.22)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#a98148] hover:bg-[#a98148] hover:shadow-[0_14px_30px_rgba(186,144,81,0.28)] active:translate-y-0 active:scale-[0.99] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:mt-0 lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
               >
                 {submitting ? (
                   <>
@@ -306,8 +306,8 @@ function LoginPage() {
             </form>
 
             <div className="mt-6 space-y-2 text-center sm:mt-3 lg:mt-5 lg:space-y-3">
-              <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/75 lg:text-[#a39a91]">
-                <span className="h-px w-8 bg-white/25 lg:bg-[#e4ded6]" />
+              <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-[#a39a91]">
+                <span className="h-px w-8 bg-[#e4ded6]" />
                 Acesso seguro
                 <span className="h-px w-8 bg-[#e4ded6]" />
               </div>
@@ -317,7 +317,7 @@ function LoginPage() {
                     <ShieldCheck className="size-5 lg:size-6" strokeWidth={1.8} />
                   </span>
                   <span className="flex flex-col">
-                    <span className="text-sm font-semibold leading-tight text-white lg:text-xs lg:text-[#4d463f]">Acesso protegido</span>
+                    <span className="text-sm font-semibold leading-tight text-[#4d463f] lg:text-xs">Acesso protegido</span>
                     
                   </span>
                 </div>
