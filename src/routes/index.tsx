@@ -291,7 +291,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 disabled={submitting}
-                className="mt-4 h-11 w-full rounded-xl border border-[#f6d28e] bg-[linear-gradient(135deg,#8b6232_0%,#5a391b_48%,#3f2612_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_2px_0_rgba(255,255,255,0.12)_inset,0_0_0_1px_rgba(244,215,159,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ffe3a8] hover:bg-[linear-gradient(135deg,#9b713c_0%,#64411f_48%,#472b15_100%)] hover:shadow-[0_16px_38px_rgba(57,34,13,0.46),0_0_22px_rgba(244,215,159,0.18)] active:translate-y-0 active:scale-[0.99] active:shadow-[0_8px_18px_rgba(57,34,13,0.34),0_0_12px_rgba(244,215,159,0.12)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:mt-0 lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
+                className="mt-7 h-11 w-full rounded-xl border border-[#f6d28e] bg-[linear-gradient(135deg,#8b6232_0%,#5a391b_48%,#3f2612_100%)] text-base font-semibold text-white shadow-[0_12px_30px_rgba(57,34,13,0.38),0_2px_0_rgba(255,255,255,0.12)_inset,0_0_0_1px_rgba(244,215,159,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#ffe3a8] hover:bg-[linear-gradient(135deg,#9b713c_0%,#64411f_48%,#472b15_100%)] hover:shadow-[0_16px_38px_rgba(57,34,13,0.46),0_0_22px_rgba(244,215,159,0.18)] active:translate-y-0 active:scale-[0.99] active:shadow-[0_8px_18px_rgba(57,34,13,0.34),0_0_12px_rgba(244,215,159,0.12)] sm:h-12 lg:border-0 lg:bg-[#ba9051] lg:shadow-[0_10px_25px_rgba(132,88,35,0.26)] lg:mt-0 lg:hover:translate-y-0 lg:hover:border-transparent lg:hover:bg-[#a98148] lg:hover:shadow-[0_12px_30px_rgba(186,144,81,0.34)]"
               >
                 {submitting ? (
                   <>
@@ -304,7 +304,7 @@ function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-3 space-y-2 text-center sm:mt-3 lg:mt-5 lg:space-y-3">
+            <div className="mt-6 space-y-2 text-center sm:mt-3 lg:mt-5 lg:space-y-3">
               <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/75 lg:text-[#a39a91]">
                 <span className="h-px w-8 bg-white/25 lg:bg-[#e4ded6]" />
                 Acesso seguro
