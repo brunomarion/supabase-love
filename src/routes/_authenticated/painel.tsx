@@ -78,6 +78,7 @@ function PainelPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
   const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
@@ -172,6 +173,7 @@ function PainelPage() {
 
   async function logout() {
     await signOut();
+    setConfirmLogout(false);
     navigate({ to: "/", replace: true });
   }
 
@@ -622,7 +624,7 @@ function PainelPage() {
             <div className="mb-3 rounded-2xl bg-[linear-gradient(145deg,#fffdf9,#f6eee3)] p-4">
               <div className="flex items-center gap-3"><span className="flex size-9 items-center justify-center rounded-full bg-[#BA9051]/10 text-xs font-semibold text-[#A97A3C]">E</span><div><p className="text-xs font-semibold text-[#403a35]">Erick Paulino</p><p className="mt-0.5 text-[10px] text-[#9a9188]">Fisioterapeuta</p></div></div>
             </div>
-            <button type="button" onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#c94b4b] transition hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-[18px]" /> Sair</button>
+            <button type="button" onClick={() => setConfirmLogout(true)} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#c94b4b] transition hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-[18px]" /> Sair</button>
           </div>
         </aside>
 
@@ -634,7 +636,7 @@ function PainelPage() {
                 alt="Erick Paulino Fisioterapeuta"
                 className="h-auto w-[min(52vw,210px)] object-contain"
               />
-              <button type="button" onClick={logout} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-4" /> Sair</button>
+              <button type="button" onClick={() => setConfirmLogout(true)} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-4" /> Sair</button>
             </div>
             <div className="hidden items-center justify-between lg:flex">
               <div />
@@ -666,6 +668,7 @@ function PainelPage() {
       </nav>
 
       <AnimatePresence mode="wait">
+        {confirmLogout && <LogoutModal loading={false} close={() => setConfirmLogout(false)} confirm={() => void logout()} />}
         {viewingExercise && <ExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
 
       {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastro de pacientes"} close={() => !saving && setModal(null)}>
@@ -1132,6 +1135,33 @@ function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title
 
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
   return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="flex size-11 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-2xl leading-none text-[#746c64] shadow-[0_4px_14px_rgba(64,48,30,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C] hover:shadow-[0_6px_18px_rgba(186,144,81,0.16)]">×</button></div>{children}</motion.div></motion.div>;
+}
+
+function LogoutModal({ loading, close, confirm }: { loading: boolean; close: () => void; confirm: () => void }) {
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[80] flex items-center justify-center bg-[#2D2823]/40 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && !loading && close()}>
+    <motion.div initial={{ opacity: 0, scale: 0.97, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.97, y: 8 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#f8f0e5] text-[#A97A3C]">
+            <LogOut className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Encerrar sessão?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a sair do painel do fisioterapeuta.</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Deseja realmente encerrar sua sessão? Você precisará fazer login novamente para acessar o sistema.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Continuar no sistema</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">
+            {loading ? <RefreshCw className="size-4 animate-spin" /> : <LogOut className="size-4" />}
+            {loading ? "Encerrando..." : "Sim, encerrar sessão"}
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  </motion.div>;
 }
 
 function DeletePatientModal({ patient, loading, close, confirm }: { patient: Patient; loading: boolean; close: () => void; confirm: () => void }) {
