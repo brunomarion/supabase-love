@@ -1148,7 +1148,6 @@ function LogoutModal({ loading, close, confirm }: { loading: boolean; close: () 
           </span>
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-[#2D2823]">Encerrar sessão?</h2>
-            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a sair do painel do fisioterapeuta.</p>
             <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Deseja realmente encerrar sua sessão? Você precisará fazer login novamente para acessar o sistema.</p>
           </div>
         </div>
