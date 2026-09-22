@@ -773,7 +773,7 @@ function PainelPage() {
           <Field label="URL do vídeo" type="url" value={exercise.video_url} onChange={(v) => setExercise({ ...exercise, video_url: v })} placeholder="https://..." />
           <Field label="URL da miniatura" type="url" value={exercise.thumbnail_url} onChange={(v) => setExercise({ ...exercise, thumbnail_url: v })} placeholder="https://..." />
           <SelectField label="Status" value={exercise.is_active ? "active" : "inactive"} onChange={(v) => setExercise({ ...exercise, is_active: v === "active" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
-          <Actions close={() => setModal(null)} label={editingExercise ? "Salvar alterações" : "Adicionar exercício"} loading={saving} />
+          <Actions close={() => setModal(null)} label={editingExercise ? "Salvar alterações" : "Cadastrar"} loading={saving} />
         </form>
       </Modal>}
     </main>
