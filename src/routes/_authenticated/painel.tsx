@@ -1089,6 +1089,9 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
               </div>
             </article>)}
           </div>
+          <div className="mt-1 flex items-center justify-center gap-1.5 sm:hidden" aria-label="Indicador do carrossel de exercícios">
+            {filteredExercises.map((exercise) => <span key={exercise.id} className="h-1 w-5 rounded-full bg-[#d9c8b4]" />)}
+          </div>
         </div>
         {filteredExercises.length > 0 && <div className="hidden items-center justify-center border-t border-[#eee5d9] bg-[#fdfbf8] px-3 py-2.5 sm:flex sm:px-5">
           <span className="text-[10px] text-[#948a81]">{startIndex + 1}–{Math.min(startIndex + pageSize, filteredExercises.length)} de {filteredExercises.length}</span>
