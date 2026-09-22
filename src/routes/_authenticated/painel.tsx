@@ -869,7 +869,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
           </div>
           <div className="hidden items-center gap-4 lg:flex">
             <Filter />
-            <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />+Novo Paciente</Button>
+            <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-[13px] font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />+Novo Paciente</Button>
           </div>
         </div>
       </div>
@@ -1011,14 +1011,14 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
                 <p className="mt-1 text-xs text-[#837970]">Biblioteca de exercícios em vídeo.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
-                <Button onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[12px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Exercício</Button>
+                <Button onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[13px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />+ Cadastrar Exercício</Button>
               </div>
             </div>
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
           <div className="hidden items-center gap-4 lg:flex">
-            <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Exercício</Button>
+            <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-[13px] font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />+ Cadastrar Exercício</Button>
           </div>
         </div>
       </div>
