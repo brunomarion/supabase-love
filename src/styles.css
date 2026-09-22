@@ -162,24 +162,42 @@
 
 
 @keyframes premium-tab-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translate3d(0, 14px, 0) scale(0.992);
-    filter: blur(2px);
+    transform: translate3d(0, 26px, 0) scale(0.985);
+    filter: blur(1.5px);
   }
-  to {
+  60% {
+    opacity: 0.9;
+    transform: translate3d(0, 5px, 0) scale(0.998);
+    filter: blur(0.3px);
+  }
+  100% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
     filter: blur(0);
   }
 }
 
+@keyframes premium-tab-active {
+  0% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .premium-tab-content {
-  animation: premium-tab-in 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: premium-tab-in 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
   transform-origin: top center;
   will-change: transform, opacity, filter;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+.premium-tab-button[data-active="true"] {
+  animation: premium-tab-active 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .premium-tab-button {
@@ -208,10 +226,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .premium-tab-content {
-    animation: none;
-  }
-
   .premium-tab-button::after {
     transition: none;
   }
