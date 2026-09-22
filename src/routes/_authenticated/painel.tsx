@@ -790,6 +790,28 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
   const [patientSearch, setPatientSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
+  const Filter = () => (
+    <div className="flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)]">
+      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar por status:</span>
+      <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
+        <span className="relative flex size-[17px] items-center justify-center">
+          <input type="checkbox" checked={statusFilter === "active"} onChange={(e) => onStatusFilterChange(e.target.checked ? "active" : "all")} className="peer sr-only" />
+          <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+          <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+        </span>
+        Ativo
+      </label>
+      <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#fff8f8]">
+        <span className="relative flex size-[17px] items-center justify-center">
+          <input type="checkbox" checked={statusFilter === "inactive"} onChange={(e) => onStatusFilterChange(e.target.checked ? "inactive" : "all")} className="peer sr-only" />
+          <span className="absolute inset-0 rounded-[5px] border border-[#e2baba] bg-[#fffafa] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#d66a6a] peer-checked:bg-[#d66a6a] peer-focus-visible:ring-2 peer-focus-visible:ring-[#d66a6a]/20" />
+          <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+        </span>
+        Inativo
+      </label>
+    </div>
+  );
+
   function getPatientAddress(item: Patient) {
     return [item.street, item.number, item.complement, item.neighborhood, item.city, item.state, item.cep].filter(Boolean).join(", ");
   }
@@ -846,22 +868,23 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
             <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">pacientes cadastrados</span>
           </div>
           <div className="hidden items-center gap-4 lg:flex">
+            <Filter />
             <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Paciente</Button>
           </div>
         </div>
       </div>
       <div className="-mt-3 relative rounded-2xl border border-[#e6d9c9] bg-white p-2 shadow-[0_6px_20px_rgba(64,48,30,0.045)] lg:mt-0">
-        <label className="relative flex h-11 items-center gap-2.5 rounded-xl border border-[#e6d9c9] bg-[#fdfbf8] px-3 pr-[5.5rem] text-[#837970] focus-within:border-[#BA9051] focus-within:ring-2 focus-within:ring-[#BA9051]/10 sm:pr-[5.5rem]">
+        <label className="relative flex h-11 items-center gap-2.5 rounded-xl border border-[#e6d9c9] bg-[#fdfbf8] px-3 pr-12 text-[#837970] sm:pr-12 lg:pr-3 focus-within:border-[#BA9051] focus-within:ring-2 focus-within:ring-[#BA9051]/10 sm:pr-[5.5rem]">
           <Search className="size-[17px] shrink-0 text-[#BA9051]" strokeWidth={1.8} />
           <input type="search" value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} placeholder="Pesquisar paciente, responsável, e-mail ou telefone..." aria-label="Pesquisar pacientes" className="min-w-0 flex-1 bg-transparent text-base text-[#403a35] outline-none placeholder:text-[#a79d94] sm:text-sm" />
         </label>
-        {patientSearch && <button type="button" onClick={() => setPatientSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#91877e] transition hover:bg-[#f2ece4] hover:text-[#A97A3C]"><X className="size-4" /></button>}
+        {patientSearch && <button type="button" onClick={() => setPatientSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 sm:right-12 lg:right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#91877e] transition hover:bg-[#f2ece4] hover:text-[#A97A3C]"><X className="size-4" /></button>}
         <button type="button" onClick={() => setShowFilters((open) => !open)} aria-label="Filtrar pacientes" aria-expanded={showFilters} className={`absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg transition ${statusFilter !== "all" ? "bg-[#f3e3cf] text-[#A97A3C]" : "text-[#8b8178] hover:bg-[#f5eee5] hover:text-[#A97A3C]"}`}>
           <SlidersHorizontal className="size-4" />
           {statusFilter !== "all" && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-[#BA9051]" />}
         </button>
         {showFilters && (
-          <div className="absolute right-2 top-[calc(100%+0.5rem)] z-30 w-[min(82vw,280px)] overflow-hidden rounded-2xl border border-[#e3d3bd] bg-white p-2 shadow-[0_18px_45px_rgba(45,40,35,0.16)]">
+          <div className="absolute right-2 top-[calc(100%+0.5rem)] z-30 w-[min(82vw,280px)] sm:right-2 lg:hidden overflow-hidden rounded-2xl border border-[#e3d3bd] bg-white p-2 shadow-[0_18px_45px_rgba(45,40,35,0.16)]">
             <div className="px-3 py-2">
               <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Filtrar por status</p>
               <p className="mt-0.5 text-[10px] text-[#948a81]">Escolha quais pacientes deseja visualizar.</p>
