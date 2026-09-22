@@ -193,7 +193,7 @@ function LoginPage() {
             <img
               src="/images/logo-editada-chatgpt.png"
               alt="Erick Paulino Fisioterapeuta"
-              className="h-auto max-h-[16vh] w-[min(68vw,250px)] object-contain drop-shadow-[0_14px_28px_rgba(55,37,18,0.30)]"
+              className="h-auto max-h-[18vh] w-[min(76vw,280px)] object-contain drop-shadow-[0_14px_28px_rgba(55,37,18,0.30)]"
             />
           </div>
 
