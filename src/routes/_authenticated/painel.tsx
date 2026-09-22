@@ -764,7 +764,6 @@ function PainelPage() {
           <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar Paciente"} loading={saving} />
         </form>
       </Modal>}
-      </AnimatePresence>
 
       {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}\n\n      {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
 
@@ -779,6 +778,7 @@ function PainelPage() {
           <Actions close={() => setModal(null)} label={editingExercise ? "Salvar alterações" : "Cadastrar"} loading={saving} />
         </form>
       </Modal>}
+      </AnimatePresence>
     </main>
   );
 }
