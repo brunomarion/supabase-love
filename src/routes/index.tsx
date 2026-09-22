@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";

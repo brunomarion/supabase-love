@@ -12,6 +12,10 @@ export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({ meta: [
     { title: "Painel | Erick Paulino Fisioterapia" },
     { name: "description", content: "Painel administrativo do fisioterapeuta Erick Paulino." },
+    { property: "og:title", content: "Painel | Erick Paulino Fisioterapia" },
+    { property: "og:description", content: "Painel administrativo do fisioterapeuta Erick Paulino." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex" },
   ]}),
   component: PainelPage,
@@ -72,7 +76,8 @@ function PainelPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);\n  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
+  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
+  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
@@ -765,7 +770,8 @@ function PainelPage() {
         </form>
       </Modal>}
 
-      {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}\n\n      {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
+       {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
+       {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
@@ -1163,7 +1169,7 @@ function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title
 }
 
 function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
-  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="flex size-11 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-2xl leading-none text-[#746c64] shadow-[0_4px_14px_rgba(64,48,30,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C] hover:shadow-[0_6px_18px_rgba(186,144,81,0.16)]">×</button></motion.div>{children}</motion.div></motion.div>;
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="flex size-11 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-2xl leading-none text-[#746c64] shadow-[0_4px_14px_rgba(64,48,30,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C] hover:shadow-[0_6px_18px_rgba(186,144,81,0.16)]">×</button></div>{children}</motion.div></motion.div>;
 }
 
 function DeletePatientModal({ patient, loading, close, confirm }: { patient: Patient; loading: boolean; close: () => void; confirm: () => void }) {
@@ -1190,7 +1196,7 @@ function DeletePatientModal({ patient, loading, close, confirm }: { patient: Pat
           </Button>
         </div>
       </div>
-    </div>
+     </motion.div>
   </motion.div>;
 }
 
@@ -1218,7 +1224,7 @@ function DeleteExerciseModal({ exercise, loading, close, confirm }: { exercise: 
           </Button>
         </div>
       </div>
-    </div>
+     </motion.div>
   </motion.div>;
 }
 
