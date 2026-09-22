@@ -631,8 +631,8 @@ function PainelPage() {
             {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
-            <div key={tab} className={tab === "dashboard" && isFirstDashboardEntry ? "premium-dashboard-first-entry" : "premium-tab-content"}>
-              {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} />}
+            <div key={tab} className="premium-tab-content">
+              {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
               {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
@@ -780,7 +780,7 @@ function PainelPage() {
   );
 }
 
-function Dashboard({ patients, exercises }: { patients: number; exercises: number }) {
+function Dashboard({ patients, exercises, animateFirstEntry }: { patients: number; exercises: number; animateFirstEntry: boolean }) {
   return <section className="space-y-6">
     <div className="lg:hidden">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel Administrativo</p>
@@ -790,7 +790,10 @@ function Dashboard({ patients, exercises }: { patients: number; exercises: numbe
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Painel Administrativo</p>
       <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Olá, Erick! <span aria-hidden="true">👋</span></h2>
     </div>
-    <div className="grid gap-4 sm:grid-cols-2"><Summary icon={Users} label="Pacientes ativos" value={patients} /><Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} /></div>
+    <div className="grid gap-4 sm:grid-cols-2">
+      <Summary icon={Users} label="Pacientes ativos" value={patients} animateFirstEntry={animateFirstEntry} />
+      <Summary icon={Dumbbell} label="Exercícios cadastrados" value={exercises} animateFirstEntry={animateFirstEntry} />
+    </div>
   </section>;
 }
 
@@ -1138,8 +1141,8 @@ function Header({ title, text, action, onAction }: { title: string; text: string
   return <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2><p className="mt-1 text-xs text-[#837970]">{text}</p></div><Button onClick={onAction} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]"><Plus className="size-4" />{action}</Button></div>;
 }
 
-function Summary({ icon: Icon, label, value }: { icon: typeof Users; label: string; value: number }) {
-  return <div className="group relative overflow-hidden rounded-2xl border border-[#e5d8c7] bg-white p-4 shadow-[0_10px_26px_rgba(64,48,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(64,48,30,0.08)] sm:rounded-[1.25rem] sm:p-5">
+function Summary({ icon: Icon, label, value, animateFirstEntry }: { icon: typeof Users; label: string; value: number; animateFirstEntry: boolean }) {
+  return <div className={"group relative overflow-hidden rounded-2xl border border-[#e5d8c7] bg-white p-4 shadow-[0_10px_26px_rgba(64,48,30,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(64,48,30,0.08)] sm:rounded-[1.25rem] sm:p-5 " + (animateFirstEntry ? "premium-dashboard-summary-first-entry" : "")}>
     <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#BA9051,#D4B27D,#A97A3C)] opacity-80" />
     <div className="flex items-start justify-between gap-3">
       <span className="flex size-9 items-center justify-center rounded-xl border border-[#eadcc9] bg-[linear-gradient(145deg,#fffaf2,#f7eee2)] text-[#BA9051] shadow-[0_4px_12px_rgba(186,144,81,0.10)] sm:size-10 sm:rounded-2xl">
