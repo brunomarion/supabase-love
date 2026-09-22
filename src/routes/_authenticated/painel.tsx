@@ -992,22 +992,11 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
 }
 function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
   const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 3;
 
-  const exerciseTypes = Array.from(
-    new Set(exercises.map((exercise) => exercise.type?.trim()).filter(Boolean)),
-  );
-
   const filteredExercises = exercises.filter((exercise) => {
     const term = search.trim().toLowerCase();
-    const matchesType =
-      typeFilter === "all" ||
-      (exercise.type?.trim() || "Sem tipo").toLowerCase() === typeFilter.toLowerCase();
-
-    if (!matchesType) return false;
     if (!term) return true;
 
     return [exercise.name, exercise.description, exercise.type]
@@ -1017,7 +1006,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
 
   useEffect(() => {
     setPage(1);
-  }, [search, typeFilter]);
+  }, [search]);
 
   const totalPages = Math.max(1, Math.ceil(filteredExercises.length / pageSize));
   const currentPage = Math.min(page, totalPages);
@@ -1056,43 +1045,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
       <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-[5.5rem] text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:pr-10 sm:text-sm" />
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C] sm:flex"><X className="size-4" /></button>}
-      <button
-        type="button"
-        onClick={() => setShowFilters((open) => !open)}
-        aria-label="Filtrar exercícios"
-        aria-expanded={showFilters}
-        className={`absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg transition sm:hidden ${typeFilter !== "all" ? "bg-[#f3e3cf] text-[#A97A3C]" : "text-[#8b8178] hover:bg-[#f5eee5] hover:text-[#A97A3C]"}`}
-      >
-        <SlidersHorizontal className="size-4" />
-        {typeFilter !== "all" && <span className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-[#BA9051]" />}
-      </button>
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C] sm:hidden"><X className="size-4" /></button>}
-      {showFilters && (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(82vw,280px)] overflow-hidden rounded-2xl border border-[#e3d3bd] bg-white p-2 shadow-[0_18px_45px_rgba(45,40,35,0.16)] sm:hidden">
-          <div className="px-3 py-2">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Filtrar por tipo</p>
-            <p className="mt-0.5 text-[10px] text-[#948a81]">Escolha o tipo de exercício.</p>
-          </div>
-          <div className="max-h-52 overflow-y-auto">
-            <button type="button" onClick={() => { setTypeFilter("all"); setShowFilters(false); }} className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-medium transition ${typeFilter === "all" ? "bg-[#f5eee5] text-[#A97A3C]" : "text-[#5f574f] hover:bg-[#faf7f2]"}`}>
-              <span>Todos</span>
-              {typeFilter === "all" && <span className="text-[10px] font-semibold">✓</span>}
-            </button>
-            {exerciseTypes.map((type) => (
-              <button key={type} type="button" onClick={() => { setTypeFilter(type); setShowFilters(false); }} className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-medium transition ${typeFilter.toLowerCase() === type.toLowerCase() ? "bg-[#f5eee5] text-[#A97A3C]" : "text-[#5f574f] hover:bg-[#faf7f2]"}`}>
-                <span className="truncate">{type}</span>
-                {typeFilter.toLowerCase() === type.toLowerCase() && <span className="text-[10px] font-semibold">✓</span>}
-              </button>
-            ))}
-            {exercises.some((exercise) => !exercise.type?.trim()) && (
-              <button type="button" onClick={() => { setTypeFilter("Sem tipo"); setShowFilters(false); }} className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-medium transition ${typeFilter.toLowerCase() === "sem tipo" ? "bg-[#f5eee5] text-[#A97A3C]" : "text-[#5f574f] hover:bg-[#faf7f2]"}`}>
-                <span>Sem tipo</span>
-                {typeFilter.toLowerCase() === "sem tipo" && <span className="text-[10px] font-semibold">✓</span>}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
     <div className="-mx-1 overflow-hidden sm:mx-0 sm:overflow-visible">
       {exercises.length === 0 ? <div className="sm:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : filteredExercises.length === 0 ? <div className="rounded-[1.2rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center text-xs text-[#8c8178]">Nenhum exercício encontrado para sua pesquisa.</div> : <>
