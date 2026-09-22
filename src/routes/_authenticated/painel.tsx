@@ -562,7 +562,7 @@ function PainelPage() {
   }
 
   return (
-    <main className="h-screen overflow-hidden bg-[linear-gradient(to_top,#ba9051_0%,#ffffff_100%)] text-[#2D2823] lg:bg-[#faf8f4]">
+    <main className={`h-screen overflow-hidden text-[#2D2823] lg:bg-[#faf8f4] ${tab === "dashboard" ? "bg-[linear-gradient(to_top,#ba9051_0%,#ffffff_32%,#ffffff_100%)]" : "bg-[#faf8f4]"}`}>
       {patientToast && (
         <div className="fixed inset-x-4 top-4 z-[80] flex justify-center pointer-events-none sm:inset-x-auto sm:right-6 sm:top-6">
           <div className="pointer-events-auto flex w-full max-w-[460px] items-center gap-4 rounded-[1.25rem] border border-[#dcc29a] bg-white/98 px-5 py-4 shadow-[0_20px_55px_rgba(64,48,30,0.20)] backdrop-blur-xl animate-in slide-in-from-top-3 duration-300">
@@ -612,7 +612,7 @@ function PainelPage() {
         </aside>
 
         <div className="min-w-0 flex-1 overflow-hidden pb-24 lg:pb-0">
-          <header className="sticky top-0 z-20 border-b border-[#eee5d9]/90 bg-white/75 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden">
+          <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
             <div className="flex items-center justify-center lg:hidden">
               <img
                 src={logo}
