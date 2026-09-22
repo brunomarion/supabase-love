@@ -977,7 +977,37 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
   }, [page, totalPages]);
 
   return <section className="space-y-5">
-    <Header title="Exercícios" text="Biblioteca de exercícios em vídeo." action="Adicionar exercício" onAction={onAdd} />
+    <div className="space-y-3">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex min-w-0 items-center justify-between gap-4 lg:block">
+          <div className="min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
+                <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Exercícios</h2>
+                <p className="mt-1 text-xs text-[#837970]">Biblioteca de exercícios em vídeo.</p>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
+                <Button onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[12px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-3.5" />Adicionar exercício</Button>
+                <div className="flex h-[44px] w-full items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)]">
+                  <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{exercises.length}</span>
+                  <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">exercícios cadastrados</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-3 lg:gap-4">
+          <div className="hidden items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)] lg:flex">
+            <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{exercises.length}</span>
+            <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">exercícios cadastrados</span>
+          </div>
+          <div className="hidden items-center gap-4 lg:flex">
+            <Button onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] hover:bg-[#A97A3C]"><Plus className="size-4" />Adicionar exercício</Button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div className="relative w-full">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
       <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-[5.5rem] text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:pr-10 sm:text-sm" />
