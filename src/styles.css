@@ -161,23 +161,17 @@
 }
 
 
-@keyframes premium-dashboard-first-entry {
+@keyframes premium-dashboard-summary-first-entry {
   from {
     opacity: 0;
-    transform: scale(0.985);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
-.premium-dashboard-first-entry {
-  animation: premium-dashboard-first-entry 1350ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  transform-origin: center top;
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+.premium-dashboard-summary-first-entry {
+  animation: premium-dashboard-summary-first-entry 1350ms ease-out both;
 }
 
 @keyframes premium-dashboard-reveal {
