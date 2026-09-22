@@ -59,6 +59,7 @@ const emptyExercise = {
 function PainelPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [isFirstDashboardEntry, setIsFirstDashboardEntry] = useState(true);
   const [patientStatusFilter, setPatientStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -84,6 +85,11 @@ function PainelPage() {
 
   useEffect(() => {
     void loadData();
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsFirstDashboardEntry(false), 1400);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -625,7 +631,7 @@ function PainelPage() {
             {error && <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
             {notice && <div className="mb-5 rounded-xl border border-[#dfcfb8] bg-[#fffaf2] px-4 py-3 text-xs text-[#8a6335]">{notice}</div>}
 
-            <div key={tab} className="premium-tab-content">
+            <div key={tab} className={tab === "dashboard" && isFirstDashboardEntry ? "premium-dashboard-first-entry" : "premium-tab-content"}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} />}
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
               {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} onView={setViewingExercise} deleting={deleting} />}
