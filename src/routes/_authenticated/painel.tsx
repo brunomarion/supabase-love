@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, UserRound, Users, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -1067,7 +1067,13 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
     </div>
     <div className="-mx-1 overflow-hidden sm:mx-0 sm:overflow-visible">
       {exercises.length === 0 ? <div className="sm:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : filteredExercises.length === 0 ? <div className="rounded-[1.2rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center text-xs text-[#8c8178]">Nenhum exercício encontrado para sua pesquisa.</div> : <>
-        <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white p-2 shadow-[0_10px_30px_rgba(64,48,30,0.045)] sm:p-3">
+        <div className="relative rounded-[1.35rem] border border-[#e6d9c9] bg-white p-2 shadow-[0_10px_30px_rgba(64,48,30,0.045)] sm:p-3">
+          <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={currentPage === 1} aria-label="Exercícios anteriores" className="absolute left-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#dfd2c1] bg-white/95 text-[#746c64] shadow-[0_8px_22px_rgba(64,48,30,0.14)] backdrop-blur-sm transition hover:border-[#BA9051] hover:bg-[#fffaf2] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-30 lg:flex">
+            <ChevronLeft className="size-5" />
+          </button>
+          <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={currentPage === totalPages} aria-label="Próximos exercícios" className="absolute right-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#dfd2c1] bg-white/95 text-[#746c64] shadow-[0_8px_22px_rgba(64,48,30,0.14)] backdrop-blur-sm transition hover:border-[#BA9051] hover:bg-[#fffaf2] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-30 lg:flex">
+            <ChevronRight className="size-5" />
+          </button>
           <div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-y-visible sm:overflow-x-hidden sm:px-1 sm:pb-1 sm:snap-none xl:grid-cols-3 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-[#f3ede5] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#c9ad82] hover:[&::-webkit-scrollbar-thumb]:bg-[#A97A3C]">
             {paginatedExercises.map((e) => <article data-exercise-card key={e.id} className="group w-[78vw] max-w-[270px] shrink-0 snap-center overflow-hidden rounded-[1.2rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.055)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(64,48,30,0.11)] sm:w-auto sm:max-w-none sm:shrink sm:snap-none sm:rounded-[1.35rem] xl:w-full xl:max-w-none">
               <button type="button" onClick={() => onView(e)} className="relative block aspect-video w-full overflow-hidden bg-[linear-gradient(145deg,#f7eee2,#ead9bf)] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#BA9051] focus-visible:ring-inset touch-manipulation">
@@ -1084,13 +1090,8 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
             </article>)}
           </div>
         </div>
-        {filteredExercises.length > 0 && <div className="hidden items-center justify-between gap-3 border-t border-[#eee5d9] bg-[#fdfbf8] px-3 py-3 sm:flex sm:px-5">
+        {filteredExercises.length > 0 && <div className="hidden items-center justify-center border-t border-[#eee5d9] bg-[#fdfbf8] px-3 py-2.5 sm:flex sm:px-5">
           <span className="text-[10px] text-[#948a81]">{startIndex + 1}–{Math.min(startIndex + pageSize, filteredExercises.length)} de {filteredExercises.length}</span>
-          <div className="flex items-center gap-1.5">
-            <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={currentPage === 1} aria-label="Página anterior" className="flex size-8 items-center justify-center rounded-lg border border-[#dfd2c1] bg-white text-[#746c64] transition hover:border-[#BA9051] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-35">‹</button>
-            <span className="flex min-w-8 items-center justify-center rounded-lg bg-[#BA9051]/10 px-2 py-1.5 text-[10px] font-semibold text-[#A97A3C]">{currentPage} / {totalPages}</span>
-            <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={currentPage === totalPages} aria-label="Próxima página" className="flex size-8 items-center justify-center rounded-lg border border-[#dfd2c1] bg-white text-[#746c64] transition hover:border-[#BA9051] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-35">›</button>
-          </div>
         </div>}
       </>}
     </div>
