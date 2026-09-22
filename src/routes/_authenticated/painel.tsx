@@ -71,7 +71,7 @@ function PainelPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
+  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);\n  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
@@ -546,11 +546,11 @@ function PainelPage() {
   }
 
   async function removeExercise(item: Exercise) {
-    if (!window.confirm(`Deseja realmente excluir o exercício "${item.name}"?`)) return;
     try {
       setDeleting(item.id);
       const { error: deleteError } = await supabase.from("exercises").delete().eq("id", item.id);
       if (deleteError) throw deleteError;
+      setConfirmExercise(null);
       setNotice("");
       setExerciseToast(`Vídeo "${item.name}" excluído com sucesso.`);
       await loadData();
@@ -634,7 +634,7 @@ function PainelPage() {
             <div key={tab} className="premium-tab-content">
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
-              {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={removeExercise} onView={setViewingExercise} deleting={deleting} />}
+              {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
             </div>
@@ -763,7 +763,7 @@ function PainelPage() {
         </form>
       </Modal>}
 
-      {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
+      {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}\n\n      {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
@@ -1184,6 +1184,34 @@ function DeletePatientModal({ patient, loading, close, confirm }: { patient: Pat
           <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">
             {loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
             {loading ? "Excluindo..." : "Sim, excluir paciente"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+function DeleteExerciseModal({ exercise, loading, close, confirm }: { exercise: Exercise; loading: boolean; close: () => void; confirm: () => void }) {
+  return <div className="premium-modal-backdrop fixed inset-0 z-[60] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}>
+    <div className="premium-modal-panel w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fff1f1] text-[#d34f4f]">
+            <Trash2 className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Excluir exercício?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir o exercício:</p>
+            <p className="mt-1 text-sm font-semibold text-[#A97A3C]">{exercise.name}</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita e o exercício será removido da lista.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">
+            {loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            {loading ? "Excluindo..." : "Sim, excluir exercício"}
           </Button>
         </div>
       </div>
