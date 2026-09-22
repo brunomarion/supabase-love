@@ -788,11 +788,10 @@ function PainelPage() {
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
           <Field label="Nome do exercício" value={exercise.name} onChange={(v) => setExercise({ ...exercise, name: v })} placeholder="Ex.: Estimulação cervical" required />
-          <Field label="Descrição" value={exercise.description} onChange={(v) => setExercise({ ...exercise, description: v })} placeholder="Descreva o exercício" multiline />
+          <Field label="Descrição/Orientações" value={exercise.description} onChange={(v) => setExercise({ ...exercise, description: v })} placeholder="Descreva o exercício e as orientações" multiline />
           <Field label="Tipo" value={exercise.type} onChange={(v) => setExercise({ ...exercise, type: v })} placeholder="Ex.: Vídeo" />
           <Field label="URL do vídeo" type="url" value={exercise.video_url} onChange={(v) => setExercise({ ...exercise, video_url: v })} placeholder="https://..." />
           <Field label="URL da miniatura" type="url" value={exercise.thumbnail_url} onChange={(v) => setExercise({ ...exercise, thumbnail_url: v })} placeholder="https://..." />
-          <SelectField label="Status" value={exercise.is_active ? "active" : "inactive"} onChange={(v) => setExercise({ ...exercise, is_active: v === "active" })} options={[[ "active", "Ativo"], ["inactive", "Inativo"]]} />
           <Actions close={() => setModal(null)} label={editingExercise ? "Salvar alterações" : "Cadastrar"} loading={saving} />
         </form>
       </Modal>}
