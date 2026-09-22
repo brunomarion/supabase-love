@@ -72,7 +72,8 @@ function PainelPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);\n  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
+  const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
+  const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
@@ -765,7 +766,8 @@ function PainelPage() {
         </form>
       </Modal>}
 
-      {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}\n\n      {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
+       {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
+       {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
@@ -1190,7 +1192,7 @@ function DeletePatientModal({ patient, loading, close, confirm }: { patient: Pat
           </Button>
         </div>
       </div>
-    </div>
+     </motion.div>
   </motion.div>;
 }
 
@@ -1218,7 +1220,7 @@ function DeleteExerciseModal({ exercise, loading, close, confirm }: { exercise: 
           </Button>
         </div>
       </div>
-    </div>
+     </motion.div>
   </motion.div>;
 }
 
