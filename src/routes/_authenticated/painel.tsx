@@ -25,6 +25,7 @@ type Tab = "dashboard" | "pacientes" | "exercicios" | "relatorios" | "configurac
 type Patient = Tables<"patients">;
 type Exercise = Tables<"exercises">;
 type PdfMaterial = Tables<"pdf_materials">;
+type PatientSession = Tables<"patient_sessions">;
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
@@ -96,6 +97,9 @@ function PainelPage() {
   const [sessionPatient, setSessionPatient] = useState<Patient | null>(null);
   const [sessionDate, setSessionDate] = useState("");
   const [sessionNotes, setSessionNotes] = useState("");
+  const [sessionHistory, setSessionHistory] = useState<PatientSession[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [sessionView, setSessionView] = useState<"history" | "create">("history");
 
   useEffect(() => {
     void loadData();
@@ -205,12 +209,41 @@ function PainelPage() {
     });
   }
 
-  function openSessionCreate(item: Patient) {
+  async function openSessionCreate(item: Patient) {
     setSessionPatient(item);
     setSessionDate(new Date().toISOString().slice(0, 10));
     setSessionNotes("");
+    setSessionView("history");
+    setSessionHistory([]);
     setError("");
     setModal("session");
+
+    if (!physiotherapistId) return;
+
+    try {
+      setLoadingSessions(true);
+      const { data, error: sessionsError } = await supabase
+        .from("patient_sessions")
+        .select("*")
+        .eq("patient_id", item.id)
+        .eq("physiotherapist_id", physiotherapistId)
+        .order("session_date", { ascending: false })
+        .order("created_at", { ascending: false });
+
+      if (sessionsError) throw sessionsError;
+      setSessionHistory(data ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível carregar o histórico de sessões.");
+    } finally {
+      setLoadingSessions(false);
+    }
+  }
+
+  function startSessionCreate() {
+    setSessionDate(new Date().toISOString().slice(0, 10));
+    setSessionNotes("");
+    setError("");
+    setSessionView("create");
   }
 
   function openPatientCreate() {
@@ -379,11 +412,24 @@ function PainelPage() {
 
       if (insertError) throw insertError;
 
+      const { data: createdSession, error: createdSessionError } = await supabase
+        .from("patient_sessions")
+        .select("*")
+        .eq("patient_id", sessionPatient.id)
+        .eq("physiotherapist_id", physiotherapistId)
+        .eq("session_date", sessionDate)
+        .eq("notes", sessionNotes.trim())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (createdSessionError) throw createdSessionError;
+      if (createdSession) setSessionHistory((current) => [createdSession, ...current.filter((item) => item.id !== createdSession.id)]);
+
       setNotice("Sessão registrada com sucesso.");
       setPatientToast(`Sessão de "${sessionPatient.full_name}" registrada com sucesso.`);
-      setModal(null);
-      setSessionPatient(null);
-      setSessionDate("");
+      setSessionView("history");
+      setSessionDate(new Date().toISOString().slice(0, 10));
       setSessionNotes("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível registrar a sessão.");
@@ -856,25 +902,72 @@ function PainelPage() {
       </Modal>}
 
        {modal === "session" && sessionPatient && (
-        <Modal title="Registrar sessão" close={() => !saving && setModal(null)}>
-          <form onSubmit={saveSession} className="space-y-5">
+        <Modal title={sessionView === "history" ? "Histórico de sessões" : "Registrar sessão"} close={() => !saving && setModal(null)}>
+          <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4">
               <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
               <p className="mt-1 text-sm font-semibold text-[#302b26]">{sessionPatient.full_name}</p>
               {sessionPatient.responsible_name && <p className="mt-0.5 text-xs text-[#8c8178]">Responsável: {sessionPatient.responsible_name}</p>}
             </div>
 
-            <div className="space-y-4">
-              <div className="pb-1 text-center">
-                <h3 className="text-base font-semibold text-[#A97A3C]">Dados da sessão</h3>
-                <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
-              </div>
-              <Field label="Data da sessão" value={sessionDate} onChange={setSessionDate} type="date" required />
-              <Field label="O que ocorreu durante a sessão" value={sessionNotes} onChange={setSessionNotes} placeholder="Descreva o atendimento, procedimentos realizados, evolução e observações importantes." multiline required />
-            </div>
+            {sessionView === "history" ? (
+              <>
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-base font-semibold text-[#A97A3C]">Sessões realizadas</p>
+                    <p className="mt-0.5 text-[10px] text-[#948a81]">{sessionHistory.length} {sessionHistory.length === 1 ? "sessão registrada" : "sessões registradas"}</p>
+                  </div>
+                  <Button type="button" onClick={startSessionCreate} className="h-10 rounded-xl bg-[#BA9051] px-3 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.16)] hover:bg-[#A97A3C]">
+                    <Plus className="size-4" /> Nova sessão
+                  </Button>
+                </div>
 
-            <Actions close={() => setModal(null)} label="Registrar sessão" loading={saving} />
-          </form>
+                <div className="max-h-[46vh] space-y-3 overflow-y-auto pr-1">
+                  {loadingSessions ? (
+                    <div className="flex min-h-[150px] items-center justify-center text-xs text-[#948a81]">
+                      <RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" /> Carregando sessões...
+                    </div>
+                  ) : sessionHistory.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-[#dccbb5] bg-[#fdfbf8] p-8 text-center">
+                      <CalendarPlus className="mx-auto size-6 text-[#BA9051]" />
+                      <p className="mt-3 text-sm font-semibold text-[#5f574f]">Nenhuma sessão registrada</p>
+                      <p className="mt-1 text-xs leading-relaxed text-[#948a81]">Registre a primeira sessão deste paciente para começar o histórico.</p>
+                    </div>
+                  ) : (
+                    sessionHistory.map((session, index) => (
+                      <div key={session.id} className="relative rounded-2xl border border-[#e6d8c5] bg-white p-4 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]">
+                            <CalendarPlus className="size-4" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#A97A3C]">Sessão {sessionHistory.length - index}</p>
+                              <span className="rounded-full bg-[#f5eee5] px-2.5 py-1 text-[10px] font-semibold text-[#746c64]">{formatDate(session.session_date)}</span>
+                            </div>
+                            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#5f574f]">{session.notes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            ) : (
+              <form onSubmit={saveSession} className="space-y-5">
+                <div className="pb-1 text-center">
+                  <h3 className="text-base font-semibold text-[#A97A3C]">Dados da sessão</h3>
+                  <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
+                </div>
+                <Field label="Data da sessão" value={sessionDate} onChange={setSessionDate} type="date" required />
+                <Field label="O que ocorreu durante a sessão" value={sessionNotes} onChange={setSessionNotes} placeholder="Descreva o atendimento, procedimentos realizados, evolução e observações importantes." multiline required />
+                <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                  <Button type="button" variant="outline" onClick={() => setSessionView("history")} disabled={saving} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button>
+                  <Button type="submit" disabled={saving} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{saving ? <RefreshCw className="size-4 animate-spin" /> : null}{saving ? "Salvando..." : "Registrar sessão"}</Button>
+                </div>
+              </form>
+            )}
+          </div>
         </Modal>
       )}
 
