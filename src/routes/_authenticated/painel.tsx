@@ -1243,16 +1243,17 @@ function getVideoEmbedUrl(url: string | null) {
   } catch { return null; }
 }
 
-function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved }: {
+function PdfMaterialModal({ pdf, close, physiotherapistId, saving, setSaving, onSaved }: {
+  pdf: PdfMaterial | null;
   close: () => void;
   physiotherapistId: string | null;
   saving: boolean;
   setSaving: (value: boolean) => void;
   onSaved: (pdf: PdfMaterial) => void;
 }) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [url, setUrl] = useState("");
+  const [name, setName] = useState(pdf?.name ?? "");
+  const [description, setDescription] = useState(pdf?.description ?? "");
+  const [url, setUrl] = useState(pdf?.storage_path ?? "");
   const [formError, setFormError] = useState("");
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -1289,19 +1290,21 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
         ? `${decodeURIComponent(storageObjectMatch[1])}/${decodeURIComponent(storageObjectMatch[2])}`
         : parsedUrl.toString();
 
-      const { data, error: insertError } = await supabase.from("pdf_materials").insert({
-        physiotherapist_id: physiotherapistId,
+      const payload = {
         name: name.trim(),
         description: description.trim(),
         file_name: fileName,
         storage_path: storagePath,
-        file_size: null,
-        mime_type: "application/pdf",
-      }).select("*").single();
+        file_size: pdf?.file_size ?? null,
+        mime_type: pdf?.mime_type ?? "application/pdf",
+      };
 
-      if (insertError) throw insertError;
+      const result = pdf
+        ? await supabase.from("pdf_materials").update(payload).eq("id", pdf.id).eq("physiotherapist_id", physiotherapistId).select("*").single()
+        : await supabase.from("pdf_materials").insert({ physiotherapist_id: physiotherapistId, ...payload }).select("*").single();
 
-      onSaved(data as PdfMaterial);
+      if (result.error) throw result.error;
+      onSaved(result.data as PdfMaterial);
     } catch (err) {
       const message = err && typeof err === "object" && "message" in err
         ? String((err as { message?: unknown }).message || "")
@@ -1313,7 +1316,7 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
     }
   }
 
-  return <Modal title="Cadastrar material PDF" close={close}>
+  return <Modal title={pdf ? "Editar material PDF" : "Cadastrar material PDF"} close={close}>
     <form onSubmit={submit} className="space-y-5">
       <div className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4">
         <div className="flex items-start gap-3">
@@ -1325,7 +1328,7 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
       <Field label="Descrição" value={description} onChange={setDescription} placeholder="Descreva brevemente o conteúdo do material." multiline required />
       <Field label="Link da URL" value={url} onChange={setUrl} placeholder="https://.../arquivo.pdf" type="url" required />
       {formError && <p className="rounded-xl border border-[#f0d2d2] bg-[#fff4f4] px-3 py-2.5 text-xs text-[#bd4d4d]">{formError}</p>}
-      <Actions close={close} label="Cadastrar PDF" loading={saving} />
+      <Actions close={close} label={pdf ? "Salvar alterações" : "Cadastrar PDF"} loading={saving} />
     </form>
   </Modal>;
 }
@@ -1440,6 +1443,29 @@ function DeleteExerciseModal({ exercise, loading, close, confirm }: { exercise: 
         </div>
       </div>
      </motion.div>
+  </motion.div>;
+}
+
+function DeletePdfModal({ pdf, loading, close, confirm }: { pdf: PdfMaterial; loading: boolean; close: () => void; confirm: () => void }) {
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[60] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}>
+    <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="premium-modal-panel w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fff1f1] text-[#d34f4f]"><Trash2 className="size-5" /></span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Excluir material PDF?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir o material:</p>
+            <p className="mt-1 text-sm font-semibold text-[#A97A3C]">{pdf.name}</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita e o material será removido da lista.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">{loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}{loading ? "Excluindo..." : "Sim, excluir material"}</Button>
+        </div>
+      </div>
+    </motion.div>
   </motion.div>;
 }
 
