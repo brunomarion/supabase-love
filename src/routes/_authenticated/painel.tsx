@@ -1103,7 +1103,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
         </div>}
       </>}
     </div>
-    }
+    </>}
   </section>;
 }
 function getVideoEmbedUrl(url: string | null) {
