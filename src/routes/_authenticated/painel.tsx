@@ -1033,9 +1033,8 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2 lg:hidden">
                 <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Exercício</Button>
-                <div className="flex w-full items-center justify-between gap-3 rounded-[1rem] border border-[#e6d8c5] bg-white px-3.5 py-3 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#837970]">Exibir conteúdo:</span>
-                  <div className="flex items-center gap-4">
+                <div className="flex w-full items-center justify-center rounded-[1rem] border border-[#e6d8c5] bg-white px-3 py-3 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
+                  <div className="flex items-center gap-5">
                     <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
                       <input type="checkbox" checked={contentType === "videos"} onChange={() => setContentType("videos")} className="peer sr-only" />
                       <span className="flex size-5 items-center justify-center rounded-md border border-[#dfc28f] bg-[#fffdf9] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#f8f0e5]">
