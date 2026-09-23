@@ -1029,7 +1029,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
                 <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Exercícios</h2>
-                <p className="mt-1 text-xs text-[#837970]">Biblioteca de exercícios em vídeo.</p>
+                <p className="mt-1 text-xs text-[#837970]">Gerencie exercícios e materiais para seus pacientes.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
                 <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Exercício</Button>
