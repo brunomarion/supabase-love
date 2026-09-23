@@ -1272,32 +1272,46 @@ function PdfMaterialModal({ pdf, close, physiotherapistId, saving, setSaving, on
     if (!description.trim()) return setFormError("Informe a descrição do material.");
     if (!url.trim()) return setFormError("Informe a URL do PDF.");
 
-    let parsedUrl: URL;
-    try {
-      parsedUrl = new URL(url.trim());
-    } catch {
-      return setFormError("Informe uma URL válida.");
-    }
-
-    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-      return setFormError("A URL deve começar com http:// ou https://.");
-    }
-
     try {
       setSaving(true);
       setFormError("");
 
-      const fileName = decodeURIComponent(parsedUrl.pathname.split("/").filter(Boolean).pop() || "material.pdf");
+      const rawUrl = url.trim();
+      let fileName = "material.pdf";
+      let storagePath = rawUrl;
 
-      // A URL copiada do Supabase Storage pode ser pública, autenticada ou
-      // assinada. Para buckets privados, guardamos somente "bucket/path"
-      // para gerar um novo link temporário ao abrir o material.
-      const storageObjectMatch = parsedUrl.pathname.match(
-        /\/storage\/v1\/object\/(?:public|authenticated|sign)\/([^/]+)\/(.+)$/
-      );
-      const storagePath = storageObjectMatch
-        ? `${decodeURIComponent(storageObjectMatch[1])}/${decodeURIComponent(storageObjectMatch[2])}`
-        : parsedUrl.toString();
+      // Em edição, o banco pode conter "bucket/caminho/do/arquivo.pdf"
+      // em vez da URL completa. Nesse caso, preservamos o caminho existente.
+      const bucketPathMatch = rawUrl.match(/^([^/]+)\/(.+)$/);
+
+      if (bucketPathMatch && !/^https?:$/i.test(bucketPathMatch[1])) {
+        storagePath = rawUrl;
+        fileName = decodeURIComponent(bucketPathMatch[2].split("/").filter(Boolean).pop() || "material.pdf");
+      } else {
+        let parsedUrl: URL;
+        try {
+          parsedUrl = new URL(rawUrl);
+        } catch {
+          return setFormError("Informe uma URL válida.");
+        }
+
+        if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+          return setFormError("A URL deve começar com http:// ou https://.");
+        }
+
+        fileName = decodeURIComponent(parsedUrl.pathname.split("/").filter(Boolean).pop() || "material.pdf");
+
+        // A URL copiada do Supabase Storage pode ser pública, autenticada ou
+        // assinada. Para buckets privados, guardamos somente "bucket/path"
+        // para gerar um novo link temporário ao abrir o material.
+        const storageObjectMatch = parsedUrl.pathname.match(
+          /\/storage\/v1\/object\/(?:public|authenticated|sign)\/([^/]+)\/(.+)$/
+        );
+
+        storagePath = storageObjectMatch
+          ? `${decodeURIComponent(storageObjectMatch[1])}/${decodeURIComponent(storageObjectMatch[2])}`
+          : parsedUrl.toString();
+      }
 
       const payload = {
         name: name.trim(),
@@ -1309,10 +1323,24 @@ function PdfMaterialModal({ pdf, close, physiotherapistId, saving, setSaving, on
       };
 
       const result = pdf
-        ? await supabase.from("pdf_materials").update(payload).eq("id", pdf.id).eq("physiotherapist_id", physiotherapistId).select("*").single()
-        : await supabase.from("pdf_materials").insert({ physiotherapist_id: physiotherapistId, ...payload }).select("*").single();
+        ? await supabase
+            .from("pdf_materials")
+            .update(payload)
+            .eq("id", pdf.id)
+            .eq("physiotherapist_id", physiotherapistId)
+            .select("*")
+            .maybeSingle()
+        : await supabase
+            .from("pdf_materials")
+            .insert({ physiotherapist_id: physiotherapistId, ...payload })
+            .select("*")
+            .single();
 
       if (result.error) throw result.error;
+      if (!result.data) {
+        throw new Error("Não foi possível atualizar o material. Verifique se a política de UPDATE da tabela pdf_materials está criada no Supabase.");
+      }
+
       onSaved(result.data as PdfMaterial);
     } catch (err) {
       const message = err && typeof err === "object" && "message" in err
