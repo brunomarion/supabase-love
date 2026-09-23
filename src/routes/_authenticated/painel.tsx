@@ -1090,7 +1090,30 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
           </div>
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
-          <div className="hidden items-center gap-4 lg:flex">
+          <div className="hidden items-center gap-3 lg:flex">
+            <div className="flex items-center gap-2 rounded-xl border border-[#dfc28f] bg-white/95 px-3 py-2 shadow-[0_6px_20px_rgba(186,144,81,0.12)]">
+              <span className="text-[18px] font-semibold tracking-[-0.03em] text-[#BA9051]">{contentType === "pdfs" ? pdfMaterials.length : exercises.length}</span>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#948a81]">{contentType === "pdfs" ? "materiais cadastrados" : "exercícios cadastrados"}</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)]" role="group" aria-label="Filtrar por conteúdo">
+              <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar por conteúdo:</span>
+              <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
+                <span className="relative flex size-[17px] items-center justify-center">
+                  <input type="checkbox" checked={contentType === "videos"} onChange={(e) => setContentType(e.target.checked ? "videos" : "pdfs")} className="peer sr-only" />
+                  <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+                  <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+                </span>
+                Vídeos
+              </label>
+              <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
+                <span className="relative flex size-[17px] items-center justify-center">
+                  <input type="checkbox" checked={contentType === "pdfs"} onChange={(e) => setContentType(e.target.checked ? "pdfs" : "videos")} className="peer sr-only" />
+                  <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+                  <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+                </span>
+                PDF's
+              </label>
+            </div>
             <Button type="button" onClick={contentType === "pdfs" ? onAddPdf : onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-[13px] font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
               {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-4" />}
               {contentType === "pdfs" ? "Enviar PDF" : "Cadastrar Exercício"}
@@ -1099,26 +1122,12 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
         </div>
       </div>
     </div>
-    <div className="hidden lg:flex -mt-1 items-center justify-center lg:justify-start">
-      <div className="flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)]" role="group" aria-label="Filtrar por conteúdo">
-        <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar por conteúdo:</span>
-        <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
-          <span className="relative flex size-[17px] items-center justify-center">
-            <input type="checkbox" checked={contentType === "videos"} onChange={(e) => setContentType(e.target.checked ? "videos" : "pdfs")} className="peer sr-only" />
-            <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
-            <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
-          </span>
-          Vídeos
-        </label>
-        <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
-          <span className="relative flex size-[17px] items-center justify-center">
-            <input type="checkbox" checked={contentType === "pdfs"} onChange={(e) => setContentType(e.target.checked ? "pdfs" : "videos")} className="peer sr-only" />
-            <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
-            <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
-          </span>
-          PDF's
-        </label>
-      </div>
+    <div className="hidden lg:block relative rounded-2xl border border-[#e6d9c9] bg-white p-2 shadow-[0_6px_20px_rgba(64,48,30,0.045)]">
+      <label className="relative flex h-11 items-center gap-2.5 rounded-xl border border-[#e6d9c9] bg-[#fdfbf8] px-3 pr-12 text-[#837970] lg:pr-3 focus-within:border-[#BA9051] focus-within:ring-2 focus-within:ring-[#BA9051]/10">
+        <Search className="size-[17px] shrink-0 text-[#BA9051]" strokeWidth={1.8} />
+        <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={contentType === "pdfs" ? "Pesquisar material PDF..." : "Pesquisar exercício..."} aria-label={contentType === "pdfs" ? "Pesquisar materiais PDF" : "Pesquisar exercícios"} className="min-w-0 flex-1 bg-transparent text-base text-[#403a35] outline-none placeholder:text-[#a79d94] sm:text-sm" />
+      </label>
+      {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-4 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#91877e] transition hover:bg-[#f2ece4] hover:text-[#A97A3C]"><X className="size-4" /></button>}
     </div>
     <AnimatePresence mode="wait" initial={false}>
       {contentType === "pdfs" ? <motion.div key="pdfs" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.22, ease: "easeOut" }} className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
@@ -1132,7 +1141,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
         </div>
       )}
       </motion.div> : <motion.div key="videos" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.22, ease: "easeOut" }}>
-    <div className="relative -mt-5 w-full lg:mt-0">
+    <div className="relative -mt-5 w-full lg:hidden">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
       <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-[5.5rem] text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:pr-10 sm:text-sm" />
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C] sm:flex"><X className="size-4" /></button>}
