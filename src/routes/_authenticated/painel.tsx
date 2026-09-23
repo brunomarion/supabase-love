@@ -1063,7 +1063,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
       <div className="divide-y divide-[#eee5d9]">
         <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">Os materiais PDF aparecerão aqui após serem cadastrados no Storage.</div>
       </div>
-    </div> : <div className="relative -mt-1 w-full lg:mt-0">\n    <div className="relative -mt-5 w-full lg:mt-0">
+    </div> : <>\n    <div className="relative -mt-5 w-full lg:mt-0">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
       <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-[5.5rem] text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:pr-10 sm:text-sm" />
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C] sm:flex"><X className="size-4" /></button>}
