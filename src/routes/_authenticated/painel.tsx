@@ -1154,16 +1154,30 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
 function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
   const [opening, setOpening] = useState(false);
 
-  function openPdf() {
+  async function openPdf() {
     if (!pdf.storage_path || opening) return;
 
     try {
-      const url = new URL(pdf.storage_path);
-      if (!/^https?:$/.test(url.protocol)) return;
       setOpening(true);
+
+      // Materiais novos armazenam "bucket/path" no banco para que
+      // o link privado do Storage possa ser renovado quando necessário.
+      const storageMatch = pdf.storage_path.match(/^([^/]+)\/(.+)$/);
+
+      if (storageMatch && !/^https?:$/i.test(storageMatch[1])) {
+        const [, bucket, path] = storageMatch;
+        const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 10);
+        if (error) throw error;
+        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      // Compatibilidade com registros antigos que tenham a URL completa salva.
+      const url = new URL(pdf.storage_path);
+      if (!/^https?:$/i.test(url.protocol)) throw new Error("URL do PDF inválida.");
       window.open(url.toString(), "_blank", "noopener,noreferrer");
-    } catch {
-      // Ignora URLs inválidas cadastradas anteriormente.
+    } catch (err) {
+      console.error("Erro ao abrir PDF:", err);
     } finally {
       window.setTimeout(() => setOpening(false), 500);
     }
@@ -1247,12 +1261,22 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
 
       const fileName = decodeURIComponent(parsedUrl.pathname.split("/").filter(Boolean).pop() || "material.pdf");
 
+      // A URL copiada do Supabase Storage pode ser pública, autenticada ou
+      // assinada. Para buckets privados, guardamos somente "bucket/path"
+      // para gerar um novo link temporário ao abrir o material.
+      const storageObjectMatch = parsedUrl.pathname.match(
+        /\/storage\/v1\/object\/(?:public|authenticated|sign)\/([^/]+)\/(.+)$/
+      );
+      const storagePath = storageObjectMatch
+        ? `${decodeURIComponent(storageObjectMatch[1])}/${decodeURIComponent(storageObjectMatch[2])}`
+        : parsedUrl.toString();
+
       const { data, error: insertError } = await supabase.from("pdf_materials").insert({
         physiotherapist_id: physiotherapistId,
         name: name.trim(),
         description: description.trim(),
         file_name: fileName,
-        storage_path: parsedUrl.toString(),
+        storage_path: storagePath,
         file_size: null,
         mime_type: "application/pdf",
       }).select("*").single();
@@ -1261,7 +1285,11 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
 
       onSaved(data as PdfMaterial);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Não foi possível cadastrar o PDF.");
+      const message = err && typeof err === "object" && "message" in err
+        ? String((err as { message?: unknown }).message || "")
+        : err instanceof Error ? err.message : "";
+      console.error("Erro ao cadastrar PDF:", err);
+      setFormError(message || "Não foi possível cadastrar o PDF. Verifique as permissões da tabela pdf_materials no Supabase.");
     } finally {
       setSaving(false);
     }
