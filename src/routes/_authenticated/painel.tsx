@@ -1157,6 +1157,11 @@ function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
   async function openPdf() {
     if (!pdf.storage_path || opening) return;
 
+    // No mobile, window.open() chamado somente depois do await pode ser
+    // bloqueado pelo navegador como pop-up. Abrimos a aba imediatamente
+    // no clique e só depois colocamos a URL assinada nela.
+    const popup = window.open("", "_blank");
+
     try {
       setOpening(true);
 
@@ -1168,15 +1173,27 @@ function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
         const [, bucket, path] = storageMatch;
         const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 10);
         if (error) throw error;
-        window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+
+        if (popup) {
+          popup.location.href = data.signedUrl;
+        } else {
+          // Fallback para navegadores que não permitirem a abertura da aba.
+          window.location.href = data.signedUrl;
+        }
         return;
       }
 
       // Compatibilidade com registros antigos que tenham a URL completa salva.
       const url = new URL(pdf.storage_path);
       if (!/^https?:$/i.test(url.protocol)) throw new Error("URL do PDF inválida.");
-      window.open(url.toString(), "_blank", "noopener,noreferrer");
+
+      if (popup) {
+        popup.location.href = url.toString();
+      } else {
+        window.location.href = url.toString();
+      }
     } catch (err) {
+      if (popup) popup.close();
       console.error("Erro ao abrir PDF:", err);
     } finally {
       window.setTimeout(() => setOpening(false), 500);
