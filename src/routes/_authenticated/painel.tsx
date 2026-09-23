@@ -87,7 +87,7 @@ function PainelPage() {
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
   const [exerciseToast, setExerciseToast] = useState("");
-  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | null>(null);
+  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | "session" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [editingPdf, setEditingPdf] = useState<PdfMaterial | null>(null);
@@ -708,6 +708,32 @@ function PainelPage() {
     }
   }
 
+  async function removePdf(item: PdfMaterial) {
+    if (!physiotherapistId) {
+      setError("Fisioterapeuta não identificado.");
+      return;
+    }
+
+    try {
+      setDeleting(item.id);
+      setError("");
+      const { error: deleteError } = await supabase
+        .from("pdf_materials")
+        .delete()
+        .eq("id", item.id)
+        .eq("physiotherapist_id", physiotherapistId);
+
+      if (deleteError) throw deleteError;
+      setPdfMaterials((current) => current.filter((pdf) => pdf.id !== item.id));
+      setConfirmPdf(null);
+      setNotice(`Material PDF "${item.name}" excluído com sucesso.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível excluir o material PDF.");
+    } finally {
+      setDeleting(null);
+    }
+  }
+
   return (
     <main className={`h-screen overflow-hidden text-[#2D2823] lg:bg-[#faf8f4] ${tab === "dashboard" ? "bg-[linear-gradient(to_top,#c09a66_0%,#ffffff_78%,#ffffff_100%)]" : "bg-[#faf8f4]"}`}>
       {patientToast && (
@@ -995,8 +1021,9 @@ function PainelPage() {
                   <Button type="button" variant="outline" onClick={() => setSessionView("history")} disabled={saving} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button>
                   <Button type="submit" disabled={saving} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{saving ? <RefreshCw className="size-4 animate-spin" /> : null}{saving ? "Salvando..." : "Registrar sessão"}</Button>
                 </div>
-              </form>
+              </motion.form>
             )}
+            </AnimatePresence>
           </div>
         </Modal>
       )}
@@ -1413,8 +1440,9 @@ function PdfMaterialRow({ pdf, onEdit, onDelete, deleting }: { pdf: PdfMaterial;
       // o link privado do Storage possa ser renovado quando necessário.
       const storageMatch = pdf.storage_path.match(/^([^/]+)\/(.+)$/);
 
-      if (storageMatch && !/^https?:$/i.test(storageMatch[1])) {
-        const [, bucket, path] = storageMatch;
+       const bucket = storageMatch?.[1];
+       const path = storageMatch?.[2];
+       if (bucket && path && !/^https?:$/i.test(bucket)) {
         const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 10);
         if (error) throw error;
 
@@ -1517,7 +1545,7 @@ function PdfMaterialModal({ pdf, close, physiotherapistId, saving, setSaving, on
       // em vez da URL completa. Nesse caso, preservamos o caminho existente.
       const bucketPathMatch = rawUrl.match(/^([^/]+)\/(.+)$/);
 
-      if (bucketPathMatch && !/^https?:$/i.test(bucketPathMatch[1])) {
+       if (bucketPathMatch?.[1] && bucketPathMatch[2] && !/^https?:$/i.test(bucketPathMatch[1])) {
         storagePath = rawUrl;
         fileName = decodeURIComponent(bucketPathMatch[2].split("/").filter(Boolean).pop() || "material.pdf");
       } else {
@@ -1541,8 +1569,8 @@ function PdfMaterialModal({ pdf, close, physiotherapistId, saving, setSaving, on
           /\/storage\/v1\/object\/(?:public|authenticated|sign)\/([^/]+)\/(.+)$/
         );
 
-        storagePath = storageObjectMatch
-          ? `${decodeURIComponent(storageObjectMatch[1])}/${decodeURIComponent(storageObjectMatch[2])}`
+         storagePath = storageObjectMatch?.[1] && storageObjectMatch[2]
+           ? `${decodeURIComponent(storageObjectMatch[1])}/${decodeURIComponent(storageObjectMatch[2])}`
           : parsedUrl.toString();
       }
 
