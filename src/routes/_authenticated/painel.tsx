@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -93,6 +93,9 @@ function PainelPage() {
   const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);
   const [patient, setPatient] = useState(emptyPatient);
   const [exercise, setExercise] = useState(emptyExercise);
+  const [sessionPatient, setSessionPatient] = useState<Patient | null>(null);
+  const [sessionDate, setSessionDate] = useState("");
+  const [sessionNotes, setSessionNotes] = useState("");
 
   useEffect(() => {
     void loadData();
@@ -200,6 +203,14 @@ function PainelPage() {
         window.scrollTo(0, scrollY);
       });
     });
+  }
+
+  function openSessionCreate(item: Patient) {
+    setSessionPatient(item);
+    setSessionDate(new Date().toISOString().slice(0, 10));
+    setSessionNotes("");
+    setError("");
+    setModal("session");
   }
 
   function openPatientCreate() {
@@ -333,6 +344,52 @@ function PainelPage() {
       "_blank",
       "noopener,noreferrer",
     );
+  }
+
+  async function saveSession(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!sessionPatient || !physiotherapistId) {
+      setError("Não foi possível identificar o paciente ou o fisioterapeuta.");
+      return;
+    }
+
+    if (!sessionDate) {
+      setError("Informe a data da sessão.");
+      return;
+    }
+
+    if (!sessionNotes.trim()) {
+      setError("Descreva o que ocorreu durante a sessão.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      const { error: insertError } = await supabase
+        .from("patient_sessions")
+        .insert({
+          patient_id: sessionPatient.id,
+          physiotherapist_id: physiotherapistId,
+          session_date: sessionDate,
+          notes: sessionNotes.trim(),
+        });
+
+      if (insertError) throw insertError;
+
+      setNotice("Sessão registrada com sucesso.");
+      setPatientToast(`Sessão de "${sessionPatient.full_name}" registrada com sucesso.`);
+      setModal(null);
+      setSessionPatient(null);
+      setSessionDate("");
+      setSessionNotes("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível registrar a sessão.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function savePatient(e: FormEvent<HTMLFormElement>) {
@@ -666,7 +723,7 @@ function PainelPage() {
 
             <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
-              {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
+              {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onSession={openSessionCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
               {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onEditPdf={openPdfEdit} onDeletePdf={(item) => setConfirmPdf(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
@@ -798,6 +855,29 @@ function PainelPage() {
         </form>
       </Modal>}
 
+       {modal === "session" && sessionPatient && (
+        <Modal title="Registrar sessão" close={() => !saving && setModal(null)}>
+          <form onSubmit={saveSession} className="space-y-5">
+            <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
+              <p className="mt-1 text-sm font-semibold text-[#302b26]">{sessionPatient.full_name}</p>
+              {sessionPatient.responsible_name && <p className="mt-0.5 text-xs text-[#8c8178]">Responsável: {sessionPatient.responsible_name}</p>}
+            </div>
+
+            <div className="space-y-4">
+              <div className="pb-1 text-center">
+                <h3 className="text-base font-semibold text-[#A97A3C]">Dados da sessão</h3>
+                <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
+              </div>
+              <Field label="Data da sessão" value={sessionDate} onChange={setSessionDate} type="date" required />
+              <Field label="O que ocorreu durante a sessão" value={sessionNotes} onChange={setSessionNotes} placeholder="Descreva o atendimento, procedimentos realizados, evolução e observações importantes." multiline required />
+            </div>
+
+            <Actions close={() => setModal(null)} label="Registrar sessão" loading={saving} />
+          </form>
+        </Modal>
+      )}
+
        {modal === "pdf" && (
         <PdfMaterialModal pdf={editingPdf} close={() => !saving && setModal(null)} physiotherapistId={physiotherapistId} saving={saving} setSaving={setSaving}
           onSaved={(pdf) => {
@@ -845,7 +925,7 @@ function Dashboard({ patients, exercises, animateFirstEntry }: { patients: numbe
   </section>;
 }
 
-function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; onMap: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
+function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, onMap, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onSession: (patient: Patient) => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; onMap: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
   const [patientSearch, setPatientSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
@@ -974,7 +1054,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
               <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold">{p.full_name}</p></div></div>
               <div className="flex flex-col items-end justify-start text-[10px] text-[#948a81] whitespace-nowrap leading-none"><span>Data de Cadastro:</span><span>{formatDate(p.created_at)}</span></div>
               <div className="flex items-center"><Status active={p.status === "active"} /></div>
-              <div className="flex flex-col items-end justify-center gap-0.5"><span className="text-[10px] font-bold leading-none text-[#746c64]">Ações:</span><div className="flex items-center justify-end gap-1.5">{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
+              <div className="flex flex-col items-end justify-center gap-0.5"><span className="text-[10px] font-bold leading-none text-[#746c64]">Ações:</span><div className="flex items-center justify-end gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
             </div>
           ))}</div>
           <div className="hidden sm:block">{paginatedPatients.map((p) => (
@@ -983,7 +1063,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
               <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
               <div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div>
               <div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div>
-              <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2">{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+              <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
             </div>
           ))}</div>
         </>}      </div>
@@ -1553,11 +1633,14 @@ function IconButton({ label, onClick, disabled, children }: { label: string; onC
   const location = label === "Abrir endereço no Google Maps";
   const destructive = label === "Excluir";
   const edit = label === "Editar";
+  const session = label === "Registrar sessão";
 
   const variant = location
     ? "border-transparent bg-[linear-gradient(135deg,#4285F4_0%,#34A853_38%,#FBBC05_68%,#EA4335_100%)] text-white shadow-[0_4px_12px_rgba(66,133,244,0.22)] hover:-translate-y-0.5 hover:shadow-[0_7px_16px_rgba(66,133,244,0.28)]"
     : destructive
       ? "border-[#dc4c4c] bg-[#d94b4b] text-white shadow-[0_4px_12px_rgba(217,75,75,0.20)] hover:-translate-y-0.5 hover:border-[#c83e3e] hover:bg-[#c83e3e] hover:shadow-[0_7px_16px_rgba(217,75,75,0.26)]"
+      : session
+      ? "border-[#d6b77f] bg-[#f4eadb] text-[#A97A3C] shadow-[0_4px_12px_rgba(186,144,81,0.16)] hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#ecddc8] hover:text-[#8f6631]"
       : edit
         ? "border-[#3678c4] bg-[#3478c9] text-white shadow-[0_4px_12px_rgba(52,120,201,0.20)] hover:-translate-y-0.5 hover:border-[#2868b5] hover:bg-[#2868b5] hover:shadow-[0_7px_16px_rgba(52,120,201,0.26)]"
         : "border-[#c9d9ef] bg-[#f5f9ff] text-[#2f6fb3] hover:border-[#4d8dcc] hover:bg-[#edf5ff] hover:text-[#245d99]";
