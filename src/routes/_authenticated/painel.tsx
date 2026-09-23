@@ -992,7 +992,7 @@ function PainelPage() {
               <motion.div key="session-details" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Detalhes da Sessão</p>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Data da Sessão</p>
                     <p className="mt-1 text-lg font-semibold text-[#302b26]">{formatDate(selectedSession.session_date)}</p>
                   </div>
                   <span className="flex size-10 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]"><CalendarPlus className="size-4" /></span>
@@ -1002,10 +1002,7 @@ function PainelPage() {
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#5f574f]">{selectedSession.notes}</p>
                 </div>
                 <div className="rounded-2xl border border-[#eee5d9] bg-white p-4">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Data da Sessão</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.session_date)}</p></div>
-                    <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Registrada em</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.created_at)}</p></div>
-                  </div>
+                  <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Registrada em</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.created_at)}</p></div>
                 </div>
                 <div className="flex justify-end pt-1"><Button type="button" variant="outline" onClick={() => { setSelectedSession(null); setSessionView("history"); }} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button></div>
               </motion.div>
