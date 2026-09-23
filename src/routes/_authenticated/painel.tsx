@@ -24,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/painel")({
 type Tab = "dashboard" | "pacientes" | "exercicios" | "relatorios" | "configuracoes";
 type Patient = Tables<"patients">;
 type Exercise = Tables<"exercises">;
+type PdfMaterial = Tables<"pdf_materials">;
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
@@ -68,6 +69,7 @@ function PainelPage() {
   const [patientStatusFilter, setPatientStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [patients, setPatients] = useState<Patient[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [pdfMaterials, setPdfMaterials] = useState<PdfMaterial[]>([]);
   const [patientCount, setPatientCount] = useState(0);
   const [activePatientCount, setActivePatientCount] = useState(0);
   const [exerciseCount, setExerciseCount] = useState(0);
@@ -144,9 +146,10 @@ function PainelPage() {
       const id = await getPhysiotherapistId();
       setPhysiotherapistId(id);
 
-      const [patientsResult, exercisesResult, patientCountResult, activePatientCountResult, exerciseCountResult] = await Promise.all([
+      const [patientsResult, exercisesResult, pdfMaterialsResult, patientCountResult, activePatientCountResult, exerciseCountResult] = await Promise.all([
         supabase.from("patients").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
         supabase.from("exercises").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
+        supabase.from("pdf_materials").select("*").eq("physiotherapist_id", id).order("created_at", { ascending: false }),
         supabase.from("patients").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id),
         supabase.from("patients").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id).eq("status", "active"),
         supabase.from("exercises").select("id", { count: "exact", head: true }).eq("physiotherapist_id", id).eq("is_active", true),
@@ -154,12 +157,14 @@ function PainelPage() {
 
       if (patientsResult.error) throw patientsResult.error;
       if (exercisesResult.error) throw exercisesResult.error;
+      if (pdfMaterialsResult.error) throw pdfMaterialsResult.error;
       if (patientCountResult.error) throw patientCountResult.error;
       if (activePatientCountResult.error) throw activePatientCountResult.error;
       if (exerciseCountResult.error) throw exerciseCountResult.error;
 
       setPatients(patientsResult.data ?? []);
       setExercises(exercisesResult.data ?? []);
+      setPdfMaterials(pdfMaterialsResult.data ?? []);
       setPatientCount(patientCountResult.count ?? 0);
       setActivePatientCount(activePatientCountResult.count ?? 0);
       setExerciseCount(exerciseCountResult.count ?? 0);
@@ -651,7 +656,7 @@ function PainelPage() {
             <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
-              {tab === "exercicios" && <Exercises exercises={exercises} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onView={setViewingExercise} deleting={deleting} />}
+              {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
             </motion.div>
@@ -992,7 +997,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
     </div>
   </section>;
 }
-function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
+function Exercises({ exercises, pdfMaterials, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; pdfMaterials: PdfMaterial[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
   const [contentType, setContentType] = useState<"videos" | "pdfs">("videos");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -1072,10 +1077,16 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
         </button>
       </div>
     </div>
-    {contentType === "pdfs" ? <div className="min-h-[180px] rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)] overflow-hidden">
-      <div className="min-h-[180px] divide-y divide-[#eee5d9]">
-        <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]"></div>
-      </div>
+    {contentType === "pdfs" ? <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
+      {pdfMaterials.length === 0 ? (
+        <Empty text="Nenhum material PDF cadastrado ainda." />
+      ) : (
+        <div className="divide-y divide-[#eee5d9]">
+          {pdfMaterials.map((pdf) => (
+            <PdfMaterialRow key={pdf.id} pdf={pdf} />
+          ))}
+        </div>
+      )}
     </div> : <>
     <div className="relative -mt-5 w-full lg:mt-0">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
@@ -1119,6 +1130,55 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
     </>}
   </section>;
 }
+function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
+  const [opening, setOpening] = useState(false);
+
+  async function openPdf() {
+    if (!pdf.storage_path || opening) return;
+
+    const popup = window.open("", "_blank");
+    if (!popup) return;
+
+    try {
+      setOpening(true);
+      const { data, error } = await supabase.storage
+        .from("patient-materials")
+        .createSignedUrl(pdf.storage_path, 60 * 10);
+
+      if (error || !data?.signedUrl) {
+        popup.close();
+        return;
+      }
+
+      popup.location.href = data.signedUrl;
+    } catch {
+      popup.close();
+    } finally {
+      setOpening(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-4 sm:px-5">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#eadcc9] bg-[#fff8ef] text-[#BA9051]">
+        <FileText className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-[#302b26]">{pdf.name}</p>
+        <p className="mt-0.5 truncate text-[11px] text-[#8c8178]">{pdf.file_name}</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => void openPdf()}
+        disabled={opening}
+        className="shrink-0 rounded-xl border border-[#dfcfb9] bg-[#fffdf9] px-3 py-2 text-[11px] font-semibold text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {opening ? "Abrindo..." : "Abrir"}
+      </button>
+    </div>
+  );
+}
+
 function getVideoEmbedUrl(url: string | null) {
   if (!url) return null;
   try {
