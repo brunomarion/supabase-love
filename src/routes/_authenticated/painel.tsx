@@ -1038,6 +1038,15 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
       .some((value) => value!.toLowerCase().includes(term));
   });
 
+  const filteredPdfMaterials = pdfMaterials.filter((pdf) => {
+    const term = search.trim().toLowerCase();
+    if (!term) return true;
+
+    return [pdf.name, pdf.description]
+      .filter(Boolean)
+      .some((value) => value!.toLowerCase().includes(term));
+  });
+
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -1133,9 +1142,11 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
       {contentType === "pdfs" ? <motion.div key="pdfs" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.22, ease: "easeOut" }} className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
       {pdfMaterials.length === 0 ? (
         <Empty text="Nenhum material PDF cadastrado ainda." />
+      ) : filteredPdfMaterials.length === 0 ? (
+        <Empty text="Nenhum material PDF encontrado para sua pesquisa." />
       ) : (
         <div className="divide-y divide-[#eee5d9]">
-          {pdfMaterials.map((pdf) => (
+          {filteredPdfMaterials.map((pdf) => (
             <PdfMaterialRow key={pdf.id} pdf={pdf} onEdit={() => onEditPdf(pdf)} onDelete={() => onDeletePdf(pdf)} deleting={deleting === pdf.id} />
           ))}
         </div>
