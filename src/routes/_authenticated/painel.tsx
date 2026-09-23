@@ -661,7 +661,7 @@ function PainelPage() {
             <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
-              {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onView={setViewingExercise} deleting={deleting} />}
+              {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onEditPdf={openPdfEdit} onDeletePdf={(item) => setConfirmPdf(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
             </motion.div>
@@ -793,10 +793,11 @@ function PainelPage() {
       </Modal>}
 
        {modal === "pdf" && (
-        <PdfMaterialModal close={() => !saving && setModal(null)} physiotherapistId={physiotherapistId} saving={saving} setSaving={setSaving}
+        <PdfMaterialModal pdf={editingPdf} close={() => !saving && setModal(null)} physiotherapistId={physiotherapistId} saving={saving} setSaving={setSaving}
           onSaved={(pdf) => {
-            setPdfMaterials((current) => [pdf, ...current.filter((item) => item.id !== pdf.id)]);
-            setNotice("Material PDF cadastrado com sucesso.");
+            setPdfMaterials((current) => editingPdf ? current.map((item) => item.id === pdf.id ? pdf : item) : [pdf, ...current.filter((item) => item.id !== pdf.id)]);
+            setNotice(editingPdf ? "Material PDF atualizado com sucesso." : "Material PDF cadastrado com sucesso.");
+            setEditingPdf(null);
             setModal(null);
           }}
         />
@@ -804,6 +805,7 @@ function PainelPage() {
 
        {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
        {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
+       {confirmPdf && <DeletePdfModal pdf={confirmPdf} loading={deleting === confirmPdf.id} close={() => !deleting && setConfirmPdf(null)} confirm={() => void removePdf(confirmPdf)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
@@ -1012,7 +1014,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
     </div>
   </section>;
 }
-function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; pdfMaterials: PdfMaterial[]; onAdd: () => void; onAddPdf: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
+function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete, onEditPdf, onDeletePdf, onView, deleting }: { exercises: Exercise[]; pdfMaterials: PdfMaterial[]; onAdd: () => void; onAddPdf: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onEditPdf: (pdf: PdfMaterial) => void; onDeletePdf: (pdf: PdfMaterial) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
   const [contentType, setContentType] = useState<"videos" | "pdfs">("videos");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -1104,7 +1106,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
       ) : (
         <div className="divide-y divide-[#eee5d9]">
           {pdfMaterials.map((pdf) => (
-            <PdfMaterialRow key={pdf.id} pdf={pdf} />
+            <PdfMaterialRow key={pdf.id} pdf={pdf} onEdit={() => onEditPdf(pdf)} onDelete={() => onDeletePdf(pdf)} deleting={deleting === pdf.id} />
           ))}
         </div>
       )}
@@ -1151,7 +1153,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
     </>}
   </section>;
 }
-function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
+function PdfMaterialRow({ pdf, onEdit, onDelete, deleting }: { pdf: PdfMaterial; onEdit: () => void; onDelete: () => void; deleting: boolean }) {
   const [opening, setOpening] = useState(false);
 
   async function openPdf() {
@@ -1209,14 +1211,13 @@ function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
         <p className="truncate text-sm font-semibold text-[#302b26]">{pdf.name}</p>
         <p className="mt-0.5 truncate text-[11px] text-[#8c8178]">{pdf.description || pdf.file_name}</p>
       </div>
-      <button
-        type="button"
-        onClick={openPdf}
-        disabled={opening}
-        className="shrink-0 rounded-xl border border-[#dfcfb9] bg-[#fffdf9] px-3 py-2 text-[11px] font-semibold text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {opening ? "Abrindo..." : "Abrir"}
-      </button>
+      <div className="flex shrink-0 items-center gap-2">
+        <button type="button" onClick={openPdf} disabled={opening} className="rounded-xl border border-[#dfcfb9] bg-[#fffdf9] px-3 py-2 text-[11px] font-semibold text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] disabled:cursor-not-allowed disabled:opacity-60">
+          {opening ? "Abrindo..." : "Abrir"}
+        </button>
+        <IconButton label="Editar" onClick={onEdit}><Pencil className="size-4" /></IconButton>
+        <IconButton label="Excluir" onClick={onDelete} disabled={deleting}>{deleting ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton>
+      </div>
     </div>
   );
 }
