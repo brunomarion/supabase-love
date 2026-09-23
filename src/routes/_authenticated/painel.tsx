@@ -918,8 +918,9 @@ function PainelPage() {
               {sessionPatient.responsible_name && <p className="mt-0.5 text-xs text-[#8c8178]">Responsável: {sessionPatient.responsible_name}</p>}
             </div>
 
+            <AnimatePresence mode="wait" initial={false}>
             {sessionView === "history" ? (
-              <>
+              <motion.div key="session-history" initial={{ opacity: 0, y: 10, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="flex items-end justify-between gap-3">
                   <div>
                     <p className="text-base font-semibold text-[#A97A3C]">Sessões realizadas</p>
@@ -960,9 +961,9 @@ function PainelPage() {
                     ))
                   )}
                 </div>
-              </>
+              </motion.div>
             ) : sessionView === "details" && selectedSession ? (
-              <div className="space-y-5">
+              <motion.div key="session-details" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Detalhes da sessão</p>
@@ -981,9 +982,9 @@ function PainelPage() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-1"><Button type="button" variant="outline" onClick={() => { setSelectedSession(null); setSessionView("history"); }} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button></div>
-              </div>
+              </motion.div>
             ) : (
-              <form onSubmit={saveSession} className="space-y-5">
+              <motion.form key="session-create" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} onSubmit={saveSession} className="space-y-5">
                 <div className="pb-1 text-center">
                   <h3 className="text-base font-semibold text-[#A97A3C]">Dados da sessão</h3>
                   <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
