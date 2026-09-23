@@ -1151,28 +1151,18 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
 function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
   const [opening, setOpening] = useState(false);
 
-  async function openPdf() {
+  function openPdf() {
     if (!pdf.storage_path || opening) return;
 
-    const popup = window.open("", "_blank");
-    if (!popup) return;
-
     try {
+      const url = new URL(pdf.storage_path);
+      if (!/^https?:$/.test(url.protocol)) return;
       setOpening(true);
-      const { data, error } = await supabase.storage
-        .from("patient-materials")
-        .createSignedUrl(pdf.storage_path, 60 * 10);
-
-      if (error || !data?.signedUrl) {
-        popup.close();
-        return;
-      }
-
-      popup.location.href = data.signedUrl;
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
     } catch {
-      popup.close();
+      // Ignora URLs inválidas cadastradas anteriormente.
     } finally {
-      setOpening(false);
+      window.setTimeout(() => setOpening(false), 500);
     }
   }
 
@@ -1183,11 +1173,11 @@ function PdfMaterialRow({ pdf }: { pdf: PdfMaterial }) {
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-[#302b26]">{pdf.name}</p>
-        <p className="mt-0.5 truncate text-[11px] text-[#8c8178]">{pdf.file_name}</p>
+        <p className="mt-0.5 truncate text-[11px] text-[#8c8178]">{pdf.description || pdf.file_name}</p>
       </div>
       <button
         type="button"
-        onClick={() => void openPdf()}
+        onClick={openPdf}
         disabled={opening}
         className="shrink-0 rounded-xl border border-[#dfcfb9] bg-[#fffdf9] px-3 py-2 text-[11px] font-semibold text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] disabled:cursor-not-allowed disabled:opacity-60"
       >
@@ -1227,45 +1217,44 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
 }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [file, setFile] = useState<File | null>(null);
+  const [url, setUrl] = useState("");
   const [formError, setFormError] = useState("");
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!physiotherapistId) return setFormError("Fisioterapeuta não identificado.");
-    if (!name.trim()) return setFormError("Informe o nome do material.");
-    if (!file) return setFormError("Selecione um arquivo PDF.");
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) return setFormError("Selecione somente arquivos PDF.");
-    if (file.size > 10 * 1024 * 1024) return setFormError("O PDF deve ter no máximo 10 MB.");
+    if (!name.trim()) return setFormError("Informe o título do material.");
+    if (!description.trim()) return setFormError("Informe a descrição do material.");
+    if (!url.trim()) return setFormError("Informe a URL do PDF.");
+
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url.trim());
+    } catch {
+      return setFormError("Informe uma URL válida.");
+    }
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+      return setFormError("A URL deve começar com http:// ou https://.");
+    }
 
     try {
       setSaving(true);
       setFormError("");
-      const safeName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").toLowerCase();
-      const fileId = crypto.randomUUID();
-      const storagePath = `${physiotherapistId}/${fileId}/${safeName || "material.pdf"}`;
 
-      const { error: uploadError } = await supabase.storage.from("patient-materials").upload(storagePath, file, {
-        cacheControl: "3600",
-        contentType: "application/pdf",
-        upsert: false,
-      });
-      if (uploadError) throw uploadError;
+      const fileName = decodeURIComponent(parsedUrl.pathname.split("/").filter(Boolean).pop() || "material.pdf");
 
       const { data, error: insertError } = await supabase.from("pdf_materials").insert({
         physiotherapist_id: physiotherapistId,
         name: name.trim(),
-        description: description.trim() || null,
-        file_name: file.name,
-        storage_path: storagePath,
-        file_size: file.size,
+        description: description.trim(),
+        file_name: fileName,
+        storage_path: parsedUrl.toString(),
+        file_size: null,
         mime_type: "application/pdf",
       }).select("*").single();
 
-      if (insertError) {
-        await supabase.storage.from("patient-materials").remove([storagePath]);
-        throw insertError;
-      }
+      if (insertError) throw insertError;
 
       onSaved(data as PdfMaterial);
     } catch (err) {
@@ -1275,22 +1264,17 @@ function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved
     }
   }
 
-  return <Modal title="Enviar material PDF" close={close}>
+  return <Modal title="Cadastrar material PDF" close={close}>
     <form onSubmit={submit} className="space-y-5">
       <div className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4">
         <div className="flex items-start gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e5d3b8] bg-white text-[#BA9051]"><Upload className="size-5" /></span>
-          <div><p className="text-sm font-semibold text-[#302b26]">Novo material</p><p className="mt-1 text-xs leading-relaxed text-[#8c8178]">Cadastre o PDF que ficará disponível na sua biblioteca de materiais.</p></div>
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e5d3b8] bg-white text-[#BA9051]"><FileText className="size-5" /></span>
+          <div><p className="text-sm font-semibold text-[#302b26]">Novo material</p><p className="mt-1 text-xs leading-relaxed text-[#8c8178]">Informe os dados do material e a URL do PDF armazenado no Storage.</p></div>
         </div>
       </div>
-      <Field label="Nome do material" value={name} onChange={setName} placeholder="Ex.: Guia de exercícios para casa" required />
-      <Field label="Descrição/Orientações" value={description} onChange={setDescription} placeholder="Descreva brevemente o conteúdo do material." multiline />
-      <label className="block">
-        <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Arquivo PDF</span>
-        <input type="file" accept="application/pdf,.pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="block w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 py-2.5 text-xs text-[#746c64] file:mr-3 file:rounded-lg file:border-0 file:bg-[#f3e8d8] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#A97A3C]" />
-        <span className="mt-1.5 block text-[10px] text-[#9a9087]">Somente PDF • máximo de 10 MB</span>
-      </label>
-      {file && <div className="flex items-center gap-3 rounded-xl border border-[#e8ddcf] bg-white px-3 py-3"><FileText className="size-5 shrink-0 text-[#BA9051]" /><span className="min-w-0 flex-1 truncate text-xs font-medium text-[#4b443e]">{file.name}</span><span className="shrink-0 text-[10px] text-[#948a81]">{(file.size / 1024 / 1024).toFixed(2)} MB</span></div>}
+      <Field label="Título" value={name} onChange={setName} placeholder="Ex.: Guia de exercícios para casa" required />
+      <Field label="Descrição" value={description} onChange={setDescription} placeholder="Descreva brevemente o conteúdo do material." multiline required />
+      <Field label="Link da URL" value={url} onChange={setUrl} placeholder="https://.../arquivo.pdf" type="url" required />
       {formError && <p className="rounded-xl border border-[#f0d2d2] bg-[#fff4f4] px-3 py-2.5 text-xs text-[#bd4d4d]">{formError}</p>}
       <Actions close={close} label="Cadastrar PDF" loading={saving} />
     </form>
