@@ -14,53 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      pdf_materials: {
-        Row: {
-          created_at: string
-          description: string | null
-          file_name: string
-          file_size: number | null
-          id: string
-          mime_type: string | null
-          name: string
-          physiotherapist_id: string
-          storage_path: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          file_name: string
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          name: string
-          physiotherapist_id: string
-          storage_path: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          file_name?: string
-          file_size?: number | null
-          id?: string
-          mime_type?: string | null
-          name?: string
-          physiotherapist_id?: string
-          storage_path?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pdf_materials_physiotherapist_id_fkey"
-            columns: ["physiotherapist_id"]
-            isOneToOne: false
-            referencedRelation: "physiotherapists"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       exercises: {
         Row: {
           created_at: string
@@ -178,6 +131,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "patients_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pdf_materials: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          name: string
+          physiotherapist_id: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          physiotherapist_id: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          physiotherapist_id?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_materials_physiotherapist_id_fkey"
             columns: ["physiotherapist_id"]
             isOneToOne: false
             referencedRelation: "physiotherapists"

@@ -1071,7 +1071,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
                   </div>
                 </div>
                 <Button type="button" onClick={contentType === "pdfs" ? onAddPdf : onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
-                  {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-3.5" />
+                  {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-3.5" />}
                   {contentType === "pdfs" ? "Enviar PDF" : "Cadastrar Exercício"}
                 </Button>
               </div>
