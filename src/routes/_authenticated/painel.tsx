@@ -85,7 +85,7 @@ function PainelPage() {
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
   const [exerciseToast, setExerciseToast] = useState("");
-  const [modal, setModal] = useState<"patient" | "exercise" | null>(null);
+  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);
@@ -234,6 +234,11 @@ function PainelPage() {
     setEditingExercise(null);
     setExercise(emptyExercise);
     setModal("exercise");
+  }
+
+  function openPdfCreate() {
+    setError("");
+    setModal("pdf");
   }
 
   function openExerciseEdit(item: Exercise) {
@@ -656,7 +661,7 @@ function PainelPage() {
             <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
-              {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onView={setViewingExercise} deleting={deleting} />}
+              {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
             </motion.div>
@@ -786,6 +791,16 @@ function PainelPage() {
           <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar Paciente"} loading={saving} />
         </form>
       </Modal>}
+
+       {modal === "pdf" && (
+        <PdfMaterialModal close={() => !saving && setModal(null)} physiotherapistId={physiotherapistId} saving={saving} setSaving={setSaving}
+          onSaved={(pdf) => {
+            setPdfMaterials((current) => [pdf, ...current.filter((item) => item.id !== pdf.id)]);
+            setNotice("Material PDF cadastrado com sucesso.");
+            setModal(null);
+          }}
+        />
+      )}
 
        {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
        {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
@@ -997,7 +1012,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
     </div>
   </section>;
 }
-function Exercises({ exercises, pdfMaterials, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; pdfMaterials: PdfMaterial[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
+function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; pdfMaterials: PdfMaterial[]; onAdd: () => void; onAddPdf: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
   const [contentType, setContentType] = useState<"videos" | "pdfs">("videos");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -1055,8 +1070,8 @@ function Exercises({ exercises, pdfMaterials, onAdd, onEdit, onDelete, onView, d
                     </label>
                   </div>
                 </div>
-                <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
-                  {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-3.5" />}
+                <Button type="button" onClick={contentType === "pdfs" ? onAddPdf : onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
+                  {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-3.5" />
                   {contentType === "pdfs" ? "Enviar PDF" : "Cadastrar Exercício"}
                 </Button>
               </div>
@@ -1201,6 +1216,85 @@ function getVideoEmbedUrl(url: string | null) {
     }
     return url;
   } catch { return null; }
+}
+
+function PdfMaterialModal({ close, physiotherapistId, saving, setSaving, onSaved }: {
+  close: () => void;
+  physiotherapistId: string | null;
+  saving: boolean;
+  setSaving: (value: boolean) => void;
+  onSaved: (pdf: PdfMaterial) => void;
+}) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [formError, setFormError] = useState("");
+
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!physiotherapistId) return setFormError("Fisioterapeuta não identificado.");
+    if (!name.trim()) return setFormError("Informe o nome do material.");
+    if (!file) return setFormError("Selecione um arquivo PDF.");
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) return setFormError("Selecione somente arquivos PDF.");
+    if (file.size > 10 * 1024 * 1024) return setFormError("O PDF deve ter no máximo 10 MB.");
+
+    try {
+      setSaving(true);
+      setFormError("");
+      const safeName = file.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+      const fileId = crypto.randomUUID();
+      const storagePath = `${physiotherapistId}/${fileId}/${safeName || "material.pdf"}`;
+
+      const { error: uploadError } = await supabase.storage.from("patient-materials").upload(storagePath, file, {
+        cacheControl: "3600",
+        contentType: "application/pdf",
+        upsert: false,
+      });
+      if (uploadError) throw uploadError;
+
+      const { data, error: insertError } = await supabase.from("pdf_materials").insert({
+        physiotherapist_id: physiotherapistId,
+        name: name.trim(),
+        description: description.trim() || null,
+        file_name: file.name,
+        storage_path: storagePath,
+        file_size: file.size,
+        mime_type: "application/pdf",
+      }).select("*").single();
+
+      if (insertError) {
+        await supabase.storage.from("patient-materials").remove([storagePath]);
+        throw insertError;
+      }
+
+      onSaved(data as PdfMaterial);
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : "Não foi possível cadastrar o PDF.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return <Modal title="Enviar material PDF" close={close}>
+    <form onSubmit={submit} className="space-y-5">
+      <div className="rounded-2xl border border-[#eadcc9] bg-[#fffaf3] p-4">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e5d3b8] bg-white text-[#BA9051]"><Upload className="size-5" /></span>
+          <div><p className="text-sm font-semibold text-[#302b26]">Novo material</p><p className="mt-1 text-xs leading-relaxed text-[#8c8178]">Cadastre o PDF que ficará disponível na sua biblioteca de materiais.</p></div>
+        </div>
+      </div>
+      <Field label="Nome do material" value={name} onChange={setName} placeholder="Ex.: Guia de exercícios para casa" required />
+      <Field label="Descrição/Orientações" value={description} onChange={setDescription} placeholder="Descreva brevemente o conteúdo do material." multiline />
+      <label className="block">
+        <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Arquivo PDF</span>
+        <input type="file" accept="application/pdf,.pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="block w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 py-2.5 text-xs text-[#746c64] file:mr-3 file:rounded-lg file:border-0 file:bg-[#f3e8d8] file:px-3 file:py-2 file:text-[11px] file:font-semibold file:text-[#A97A3C]" />
+        <span className="mt-1.5 block text-[10px] text-[#9a9087]">Somente PDF • máximo de 10 MB</span>
+      </label>
+      {file && <div className="flex items-center gap-3 rounded-xl border border-[#e8ddcf] bg-white px-3 py-3"><FileText className="size-5 shrink-0 text-[#BA9051]" /><span className="min-w-0 flex-1 truncate text-xs font-medium text-[#4b443e]">{file.name}</span><span className="shrink-0 text-[10px] text-[#948a81]">{(file.size / 1024 / 1024).toFixed(2)} MB</span></div>}
+      {formError && <p className="rounded-xl border border-[#f0d2d2] bg-[#fff4f4] px-3 py-2.5 text-xs text-[#bd4d4d]">{formError}</p>}
+      <Actions close={close} label="Cadastrar PDF" loading={saving} />
+    </form>
+  </Modal>;
 }
 
 function ExerciseVideoModal({ exercise, close }: { exercise: Exercise; close: () => void }) {
