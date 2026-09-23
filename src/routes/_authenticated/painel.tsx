@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, UserRound, Users, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -1055,7 +1055,10 @@ function Exercises({ exercises, pdfMaterials, onAdd, onEdit, onDelete, onView, d
                     </label>
                   </div>
                 </div>
-                <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Exercício</Button>
+                <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
+                  {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-3.5" />}
+                  {contentType === "pdfs" ? "Enviar PDF" : "Cadastrar Exercício"}
+                </Button>
               </div>
             </div>
           </div>
