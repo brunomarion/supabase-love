@@ -993,6 +993,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
   </section>;
 }
 function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { exercises: Exercise[]; onAdd: () => void; onEdit: (exercise: Exercise) => void; onDelete: (exercise: Exercise) => void; onView: (exercise: Exercise) => void; deleting: string | null }) {
+  const [contentType, setContentType] = useState<"videos" | "pdfs">("videos");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 3;
@@ -1043,13 +1044,32 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
         </div>
       </div>
     </div>
-    <div className="relative -mt-5 w-full lg:mt-0">
+    <div className="-mt-1 flex items-center justify-center lg:justify-start">
+      <div className="inline-flex rounded-xl border border-[#e6d8c5] bg-white p-1 shadow-[0_6px_18px_rgba(64,48,30,0.05)]" role="group" aria-label="Tipo de conteúdo">
+        <button type="button" onClick={() => setContentType("videos")} aria-pressed={contentType === "videos"} className={`flex min-w-[112px] items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${contentType === "videos" ? "bg-[#BA9051] text-white shadow-[0_4px_12px_rgba(186,144,81,0.20)]" : "text-[#746c64] hover:bg-[#faf7f2]"}`}>
+          <span className={`size-2 rounded-full ${contentType === "videos" ? "bg-white" : "bg-[#cdb894]"}`} />Vídeos
+        </button>
+        <button type="button" onClick={() => setContentType("pdfs")} aria-pressed={contentType === "pdfs"} className={`flex min-w-[112px] items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${contentType === "pdfs" ? "bg-[#BA9051] text-white shadow-[0_4px_12px_rgba(186,144,81,0.20)]" : "text-[#746c64] hover:bg-[#faf7f2]"}`}>
+          <span className={`size-2 rounded-full ${contentType === "pdfs" ? "bg-white" : "bg-[#cdb894]"}`} />Material PDF
+        </button>
+      </div>
+    </div>
+    {contentType === "pdfs" ? <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)] overflow-hidden">
+      <div className="border-b border-[#eee5d9] bg-[#fdfbf8] px-4 py-4 sm:px-5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">Materiais</p>
+        <h3 className="mt-1 text-sm font-semibold text-[#302b26]">Materiais em PDF</h3>
+        <p className="mt-1 text-xs text-[#837970]">Materiais que poderão ser disponibilizados para pacientes específicos.</p>
+      </div>
+      <div className="divide-y divide-[#eee5d9]">
+        <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">Os materiais PDF aparecerão aqui após serem cadastrados no Storage.</div>
+      </div>
+    </div> : <div className="relative -mt-1 w-full lg:mt-0">\n    <div className="relative -mt-5 w-full lg:mt-0">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
       <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-[5.5rem] text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:pr-10 sm:text-sm" />
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 hidden size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C] sm:flex"><X className="size-4" /></button>}
       {search && <button type="button" onClick={() => setSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-[#8b8178] transition hover:bg-[#f4ece1] hover:text-[#A97A3C] sm:hidden"><X className="size-4" /></button>}
     </div>
-    <div className="-mx-1 overflow-hidden sm:mx-0 sm:overflow-visible">
+    {contentType === "videos" &&     <div className="-mx-1 overflow-hidden sm:mx-0 sm:overflow-visible">
       {exercises.length === 0 ? <div className="sm:col-span-2 xl:col-span-3"><Empty text="Nenhum exercício cadastrado ainda." /></div> : filteredExercises.length === 0 ? <div className="rounded-[1.2rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center text-xs text-[#8c8178]">Nenhum exercício encontrado para sua pesquisa.</div> : <>
         <div className="relative rounded-[1.35rem] border border-[#e6d9c9] bg-white p-2 shadow-[0_10px_30px_rgba(64,48,30,0.045)] sm:p-3">
           <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={currentPage === 1} aria-label="Exercícios anteriores" className="absolute left-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#dfd2c1] bg-white/95 text-[#746c64] shadow-[0_8px_22px_rgba(64,48,30,0.14)] backdrop-blur-sm transition hover:border-[#BA9051] hover:bg-[#fffaf2] hover:text-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-30 lg:flex">
@@ -1082,6 +1102,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
         </div>}
       </>}
     </div>
+    }
   </section>;
 }
 function getVideoEmbedUrl(url: string | null) {
