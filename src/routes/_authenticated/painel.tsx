@@ -936,7 +936,7 @@ function PainelPage() {
       </Modal>}
 
        {modal === "session" && sessionPatient && (
-        <Modal title={sessionView === "history" ? "Histórico de Sessões" : "Registrar sessão"} close={() => !saving && setModal(null)}>
+        <Modal title={sessionView === "history" ? <><span className="sm:hidden">Histórico de Atendimentos</span><span className="hidden sm:inline">Histórico de Sessões</span></> : "Registrar sessão"} close={() => !saving && setModal(null)}>
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4">
               <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
@@ -1658,7 +1658,7 @@ function Placeholder({ icon: Icon, title, text }: { icon: typeof FileText; title
   return <section className="space-y-5"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Sistema</p><h2 className="mt-1 text-xl font-semibold sm:text-2xl">{title}</h2></div><div className="flex min-h-[280px] flex-col items-center justify-center rounded-[1.35rem] border border-dashed border-[#dccbb5] bg-white p-8 text-center"><Icon className="size-6 text-[#BA9051]" /><h3 className="mt-4 text-sm font-semibold">{title}</h3><p className="mt-1 text-xs text-[#8c8178]">{text}</p></div></section>;
 }
 
-function Modal({ title, close, children }: { title: string; close: () => void; children: ReactNode }) {
+function Modal({ title, close, children }: { title: ReactNode; close: () => void; children: ReactNode }) {
   return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-[#2D2823]/30 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}><motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-[1.5rem] border border-[#e3d3bd] bg-white p-5 shadow-[0_25px_80px_rgba(64,48,30,0.2)] sm:p-6 lg:max-w-2xl lg:p-7 xl:max-w-3xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={close} className="flex size-11 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-2xl leading-none text-[#746c64] shadow-[0_4px_14px_rgba(64,48,30,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C] hover:shadow-[0_6px_18px_rgba(186,144,81,0.16)]">×</button></div>{children}</motion.div></motion.div>;
 }
 
