@@ -953,7 +953,7 @@ function PainelPage() {
                     <p className="mt-0.5 text-[10px] text-[#948a81]">{sessionHistory.length} {sessionHistory.length === 1 ? "sessão registrada" : "sessões registradas"}</p>
                   </div>
                   <Button type="button" onClick={startSessionCreate} className="h-10 rounded-xl bg-[#BA9051] px-3 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.16)] hover:bg-[#A97A3C]">
-                    <Plus className="size-4" /> Nova atendimento
+                    <Plus className="size-4" /> Nova Sessão
                   </Button>
                 </div>
 
