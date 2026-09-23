@@ -936,7 +936,7 @@ function PainelPage() {
       </Modal>}
 
        {modal === "session" && sessionPatient && (
-        <Modal title={sessionView === "history" ? "Histórico de Atendimentos" : "Registrar atendimento"} close={() => !saving && setModal(null)}>
+        <Modal title={sessionView === "history" ? "Histórico de Sessões" : "Registrar sessão"} close={() => !saving && setModal(null)}>
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4">
               <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
@@ -949,8 +949,8 @@ function PainelPage() {
               <motion.div key="session-history" initial={{ opacity: 0, y: 10, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="flex items-end justify-between gap-3 max-sm:mb-4">
                   <div>
-                    <p className="text-base font-semibold text-[#A97A3C]">Atendimentos realizadas</p>
-                    <p className="mt-0.5 text-[10px] text-[#948a81]">{sessionHistory.length} {sessionHistory.length === 1 ? "atendimento registrada" : "atendimentos registradas"}</p>
+                    <p className="text-base font-semibold text-[#A97A3C]">Sessões realizadas</p>
+                    <p className="mt-0.5 text-[10px] text-[#948a81]">{sessionHistory.length} {sessionHistory.length === 1 ? "sessão registrada" : "sessões registradas"}</p>
                   </div>
                   <Button type="button" onClick={startSessionCreate} className="h-10 rounded-xl bg-[#BA9051] px-3 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.16)] hover:bg-[#A97A3C]">
                     <Plus className="size-4" /> Nova atendimento
@@ -965,7 +965,7 @@ function PainelPage() {
                   ) : sessionHistory.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-[#dccbb5] bg-[#fdfbf8] p-8 text-center">
                       <CalendarPlus className="mx-auto size-6 text-[#BA9051]" />
-                      <p className="mt-3 text-sm font-semibold text-[#5f574f]">Nenhuma atendimento registrada</p>
+                      <p className="mt-3 text-sm font-semibold text-[#5f574f]">Nenhuma sessão registrada</p>
                       <p className="mt-1 text-xs leading-relaxed text-[#948a81]">Registre a primeira atendimento deste paciente para começar o histórico.</p>
                     </div>
                   ) : (
@@ -977,7 +977,7 @@ function PainelPage() {
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#A97A3C]">Atendimento {sessionHistory.length - index}</p>
+                              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#A97A3C]">Sessão {String(sessionHistory.length - index).padStart(2, "0")}</p>
                               <span className="rounded-full bg-[#f5eee5] px-2.5 py-1 text-[10px] font-semibold text-[#746c64]">{formatDate(session.session_date)}</span>
                             </div>
                             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#5f574f]">{session.notes}</p>
@@ -992,13 +992,13 @@ function PainelPage() {
               <motion.div key="session-details" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Detalhes da atendimento</p>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Detalhes da sessão</p>
                     <p className="mt-1 text-lg font-semibold text-[#302b26]">{formatDate(selectedSession.session_date)}</p>
                   </div>
                   <span className="flex size-10 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]"><CalendarPlus className="size-4" /></span>
                 </div>
                 <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4 sm:p-5">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">O que ocorreu durante a atendimento</p>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">O que ocorreu durante a sessão</p>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#5f574f]">{selectedSession.notes}</p>
                 </div>
                 <div className="rounded-2xl border border-[#eee5d9] bg-white p-4">
@@ -1012,14 +1012,14 @@ function PainelPage() {
             ) : (
               <motion.form key="session-create" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} onSubmit={saveSession} className="space-y-5">
                 <div className="pb-1 text-center">
-                  <h3 className="text-base font-semibold text-[#A97A3C]">Dados da atendimento</h3>
+                  <h3 className="text-base font-semibold text-[#A97A3C]">Dados da sessão</h3>
                   <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
                 </div>
-                <Field label="Data da atendimento" value={sessionDate} onChange={setSessionDate} type="date" required />
-                <Field label="O que ocorreu durante a atendimento" value={sessionNotes} onChange={setSessionNotes} placeholder="Descreva o atendimento, procedimentos realizados, evolução e observações importantes." multiline required />
+                <Field label="Data da sessão" value={sessionDate} onChange={setSessionDate} type="date" required />
+                <Field label="O que ocorreu durante a sessão" value={sessionNotes} onChange={setSessionNotes} placeholder="Descreva a sessão, procedimentos realizados, evolução e observações importantes." multiline required />
                 <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
                   <Button type="button" variant="outline" onClick={() => setSessionView("history")} disabled={saving} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button>
-                  <Button type="submit" disabled={saving} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{saving ? <RefreshCw className="size-4 animate-spin" /> : null}{saving ? "Salvando..." : "Registrar atendimento"}</Button>
+                  <Button type="submit" disabled={saving} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{saving ? <RefreshCw className="size-4 animate-spin" /> : null}{saving ? "Salvando..." : "Registrar sessão"}</Button>
                 </div>
               </motion.form>
             )}
