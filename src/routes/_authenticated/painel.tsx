@@ -1109,7 +1109,8 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
         </button>
       </div>
     </div>
-    {contentType === "pdfs" ? <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
+    <AnimatePresence mode="wait" initial={false}>
+      {contentType === "pdfs" ? <motion.div key="pdfs" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.22, ease: "easeOut" }} className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
       {pdfMaterials.length === 0 ? (
         <Empty text="Nenhum material PDF cadastrado ainda." />
       ) : (
@@ -1119,7 +1120,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
           ))}
         </div>
       )}
-    </div> : <>
+      </motion.div> : <motion.div key="videos" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.22, ease: "easeOut" }}>
     <div className="relative -mt-5 w-full lg:mt-0">
       <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[#A97A3C]" />
       <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Pesquisar exercício..." aria-label="Pesquisar exercícios" className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-white pl-10 pr-[5.5rem] text-base text-[#302b26] shadow-[0_6px_18px_rgba(64,48,30,0.04)] outline-none transition-all duration-200 placeholder:text-[#a59b92] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10 sm:pr-10 sm:text-sm" />
@@ -1159,7 +1160,8 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
         </div>}
       </>}
     </div>
-    </>}
+      </motion.div>}
+    </AnimatePresence>
   </section>;
 }
 function PdfMaterialRow({ pdf, onEdit, onDelete, deleting }: { pdf: PdfMaterial; onEdit: () => void; onDelete: () => void; deleting: boolean }) {
