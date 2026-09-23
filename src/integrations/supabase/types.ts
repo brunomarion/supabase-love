@@ -138,6 +138,51 @@ export type Database = {
           },
         ]
       }
+      patient_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string
+          patient_id: string
+          physiotherapist_id: string
+          session_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes: string
+          patient_id: string
+          physiotherapist_id: string
+          session_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string
+          patient_id?: string
+          physiotherapist_id?: string
+          session_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_sessions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_sessions_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pdf_materials: {
         Row: {
           created_at: string
