@@ -936,7 +936,7 @@ function PainelPage() {
       </Modal>}
 
        {modal === "session" && sessionPatient && (
-        <Modal title={sessionView === "history" ? "Histórico de atendimentos" : "Registrar atendimento"} close={() => !saving && setModal(null)}>
+        <Modal title={sessionView === "history" ? "Histórico de Atendimentos" : "Registrar atendimento"} close={() => !saving && setModal(null)}>
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4">
               <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
