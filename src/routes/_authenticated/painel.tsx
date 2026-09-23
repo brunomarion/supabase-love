@@ -858,16 +858,16 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
       <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
         <span className="relative flex size-[17px] items-center justify-center">
           <input type="checkbox" checked={statusFilter === "active"} onChange={(e) => onStatusFilterChange(e.target.checked ? "active" : "all")} className="peer sr-only" />
-          <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
-          <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+          <span className="absolute inset-0 rounded-full border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+          <span className="pointer-events-none absolute hidden size-2.5 rounded-full bg-white peer-checked:block" />
         </span>
         Ativo
       </label>
       <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#fff8f8]">
         <span className="relative flex size-[17px] items-center justify-center">
           <input type="checkbox" checked={statusFilter === "inactive"} onChange={(e) => onStatusFilterChange(e.target.checked ? "inactive" : "all")} className="peer sr-only" />
-          <span className="absolute inset-0 rounded-[5px] border border-[#e2baba] bg-[#fffafa] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#d66a6a] peer-checked:bg-[#d66a6a] peer-focus-visible:ring-2 peer-focus-visible:ring-[#d66a6a]/20" />
-          <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+          <span className="absolute inset-0 rounded-full border border-[#e2baba] bg-[#fffafa] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#d66a6a] peer-checked:bg-[#d66a6a] peer-focus-visible:ring-2 peer-focus-visible:ring-[#d66a6a]/20" />
+          <span className="pointer-events-none absolute hidden size-2.5 rounded-full bg-white peer-checked:block" />
         </span>
         Inativo
       </label>
@@ -1109,16 +1109,16 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
               <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
                 <span className="relative flex size-[17px] items-center justify-center">
                   <input type="checkbox" checked={contentType === "videos"} onChange={(e) => setContentType(e.target.checked ? "videos" : "pdfs")} className="peer sr-only" />
-                  <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
-                  <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+                  <span className="absolute inset-0 rounded-full border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+                  <span className="pointer-events-none absolute hidden size-2.5 rounded-full bg-white peer-checked:block" />
                 </span>
                 Vídeos
               </label>
               <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
                 <span className="relative flex size-[17px] items-center justify-center">
                   <input type="checkbox" checked={contentType === "pdfs"} onChange={(e) => setContentType(e.target.checked ? "pdfs" : "videos")} className="peer sr-only" />
-                  <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
-                  <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
+                  <span className="absolute inset-0 rounded-full border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
+                  <span className="pointer-events-none absolute hidden size-2.5 rounded-full bg-white peer-checked:block" />
                 </span>
                 PDF's
               </label>
