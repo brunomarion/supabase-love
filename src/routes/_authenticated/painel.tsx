@@ -1080,7 +1080,10 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-4">
           <div className="hidden items-center gap-4 lg:flex">
-            <Button type="button" onClick={onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-[13px] font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]"><Plus className="size-4" />Cadastrar Exercício</Button>
+            <Button type="button" onClick={contentType === "pdfs" ? onAddPdf : onAdd} className="h-10 rounded-xl bg-[#BA9051] px-4 text-[13px] font-semibold shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
+              {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-4" />}
+              {contentType === "pdfs" ? "Enviar PDF" : "Cadastrar Exercício"}
+            </Button>
           </div>
         </div>
       </div>
