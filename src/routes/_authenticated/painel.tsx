@@ -87,7 +87,7 @@ function PainelPage() {
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
   const [exerciseToast, setExerciseToast] = useState("");
-  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | null>(null);
+  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | "session" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [editingPdf, setEditingPdf] = useState<PdfMaterial | null>(null);
@@ -995,8 +995,9 @@ function PainelPage() {
                   <Button type="button" variant="outline" onClick={() => setSessionView("history")} disabled={saving} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button>
                   <Button type="submit" disabled={saving} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{saving ? <RefreshCw className="size-4 animate-spin" /> : null}{saving ? "Salvando..." : "Registrar sessão"}</Button>
                 </div>
-              </form>
+              </motion.form>
             )}
+            </AnimatePresence>
           </div>
         </Modal>
       )}
