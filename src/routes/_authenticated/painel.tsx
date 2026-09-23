@@ -909,7 +909,7 @@ function Patients({ patients, patientCount, onAdd, onEdit, onDelete, onMap, dele
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
                 <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Pacientes</h2>
-                <p className="mt-1 text-xs text-[#837970]">Lista de pacientes cadastrados.</p>
+                <p className="mt-1 text-xs text-[#837970]">Gerencie seus pacientes e dados de acesso.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
                 <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]"><Plus className="size-3.5" />Novo Paciente</Button>
