@@ -99,7 +99,8 @@ function PainelPage() {
   const [sessionNotes, setSessionNotes] = useState("");
   const [sessionHistory, setSessionHistory] = useState<PatientSession[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
-  const [sessionView, setSessionView] = useState<"history" | "create">("history");
+  const [sessionView, setSessionView] = useState<"history" | "create" | "details">("history");
+  const [selectedSession, setSelectedSession] = useState<PatientSession | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -215,6 +216,7 @@ function PainelPage() {
     setSessionNotes("");
     setSessionView("history");
     setSessionHistory([]);
+    setSelectedSession(null);
     setError("");
     setModal("session");
 
@@ -244,6 +246,12 @@ function PainelPage() {
     setSessionNotes("");
     setError("");
     setSessionView("create");
+    setSelectedSession(null);
+  }
+
+  function openSessionDetails(session: PatientSession) {
+    setSelectedSession(session);
+    setSessionView("details");
   }
 
   function openPatientCreate() {
@@ -935,7 +943,7 @@ function PainelPage() {
                     </div>
                   ) : (
                     sessionHistory.map((session, index) => (
-                      <div key={session.id} className="relative rounded-2xl border border-[#e6d8c5] bg-white p-4 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
+                      <button type="button" key={session.id} onClick={() => openSessionDetails(session)} className="relative block w-full rounded-2xl border border-[#e6d8c5] bg-white p-4 text-left shadow-[0_6px_18px_rgba(64,48,30,0.045)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#d7bc91] hover:shadow-[0_10px_24px_rgba(64,48,30,0.08)] focus:outline-none focus:ring-2 focus:ring-[#BA9051]/20">
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]">
                             <CalendarPlus className="size-4" />
@@ -948,11 +956,32 @@ function PainelPage() {
                             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#5f574f]">{session.notes}</p>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     ))
                   )}
                 </div>
               </>
+            ) : sessionView === "details" && selectedSession ? (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Detalhes da sessão</p>
+                    <p className="mt-1 text-lg font-semibold text-[#302b26]">{formatDate(selectedSession.session_date)}</p>
+                  </div>
+                  <span className="flex size-10 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]"><CalendarPlus className="size-4" /></span>
+                </div>
+                <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4 sm:p-5">
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">O que ocorreu durante a sessão</p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#5f574f]">{selectedSession.notes}</p>
+                </div>
+                <div className="rounded-2xl border border-[#eee5d9] bg-white p-4">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Data do atendimento</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.session_date)}</p></div>
+                    <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Registrada em</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.created_at)}</p></div>
+                  </div>
+                </div>
+                <div className="flex justify-end pt-1"><Button type="button" variant="outline" onClick={() => { setSelectedSession(null); setSessionView("history"); }} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button></div>
+              </div>
             ) : (
               <form onSubmit={saveSession} className="space-y-5">
                 <div className="pb-1 text-center">
