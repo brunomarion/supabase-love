@@ -80,6 +80,7 @@ function PainelPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
   const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
+  const [confirmPdf, setConfirmPdf] = useState<PdfMaterial | null>(null);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -88,6 +89,7 @@ function PainelPage() {
   const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [editingPdf, setEditingPdf] = useState<PdfMaterial | null>(null);
   const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);
   const [patient, setPatient] = useState(emptyPatient);
   const [exercise, setExercise] = useState(emptyExercise);
@@ -237,6 +239,13 @@ function PainelPage() {
   }
 
   function openPdfCreate() {
+    setEditingPdf(null);
+    setError("");
+    setModal("pdf");
+  }
+
+  function openPdfEdit(item: PdfMaterial) {
+    setEditingPdf(item);
     setError("");
     setModal("pdf");
   }
