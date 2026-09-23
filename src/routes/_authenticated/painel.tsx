@@ -640,9 +640,6 @@ function PainelPage() {
             ))}
           </nav>
           <div className="border-t border-[#eee5d9] p-4">
-            <div className="mb-3 rounded-2xl bg-[linear-gradient(145deg,#fffdf9,#f6eee3)] p-4">
-              <div className="flex items-center gap-3"><span className="flex size-9 items-center justify-center rounded-full bg-[#BA9051]/10 text-xs font-semibold text-[#A97A3C]">E</span><div><p className="text-xs font-semibold text-[#403a35]">Erick Paulino</p><p className="mt-0.5 text-[10px] text-[#9a9188]">Fisioterapeuta</p></div></div>
-            </div>
             <button type="button" onClick={() => setConfirmLogout(true)} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#c94b4b] transition hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-[18px]" /> Sair</button>
           </div>
         </aside>
