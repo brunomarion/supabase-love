@@ -1063,24 +1063,23 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
                 <p className="mt-1 text-xs text-[#837970]">Gerencie exercícios e materiais para seus pacientes.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2 lg:hidden">
-                <div className="flex w-full items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)]">
-                  <span className="shrink-0 text-[9px] font-semibold uppercase tracking-[0.12em] text-[#9a9087]">Filtrar por conteúdo:</span>
-                  <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
-                    <span className="relative flex size-[17px] items-center justify-center">
-                      <input type="checkbox" checked={contentType === "videos"} onChange={(e) => setContentType(e.target.checked ? "videos" : "pdfs")} className="peer sr-only" />
-                      <span className="absolute inset-0 rounded-[5px] border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
-                      <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
-                    </span>
-                    Vídeos
-                  </label>
-                  <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#fff8f8]">
-                    <span className="relative flex size-[17px] items-center justify-center">
-                      <input type="checkbox" checked={contentType === "pdfs"} onChange={(e) => setContentType(e.target.checked ? "pdfs" : "videos")} className="peer sr-only" />
-                      <span className="absolute inset-0 rounded-[5px] border border-[#e2baba] bg-[#fffafa] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#d66a6a] peer-checked:bg-[#d66a6a] peer-focus-visible:ring-2 peer-focus-visible:ring-[#d66a6a]/20" />
-                      <span className="pointer-events-none absolute hidden size-2.5 rotate-45 border-b-2 border-r-2 border-white peer-checked:block" />
-                    </span>
-                    PDF's
-                  </label>
+                <div className="flex h-[50px] w-full min-w-[190px] items-center justify-center rounded-[1rem] border border-[#e6d8c5] bg-white px-3 py-3 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
+                  <div className="flex items-center gap-5">
+                    <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
+                      <input type="checkbox" checked={contentType === "videos"} onChange={() => setContentType("videos")} className="peer sr-only" />
+                      <span className="flex size-5 items-center justify-center rounded-full border border-[#d8c3a5] bg-[#fffdf9] shadow-[0_2px_7px_rgba(186,144,81,0.08)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-checked:shadow-[0_3px_10px_rgba(186,144,81,0.24)]">
+                        {contentType === "videos" && <span className="size-2 rounded-full bg-white shadow-[0_0_0_2px_rgba(255,255,255,0.25)]" />}
+                      </span>
+                      <span>Vídeos</span>
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
+                      <input type="checkbox" checked={contentType === "pdfs"} onChange={() => setContentType("pdfs")} className="peer sr-only" />
+                      <span className="flex size-5 items-center justify-center rounded-full border border-[#d8c3a5] bg-[#fffdf9] shadow-[0_2px_7px_rgba(186,144,81,0.08)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-checked:shadow-[0_3px_10px_rgba(186,144,81,0.24)]">
+                        {contentType === "pdfs" && <span className="size-2 rounded-full bg-white shadow-[0_0_0_2px_rgba(255,255,255,0.25)]" />}
+                      </span>
+                      <span>PDF's</span>
+                    </label>
+                  </div>
                 </div>
                 <Button type="button" onClick={contentType === "pdfs" ? onAddPdf : onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]">
                   {contentType === "pdfs" ? <Upload className="size-4" /> : <Plus className="size-3.5" />}
