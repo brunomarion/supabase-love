@@ -947,7 +947,7 @@ function PainelPage() {
             <AnimatePresence mode="wait" initial={false}>
             {sessionView === "history" ? (
               <motion.div key="session-history" initial={{ opacity: 0, y: 10, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
-                <div className="flex items-end justify-between gap-3 max-sm:mb-4">
+                <div className="mb-4 flex items-end justify-between gap-3">
                   <div>
                     <p className="text-base font-semibold text-[#A97A3C]">Sessões realizadas</p>
                     <p className="mt-0.5 text-[10px] text-[#948a81]">{sessionHistory.length} {sessionHistory.length === 1 ? "sessão registrada" : "sessões registradas"}</p>
