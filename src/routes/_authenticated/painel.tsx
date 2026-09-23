@@ -1031,8 +1031,12 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
                 <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Exercícios</h2>
                 <p className="mt-1 text-xs text-[#837970]">Gerencie exercícios e materiais para seus pacientes.</p>
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-1.5 lg:hidden">
+              <div className="flex shrink-0 flex-col items-end gap-2 lg:hidden">
                 <Button type="button" onClick={onAdd} className="h-[50px] w-full rounded-xl bg-[#BA9051] px-3 text-[16px] font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.18)] transition-colors hover:bg-[#A97A3C]"><Plus className="size-3.5" />Cadastrar Exercício</Button>
+                <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-[#e6d8c5] bg-white px-3 py-2 text-[11px] font-semibold text-[#746c64] shadow-[0_5px_14px_rgba(64,48,30,0.04)]">
+                  <input type="checkbox" checked={contentType === "pdfs"} onChange={(e) => setContentType(e.target.checked ? "pdfs" : "videos")} className="size-4 accent-[#BA9051]" />
+                  <span>{contentType === "pdfs" ? "Material PDF" : "Vídeos"}</span>
+                </label>
               </div>
             </div>
           </div>
@@ -1044,7 +1048,7 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
         </div>
       </div>
     </div>
-    <div className="-mt-1 flex items-center justify-center lg:justify-start">
+    <div className="hidden lg:flex -mt-1 items-center justify-center lg:justify-start">
       <div className="inline-flex rounded-xl border border-[#e6d8c5] bg-white p-1 shadow-[0_6px_18px_rgba(64,48,30,0.05)]" role="group" aria-label="Tipo de conteúdo">
         <button type="button" onClick={() => setContentType("videos")} aria-pressed={contentType === "videos"} className={`flex min-w-[112px] items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${contentType === "videos" ? "bg-[#BA9051] text-white shadow-[0_4px_12px_rgba(186,144,81,0.20)]" : "text-[#746c64] hover:bg-[#faf7f2]"}`}>
           <span className={`size-2 rounded-full ${contentType === "videos" ? "bg-white" : "bg-[#cdb894]"}`} />Vídeos
