@@ -1037,15 +1037,15 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
                   <div className="flex items-center gap-5">
                     <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
                       <input type="checkbox" checked={contentType === "videos"} onChange={() => setContentType("videos")} className="peer sr-only" />
-                      <span className="flex size-5 items-center justify-center rounded-md border border-[#dfc28f] bg-[#fffdf9] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#f8f0e5]">
-                        {contentType === "videos" && <span className="size-2.5 rounded-sm bg-[#BA9051]" />}
+                      <span className="flex size-5 items-center justify-center rounded-full border border-[#d8c3a5] bg-[#fffdf9] shadow-[0_2px_7px_rgba(186,144,81,0.08)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-checked:shadow-[0_3px_10px_rgba(186,144,81,0.24)]">
+                        {contentType === "videos" && <span className="size-2 rounded-full bg-white shadow-[0_0_0_2px_rgba(255,255,255,0.25)]" />}
                       </span>
                       <span>Vídeos</span>
                     </label>
                     <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
                       <input type="checkbox" checked={contentType === "pdfs"} onChange={() => setContentType("pdfs")} className="peer sr-only" />
-                      <span className="flex size-5 items-center justify-center rounded-md border border-[#e6b7b7] bg-[#fffafa] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#f8f0e5]">
-                        {contentType === "pdfs" && <span className="size-2.5 rounded-sm bg-[#BA9051]" />}
+                      <span className="flex size-5 items-center justify-center rounded-full border border-[#d8c3a5] bg-[#fffdf9] shadow-[0_2px_7px_rgba(186,144,81,0.08)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-checked:shadow-[0_3px_10px_rgba(186,144,81,0.24)]">
+                        {contentType === "pdfs" && <span className="size-2 rounded-full bg-white shadow-[0_0_0_2px_rgba(255,255,255,0.25)]" />}
                       </span>
                       <span>PDF's</span>
                     </label>
@@ -1072,14 +1072,9 @@ function Exercises({ exercises, onAdd, onEdit, onDelete, onView, deleting }: { e
         </button>
       </div>
     </div>
-    {contentType === "pdfs" ? <div className="rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)] overflow-hidden">
-      <div className="border-b border-[#eee5d9] bg-[#fdfbf8] px-4 py-4 sm:px-5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">Materiais</p>
-        <h3 className="mt-1 text-sm font-semibold text-[#302b26]">Materiais em PDF</h3>
-        <p className="mt-1 text-xs text-[#837970]">Materiais que poderão ser disponibilizados para pacientes específicos.</p>
-      </div>
-      <div className="divide-y divide-[#eee5d9]">
-        <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">Os materiais PDF aparecerão aqui após serem cadastrados no Storage.</div>
+    {contentType === "pdfs" ? <div className="min-h-[180px] rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)] overflow-hidden">
+      <div className="min-h-[180px] divide-y divide-[#eee5d9]">
+        <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]"></div>
       </div>
     </div> : <>
     <div className="relative -mt-5 w-full lg:mt-0">
