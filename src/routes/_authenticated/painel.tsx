@@ -1052,7 +1052,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
                 <p className="mt-1 text-xs text-[#837970]">Gerencie exercícios e materiais para seus pacientes.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2 lg:hidden">
-                <div className="flex w-full items-center justify-center rounded-[1rem] border border-[#e6d8c5] bg-white px-3 py-3 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
+                <div className="flex h-[50px] w-full min-w-[190px] items-center justify-center rounded-[1rem] border border-[#e6d8c5] bg-white px-3 py-3 shadow-[0_6px_18px_rgba(64,48,30,0.045)]">
                   <div className="flex items-center gap-5">
                     <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
                       <input type="checkbox" checked={contentType === "videos"} onChange={() => setContentType("videos")} className="peer sr-only" />
