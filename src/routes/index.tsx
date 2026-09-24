@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/")({
   component: LoginPage,
 });
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;\nconst CPF_REGEX = /^\d{11}$/;
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -58,7 +59,11 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (!sessionLoading && session) navigate({ to: "/painel", replace: true });
+    if (sessionLoading || !session) return;
+    void (async () => {
+      const { data: patient } = await supabase.from("patients").select("id").eq("auth_user_id", session.user.id).maybeSingle();
+      navigate({ to: patient ? "/paciente" : "/painel", replace: true });
+    })();
   }, [session, sessionLoading, navigate]);
 
   useEffect(() => {
@@ -106,7 +111,7 @@ function LoginPage() {
   }
 
   async function handleForgotPassword() {
-    if (!email.trim() || !EMAIL_REGEX.test(email.trim())) { setErrors({ email: "Digite seu e-mail para receber o link de recuperação." }); return; }
+    if (!email.trim() || !email.includes("@") || !EMAIL_REGEX.test(email.trim())) { setErrors({ email: "A recuperação por e-mail está disponível apenas para o acesso do fisioterapeuta." }); return; }
     try {
       const { error } = await sendPasswordReset(email);
       if (error) { toast.error(authErrorMessage(error)); return; }
