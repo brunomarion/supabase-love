@@ -1346,7 +1346,6 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
               </div>
               <div className="col-span-1"><Status active={p.status === "active"} /></div>
               <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
-            </div>
           ))}</div>
         </>}      </div>
       {filteredPatients.length > 0 && (
@@ -1965,7 +1964,7 @@ function Empty({ text }: { text: string }) {
 
 function formatPatientAge(birthDate: string | null) {
   if (!birthDate) return "Idade não informada";
-  const [year, month, day] = birthDate.split("-").map(Number);
+  const [year = 0, month = 1, day = 1] = birthDate.split("-").map(Number);
   const today = new Date();
   let years = today.getFullYear() - year;
   let months = today.getMonth() + 1 - month;
