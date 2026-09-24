@@ -1212,7 +1212,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
       
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
-      <div className="hidden grid-cols-[1.3fr_1.1fr_1fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span className="text-center">CPF do Responsável</span><span className="text-center">Status</span><span>Ações</span></div>
+      <div className="hidden grid-cols-[1.3fr_1.1fr_1fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span className="text-left">Paciente</span><span className="text-left">Responsável</span><span className="text-left">CPF do Responsável</span><span className="text-left">Status</span><span className="text-right">Ações</span></div>
       <div className="h-[calc(100vh-420px)] min-h-[180px] max-h-[calc(100vh-360px)] overflow-y-auto overscroll-contain divide-y divide-[#d9c8b4] sm:h-auto sm:min-h-[220px] sm:max-h-[calc(100vh-250px)]">
         {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : <>
           <div className="sm:hidden divide-y divide-[#d9c8b4]">{filteredPatients.map((p) => (
