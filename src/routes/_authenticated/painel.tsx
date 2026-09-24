@@ -41,7 +41,7 @@ const emptyPatient = {
   sex: "" as "" | "male" | "female",
   responsible_name: "",
   responsible_phone: "",
-  responsible_email: "",
+  cpf: "",
   cep: "",
   street: "",
   number: "",
@@ -270,7 +270,7 @@ function PainelPage() {
       sex: (item.sex ?? "") as "" | "male" | "female",
       responsible_name: item.responsible_name ?? "",
       responsible_phone: item.responsible_phone ?? "",
-      responsible_email: item.responsible_email ?? "",
+      cpf: item.cpf ?? "",
       cep: item.cep ?? "",
       street: item.street ?? "",
       number: item.number ?? "",
@@ -467,7 +467,7 @@ function PainelPage() {
             sex: patient.sex || null,
             responsible_name: patient.responsible_name.trim() || null,
             responsible_phone: patient.responsible_phone.trim() || null,
-            responsible_email: patient.responsible_email.trim(),
+            cpf: patient.cpf.trim(),
             notes: patient.notes.trim() || null,
             status: patient.status,
             password: patient.password.trim(),
@@ -511,7 +511,7 @@ function PainelPage() {
         await loadData();
       } else {
         if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
-        if (!patient.responsible_email.trim()) throw new Error("O e-mail do responsável é necessário para criar o acesso.");
+        if (!patient.cpf.trim()) throw new Error("O CPF é necessário para criar o acesso.");
         if (patient.password.length < 6) throw new Error("A senha deve ter pelo menos 6 caracteres.");
 
         const { data: createData, error: functionError } = await supabase.functions.invoke("criar_paciente", {
@@ -522,7 +522,7 @@ function PainelPage() {
             sex: patient.sex || null,
             responsible_name: patient.responsible_name.trim() || null,
             responsible_phone: patient.responsible_phone.trim() || null,
-            responsible_email: patient.responsible_email.trim(),
+            cpf: patient.cpf.trim(),
             password: patient.password,
             notes: patient.notes.trim() || null,
             status: patient.status,
@@ -544,7 +544,7 @@ function PainelPage() {
             .from("patients")
             .select("*")
             .eq("physiotherapist_id", physiotherapistId)
-            .eq("responsible_email", patient.responsible_email.trim())
+            .eq("cpf", patient.cpf.trim())
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
@@ -902,7 +902,7 @@ function PainelPage() {
               <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
             </div>
             <div className="space-y-4">
-              <Field label="E-mail do responsável" type="email" value={patient.responsible_email} onChange={(v) => setPatient({ ...patient, responsible_email: v })} placeholder="responsavel@email.com" required={!editingPatient} />
+              <Field label="CPF" value={patient.cpf} onChange={(v) => setPatient({ ...patient, cpf: formatCpf(v) })} placeholder="000.000.000-00" inputMode="numeric" required />
               {editingPatient && <Field label="Nova senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Deixe em branco para manter a senha atual" />}
               {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
               <div className="block">
@@ -1106,7 +1106,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
     const matchesStatus = statusFilter === "all" || patient.status === statusFilter;
     const search = patientSearch.trim().toLocaleLowerCase("pt-BR");
     if (!search) return matchesStatus;
-    return matchesStatus && [patient.full_name, patient.responsible_name, patient.responsible_email, patient.responsible_phone]
+    return matchesStatus && [patient.full_name, patient.responsible_name, patient.cpf, patient.responsible_phone]
       .filter(Boolean)
       .some((value) => value!.toLocaleLowerCase("pt-BR").includes(search));
   });
@@ -1162,7 +1162,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
       <div className="-mt-3 relative rounded-2xl border border-[#e6d9c9] bg-white p-2 shadow-[0_6px_20px_rgba(64,48,30,0.045)] lg:mt-0">
         <label className="relative flex h-11 items-center gap-2.5 rounded-xl border border-[#e6d9c9] bg-[#fdfbf8] px-3 pr-12 text-[#837970] sm:pr-12 lg:pr-3 focus-within:border-[#BA9051] focus-within:ring-2 focus-within:ring-[#BA9051]/10 sm:pr-[5.5rem]">
           <Search className="size-[17px] shrink-0 text-[#BA9051]" strokeWidth={1.8} />
-          <input type="search" value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} placeholder="Pesquisar paciente, responsável, e-mail ou telefone..." aria-label="Pesquisar pacientes" className="min-w-0 flex-1 bg-transparent text-base text-[#403a35] outline-none placeholder:text-[#a79d94] sm:text-sm" />
+          <input type="search" value={patientSearch} onChange={(e) => setPatientSearch(e.target.value)} placeholder="Pesquisar paciente, responsável, CPF ou telefone..." aria-label="Pesquisar pacientes por nome, responsável, CPF ou telefone" className="min-w-0 flex-1 bg-transparent text-base text-[#403a35] outline-none placeholder:text-[#a79d94] sm:text-sm" />
         </label>
         {patientSearch && <button type="button" onClick={() => setPatientSearch("")} aria-label="Limpar pesquisa" className="absolute right-12 top-1/2 sm:right-12 lg:right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#91877e] transition hover:bg-[#f2ece4] hover:text-[#A97A3C]"><X className="size-4" /></button>}
         <button type="button" onClick={() => setShowFilters((open) => !open)} aria-label="Filtrar pacientes" aria-expanded={showFilters} className={`absolute right-3 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg transition ${statusFilter !== "all" ? "bg-[#f3e3cf] text-[#A97A3C]" : "text-[#8b8178] hover:bg-[#f5eee5] hover:text-[#A97A3C]"}`}>
@@ -1193,7 +1193,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
       
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
-      <div className="hidden grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>E-mail do responsável</span><span>Status</span><span>Ações</span></div>
+      <div className="hidden grid-cols-[1.5fr_1.1fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div>
       <div className="h-[calc(100vh-420px)] min-h-[180px] max-h-[calc(100vh-360px)] overflow-y-auto overscroll-contain divide-y divide-[#d9c8b4] sm:h-auto sm:min-h-[220px] sm:max-h-[calc(100vh-250px)]">
         {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : <>
           <div className="sm:hidden divide-y divide-[#d9c8b4]">{filteredPatients.map((p) => (
@@ -1205,10 +1205,10 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
             </div>
           ))}</div>
           <div className="hidden sm:block">{paginatedPatients.map((p) => (
-            <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 border-b border-[#d9c8b4] px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
+            <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 border-b border-[#d9c8b4] px-3 py-3 sm:grid-cols-[1.5fr_1.1fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
               <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">Data de Cadastro: {formatDate(p.created_at)}</p></div></div>
               <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
-              <div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div>
+              
               <div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div>
               <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
             </div>
