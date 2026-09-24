@@ -30,7 +30,7 @@ create index if not exists patient_exercises_patient_id_idx on public.patient_ex
 create index if not exists patient_exercises_exercise_id_idx on public.patient_exercises(exercise_id);
 create index if not exists patient_pdf_materials_patient_id_idx on public.patient_pdf_materials(patient_id);
 create index if not exists patient_pdf_materials_pdf_id_idx on public.patient_pdf_materials(pdf_material_id);
-create index if not exists patient_documents_patient_id_idx on public.patient_documents(patient_id);
+create index if not exists patient_documents_patient_id_idx on public.patient_documents(patient_id);\ncreate unique index if not exists patients_cpf_unique on public.patients(cpf) where cpf is not null;
 
 alter table public.patient_exercises enable row level security;
 alter table public.patient_pdf_materials enable row level security;
@@ -129,7 +129,7 @@ create policy "Paciente visualiza seu próprio cadastro"
 on public.patients for select to authenticated
 using (auth_user_id = auth.uid());
 
-insert into storage.buckets (id, name, public)
+drop policy if exists "Usuários autenticados podem visualizar PDFs" on storage.objects;\n\ninsert into storage.buckets (id, name, public)
 values ('patient-documents', 'patient-documents', false)
 on conflict (id) do update set public = false;
 
