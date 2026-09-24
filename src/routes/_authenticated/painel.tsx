@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -1088,9 +1088,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
 
   function getMaskedCpf(cpf: string | null) {
     if (!cpf) return "Não informado";
-    const formatted = formatCpf(cpf);
-    if (formatted.length < 7) return "•••";
-    return `${formatted.slice(0, 3)}.•••.•••-${formatted.slice(-2)}`;
+    return "XXX.000.000-XX";
   }
 
   const Filter = () => (
@@ -1227,7 +1225,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
               <div className="min-w-0 text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="truncate">{p.responsible_name || "Não informado"}</span>{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{formatPhone(p.responsible_phone)}</span>}</div>
               <div className="flex min-w-0 items-center gap-2 text-[12px] font-medium text-[#5f574f]">
                 <span className={`min-w-0 ${visibleCpfs.has(p.id) ? "" : "select-none blur-[5px]"}`}>{visibleCpfs.has(p.id) ? formatCpf(p.cpf ?? "") || "Não informado" : getMaskedCpf(p.cpf)}</span>
-                {p.cpf && <button type="button" onClick={() => toggleCpfVisibility(p.id)} aria-label={visibleCpfs.has(p.id) ? "Ocultar CPF" : "Visualizar CPF completo"} title={visibleCpfs.has(p.id) ? "Ocultar CPF" : "Visualizar CPF completo"} className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-[#e2cfb4] bg-[#fffdf9] text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5]">{visibleCpfs.has(p.id) ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}</button>}
+                {p.cpf && <button type="button" onClick={() => toggleCpfVisibility(p.id)} aria-label="Visualizar CPF completo" title="Visualizar CPF completo" className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-[#e2cfb4] bg-[#fffdf9] text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5]"><Eye className="size-3.5" /></button>}
               </div>
               <div className="col-span-1"><Status active={p.status === "active"} /></div>
               <div className="flex items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
