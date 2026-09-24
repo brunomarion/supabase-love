@@ -101,6 +101,8 @@ function PainelPage() {
   const [loadingSessions, setLoadingSessions] = useState(false);
   const [sessionView, setSessionView] = useState<"history" | "create" | "details">("history");
   const [selectedSession, setSelectedSession] = useState<PatientSession | null>(null);
+  const [editingSession, setEditingSession] = useState(false);
+  const [confirmSession, setConfirmSession] = useState<PatientSession | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -251,7 +253,18 @@ function PainelPage() {
 
   function openSessionDetails(session: PatientSession) {
     setSelectedSession(session);
+    setSessionDate(session.session_date);
+    setSessionNotes(session.notes);
+    setEditingSession(false);
     setSessionView("details");
+  }
+
+  function startSessionEdit() {
+    if (!selectedSession) return;
+    setSessionDate(selectedSession.session_date);
+    setSessionNotes(selectedSession.notes);
+    setError("");
+    setEditingSession(true);
   }
 
   function openPatientCreate() {
@@ -443,6 +456,86 @@ function PainelPage() {
       setError(err instanceof Error ? err.message : "Não foi possível registrar a sessão.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function updateSession(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!selectedSession || !sessionPatient || !physiotherapistId) {
+      setError("Não foi possível identificar a sessão.");
+      return;
+    }
+
+    if (!sessionDate) {
+      setError("Informe a data da sessão.");
+      return;
+    }
+
+    if (!sessionNotes.trim()) {
+      setError("Descreva o que ocorreu durante a sessão.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      const { data, error: updateError } = await supabase
+        .from("patient_sessions")
+        .update({
+          session_date: sessionDate,
+          notes: sessionNotes.trim(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", selectedSession.id)
+        .eq("patient_id", sessionPatient.id)
+        .eq("physiotherapist_id", physiotherapistId)
+        .select("*")
+        .maybeSingle();
+
+      if (updateError) throw updateError;
+      if (!data) throw new Error("A sessão não pôde ser atualizada.");
+
+      setSelectedSession(data);
+      setSessionHistory((current) => current.map((item) => item.id === data.id ? data : item));
+      setSessionDate(data.session_date);
+      setSessionNotes(data.notes);
+      setEditingSession(false);
+      setPatientToast("Sessão atualizada com sucesso.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível atualizar a sessão.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function removeSession(session: PatientSession) {
+    if (!physiotherapistId || !sessionPatient) return;
+
+    try {
+      setDeleting(session.id);
+      setError("");
+
+      const { error: deleteError } = await supabase
+        .from("patient_sessions")
+        .delete()
+        .eq("id", session.id)
+        .eq("patient_id", sessionPatient.id)
+        .eq("physiotherapist_id", physiotherapistId);
+
+      if (deleteError) throw deleteError;
+
+      setSessionHistory((current) => current.filter((item) => item.id !== session.id));
+      setConfirmSession(null);
+      setSelectedSession(null);
+      setEditingSession(false);
+      setSessionView("history");
+      setPatientToast("Sessão excluída com sucesso.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível excluir a sessão.");
+    } finally {
+      setDeleting(null);
     }
   }
 
@@ -989,23 +1082,42 @@ function PainelPage() {
                 </div>
               </motion.div>
             ) : sessionView === "details" && selectedSession ? (
-              <motion.div key="session-details" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Data da Sessão</p>
-                    <p className="mt-1 text-lg font-semibold text-[#302b26]">{formatDate(selectedSession.session_date)}</p>
+              editingSession ? (
+                <motion.form key="session-edit" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} onSubmit={updateSession} className="space-y-5">
+                  <div className="pb-1 text-center">
+                    <h3 className="text-base font-semibold text-[#A97A3C]">Editar sessão</h3>
+                    <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
                   </div>
-                  <span className="flex size-10 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]"><CalendarPlus className="size-4" /></span>
-                </div>
-                <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4 sm:p-5">
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">O que ocorreu durante a sessão</p>
-                  <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#5f574f]">{selectedSession.notes}</p>
-                </div>
-                <div className="rounded-2xl border border-[#eee5d9] bg-white p-4">
-                  <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Registrada em</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.created_at)}</p></div>
-                </div>
-                <div className="flex justify-end pt-1"><Button type="button" variant="outline" onClick={() => { setSelectedSession(null); setSessionView("history"); }} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button></div>
-              </motion.div>
+                  <Field label="Data da sessão" value={sessionDate} onChange={setSessionDate} type="date" required />
+                  <Field label="O que ocorreu durante a sessão" value={sessionNotes} onChange={setSessionNotes} placeholder="Descreva a sessão, procedimentos realizados, evolução e observações importantes." multiline required />
+                  <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                    <Button type="button" variant="outline" onClick={() => { setEditingSession(false); setSessionDate(selectedSession.session_date); setSessionNotes(selectedSession.notes); }} disabled={saving} className="h-10 rounded-xl text-xs">Cancelar</Button>
+                    <Button type="submit" disabled={saving} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{saving ? <RefreshCw className="size-4 animate-spin" /> : null}{saving ? "Salvando..." : "Salvar alterações"}</Button>
+                  </div>
+                </motion.form>
+              ) : (
+                <motion.div key="session-details" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Data da Sessão</p>
+                      <p className="mt-1 text-lg font-semibold text-[#302b26]">{formatDate(selectedSession.session_date)}</p>
+                    </div>
+                    <span className="flex size-10 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#f8f0e5] text-[#A97A3C]"><CalendarPlus className="size-4" /></span>
+                  </div>
+                  <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4 sm:p-5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">O que ocorreu durante a sessão</p>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#5f574f]">{selectedSession.notes}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[#eee5d9] bg-white p-4">
+                    <div><p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#948a81]">Registrada em</p><p className="mt-1 text-sm font-medium text-[#403a35]">{formatDate(selectedSession.created_at)}</p></div>
+                  </div>
+                  <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
+                    <Button type="button" variant="outline" onClick={() => { setSelectedSession(null); setEditingSession(false); setSessionView("history"); }} className="h-10 rounded-xl text-xs">Voltar ao histórico</Button>
+                    <Button type="button" onClick={startSessionEdit} className="h-10 rounded-xl bg-[#3478c9] text-xs font-semibold text-white hover:bg-[#2868b5]"><Pencil className="size-4" /> Editar</Button>
+                    <Button type="button" onClick={() => setConfirmSession(selectedSession)} disabled={deleting === selectedSession.id} className="h-10 rounded-xl bg-[#d94b4b] text-xs font-semibold text-white hover:bg-[#c83e3e]"><Trash2 className="size-4" /> Excluir</Button>
+                  </div>
+                </motion.div>
+              )
             ) : (
               <motion.form key="session-create" initial={{ opacity: 0, y: 12, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: 0.985 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} onSubmit={saveSession} className="space-y-5">
                 <div className="pb-1 text-center">
@@ -1039,6 +1151,7 @@ function PainelPage() {
        {confirmPatient && <DeletePatientModal patient={confirmPatient} loading={deleting === confirmPatient.id} close={() => !deleting && setConfirmPatient(null)} confirm={() => void removePatient(confirmPatient)} />}
        {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
        {confirmPdf && <DeletePdfModal pdf={confirmPdf} loading={deleting === confirmPdf.id} close={() => !deleting && setConfirmPdf(null)} confirm={() => void removePdf(confirmPdf)} />}
+       {confirmSession && <DeleteSessionModal session={confirmSession} loading={deleting === confirmSession.id} close={() => !deleting && setConfirmSession(null)} confirm={() => void removeSession(confirmSession)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
