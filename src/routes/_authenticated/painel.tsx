@@ -365,22 +365,6 @@ function PainelPage() {
     }
   }
 
-  function toggleCpfVisibility(patientId: string) {
-    setVisibleCpfs((current) => {
-      const next = new Set(current);
-      if (next.has(patientId)) next.delete(patientId);
-      else next.add(patientId);
-      return next;
-    });
-  }
-
-  function getMaskedCpf(cpf: string | null) {
-    if (!cpf) return "Não informado";
-    const formatted = formatCpf(cpf);
-    if (formatted.length < 7) return "•••";
-    return `${formatted.slice(0, 3)}.•••.•••-${formatted.slice(-2)}`;
-  }
-
   function getPatientAddress(item: Patient) {
     return [
       item.street,
@@ -1092,6 +1076,22 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
   const [patientSearch, setPatientSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCpfs, setVisibleCpfs] = useState<Set<string>>(new Set());
+
+  function toggleCpfVisibility(patientId: string) {
+    setVisibleCpfs((current) => {
+      const next = new Set(current);
+      if (next.has(patientId)) next.delete(patientId);
+      else next.add(patientId);
+      return next;
+    });
+  }
+
+  function getMaskedCpf(cpf: string | null) {
+    if (!cpf) return "Não informado";
+    const formatted = formatCpf(cpf);
+    if (formatted.length < 7) return "•••";
+    return `${formatted.slice(0, 3)}.•••.•••-${formatted.slice(-2)}`;
+  }
 
   const Filter = () => (
     <div className="flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)]">
