@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -1787,8 +1787,10 @@ function DeletePdfModal({ pdf, loading, close, confirm }: { pdf: PdfMaterial; lo
 }
 
 function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false, inputMode }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: "text" | "tel" | "numeric" | "email"; required?: boolean; type?: string; multiline?: boolean }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
   const className="w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10";
-  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} rows={3} className={`${className} min-h-24 py-3 resize-none`} /> : <input type={type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} className={`${className} h-11`} />}</label>;
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} rows={3} className={`${className} min-h-24 py-3 resize-none`} /> : <div className="relative"><input type={isPassword && showPassword ? "text" : type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} className={`${className} h-11 ${isPassword ? "pr-11" : ""}`} />{isPassword && <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? "Ocultar senha" : "Visualizar senha"} title={showPassword ? "Ocultar senha" : "Visualizar senha"} className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#A97A3C] transition hover:bg-[#f3e7d6] focus:outline-none focus:ring-2 focus:ring-[#BA9051]/20">{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>}</div>}</label>;
 }
 
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
