@@ -2,8 +2,21 @@ import { supabase } from "@/integrations/supabase/client";
 
 const REMEMBERED_EMAIL_KEY = "ep.remembered-email";
 
-export async function signInWithPassword(email: string, password: string) {
-  return supabase.auth.signInWithPassword({ email: email.trim(), password });
+export function normalizeCpf(value: string) {
+  return value.replace(/\D/g, "").slice(0, 11);
+}
+
+export function cpfToAuthEmail(cpf: string) {
+  return `${normalizeCpf(cpf)}@patient.erickfisio.local`;
+}
+
+export async function signInWithPassword(identifier: string, password: string) {
+  const value = identifier.trim();
+  const isCpf = normalizeCpf(value).length === 11 && !value.includes("@");
+  return supabase.auth.signInWithPassword({
+    email: isCpf ? cpfToAuthEmail(value) : value,
+    password,
+  });
 }
 
 export async function sendPasswordReset(email: string) {
