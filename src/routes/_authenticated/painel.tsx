@@ -1876,6 +1876,28 @@ function DeleteExerciseModal({ exercise, loading, close, confirm }: { exercise: 
   </motion.div>;
 }
 
+function DeleteSessionModal({ session, loading, close, confirm }: { session: PatientSession; loading: boolean; close: () => void; confirm: () => void }) {
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[70] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && !loading && close()}>
+    <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="premium-modal-panel w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fff1f1] text-[#d34f4f]"><Trash2 className="size-5" /></span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Excluir sessão?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir esta sessão do histórico.</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">{loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}{loading ? "Excluindo..." : "Sim, excluir sessão"}</Button>
+        </div>
+      </div>
+    </motion.div>
+  </motion.div>;
+}
+
 function DeletePdfModal({ pdf, loading, close, confirm }: { pdf: PdfMaterial; loading: boolean; close: () => void; confirm: () => void }) {
   return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[60] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && close()}>
     <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="premium-modal-panel w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
