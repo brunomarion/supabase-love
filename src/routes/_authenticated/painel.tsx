@@ -940,7 +940,7 @@ function PainelPage() {
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fffdf9] p-4">
               <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
-              <p className="mt-1 text-sm font-semibold text-[#302b26]">{sessionPatient.full_name}</p>
+              <p className="mt-1 text-sm font-semibold text-[#302b26]">{sessionPatient.full_name}</p><p className="mt-0.5 text-xs text-[#8c8178]">{formatPatientAge(sessionPatient.birth_date)}</p>
               {sessionPatient.responsible_name && <p className="mt-0.5 text-xs text-[#8c8178]">Responsável: {sessionPatient.responsible_name}</p>}
             </div>
 
@@ -1802,6 +1802,16 @@ function Status({ active }: { active: boolean }) {
 
 function Empty({ text }: { text: string }) {
   return <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">{text}</div>;
+}
+
+function formatPatientAge(birthDate: string | null) {
+  if (!birthDate) return "Idade não informada";
+  const [year, month, day] = birthDate.split("-").map(Number);
+  const today = new Date();
+  let years = today.getFullYear() - year;
+  const hasBirthdayPassed = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+  if (!hasBirthdayPassed) years -= 1;
+  return years === 1 ? "1 ano" : years === 0 ? "Menos de 1 ano" : `${years} anos`;
 }
 
 function initials(name: string) {
