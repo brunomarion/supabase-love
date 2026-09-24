@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, Check, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, FolderOpen, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -87,7 +87,7 @@ function PainelPage() {
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
   const [exerciseToast, setExerciseToast] = useState("");
-  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | "session" | null>(null);
+  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | "session" | "content" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [editingPdf, setEditingPdf] = useState<PdfMaterial | null>(null);
@@ -103,6 +103,10 @@ function PainelPage() {
   const [selectedSession, setSelectedSession] = useState<PatientSession | null>(null);
   const [editingSession, setEditingSession] = useState(false);
   const [confirmSession, setConfirmSession] = useState<PatientSession | null>(null);
+  const [contentPatient, setContentPatient] = useState<Patient | null>(null);
+  const [selectedContentExercises, setSelectedContentExercises] = useState<Set<string>>(new Set());
+  const [selectedContentPdfs, setSelectedContentPdfs] = useState<Set<string>>(new Set());
+  const [selectedPatientDocument, setSelectedPatientDocument] = useState<File | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -212,7 +216,25 @@ function PainelPage() {
     });
   }
 
-  async function openSessionCreate(item: Patient) {
+  async function openPatientContent(item: Patient) {
+    setContentPatient(item);
+    setSelectedContentExercises(new Set());
+    setSelectedContentPdfs(new Set());
+    setSelectedPatientDocument(null);
+    setError("");
+    setModal("content");
+  }
+
+  function toggleContentSelection(setter: React.Dispatch<React.SetStateAction<Set<string>>>, id: string) {
+    setter((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function openSessionCreate(item: Patient) {
     setSessionPatient(item);
     setSessionDate(new Date().toISOString().slice(0, 10));
     setSessionNotes("");
@@ -1028,6 +1050,21 @@ function PainelPage() {
         </form>
       </Modal>}
 
+       {modal === "content" && contentPatient && (
+        <PatientContentModal
+          patient={contentPatient}
+          exercises={exercises}
+          pdfMaterials={pdfMaterials}
+          selectedExerciseIds={selectedContentExercises}
+          selectedPdfIds={selectedContentPdfs}
+          selectedDocument={selectedPatientDocument}
+          onToggleExercise={(id) => toggleContentSelection(setSelectedContentExercises, id)}
+          onTogglePdf={(id) => toggleContentSelection(setSelectedContentPdfs, id)}
+          onDocumentChange={setSelectedPatientDocument}
+          close={() => setModal(null)}
+        />
+      )}
+
        {modal === "session" && sessionPatient && (
         <Modal title={sessionView === "history" ? "Histórico de Atendimentos" : sessionView === "details" ? "Detalhes da Sessão" : "Registrar sessão"} close={() => !saving && setModal(null)}>
           <div className="space-y-5">
@@ -1331,7 +1368,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
           <div className="sm:hidden divide-y divide-[#d9c8b4]">{filteredPatients.map((p) => (
             <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] gap-x-3 gap-y-2 px-3 py-3 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
               <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold">{p.full_name}</p><p className="text-[11px] text-[#948a81]">{formatPatientAge(p.birth_date)}</p></div></div>
-              <div className="row-span-2 flex items-center justify-end border-l border-[#e9dfd3] pl-3"><div className="grid grid-cols-2 grid-rows-2 content-center gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Vincular exercícios" onClick={() => {}}><Dumbbell className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+              <div className="row-span-2 flex items-center justify-end border-l border-[#e9dfd3] pl-3"><div className="grid grid-cols-2 grid-rows-2 content-center gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Conteúdos do paciente" onClick={() => openPatientContent(p)}><FolderOpen className="size-4 text-[#754600]" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
               </div>
               <div className="flex min-w-0 items-center gap-2"><Status active={p.status === "active"} /><span className="whitespace-nowrap text-[9px] text-[#948a81]">Data de Cadastro: {formatDate(p.created_at)}</span></div>
             </div>
@@ -1765,6 +1802,101 @@ function PdfMaterialModal({ pdf, close, physiotherapistId, saving, setSaving, on
 function ExerciseVideoModal({ exercise, close }: { exercise: Exercise; close: () => void }) {
   const embedUrl = getVideoEmbedUrl(exercise.video_url);
   return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[70] flex items-center justify-center overflow-hidden bg-[#2D2823]/55 p-3 backdrop-blur-sm sm:p-5" onClick={(e) => e.target === e.currentTarget && close()}><motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="premium-modal-panel max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.32)] sm:max-h-[calc(100dvh-2.5rem)]"><div className="flex items-center justify-between gap-4 border-b border-[#eee5d9] px-4 py-3 sm:px-5 sm:py-4"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{exercise.type || "Vídeo"}</p><h2 className="mt-0.5 truncate text-base font-semibold text-[#302b26] sm:text-lg">{exercise.name}</h2></div><button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar vídeo"><X className="size-5" /></button></div><div className="bg-[#171412]">{embedUrl ? <div className="aspect-video w-full"><iframe src={embedUrl} title={exercise.name} className="size-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div> : <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/70">Este exercício ainda não possui um link de vídeo válido.</div>}</div><div className="px-5 py-4 sm:px-6 sm:py-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A97A3C]">Orientações</p><p className="mt-2 text-sm leading-relaxed text-[#746c64]">{exercise.description || "Nenhuma orientação cadastrada para este exercício."}</p></div></motion.div></motion.div>;
+}
+
+function PatientContentModal({
+  patient,
+  exercises,
+  pdfMaterials,
+  selectedExerciseIds,
+  selectedPdfIds,
+  selectedDocument,
+  onToggleExercise,
+  onTogglePdf,
+  onDocumentChange,
+  close,
+}: {
+  patient: Patient;
+  exercises: Exercise[];
+  pdfMaterials: PdfMaterial[];
+  selectedExerciseIds: Set<string>;
+  selectedPdfIds: Set<string>;
+  selectedDocument: File | null;
+  onToggleExercise: (id: string) => void;
+  onTogglePdf: (id: string) => void;
+  onDocumentChange: (file: File | null) => void;
+  close: () => void;
+}) {
+  const [section, setSection] = useState<"videos" | "pdfs" | "document">("videos");
+
+  return <Modal title={<div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl border border-[#e5d3b8] bg-[#fff8ee] text-[#754600]"><FolderOpen className="size-5" /></span><div><p className="text-lg font-semibold text-[#2D2823]">Conteúdos do paciente</p><p className="mt-0.5 text-[10px] font-normal text-[#948a81]">Gerencie os conteúdos disponíveis para este paciente.</p></div></div>} close={close}>
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-[#e6d8c5] bg-[linear-gradient(145deg,#fffdf9,#fbf5ec)] p-4 shadow-[0_6px_18px_rgba(64,48,30,0.04)]">
+        <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Paciente</p>
+        <div className="mt-1 flex items-center justify-between gap-3">
+          <div className="min-w-0"><p className="truncate text-sm font-semibold text-[#302b26]">{patient.full_name}</p><p className="mt-0.5 text-xs text-[#8c8178]">{formatPatientAge(patient.birth_date)}{patient.responsible_name ? ` • Responsável: ${patient.responsible_name}` : ""}</p></div>
+          <Status active={patient.status === "active"} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-1.5 rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] p-1.5">
+        {[
+          ["videos", "Vídeos", selectedExerciseIds.size],
+          ["pdfs", "PDFs", selectedPdfIds.size],
+          ["document", "Documento", selectedDocument ? 1 : 0],
+        ].map(([value, label, count]) => (
+          <button key={value} type="button" onClick={() => setSection(value as "videos" | "pdfs" | "document")} className={`rounded-xl px-2 py-2.5 text-[10px] font-semibold transition ${section === value ? "bg-white text-[#754600] shadow-[0_4px_12px_rgba(64,48,30,0.08)]" : "text-[#8b8178] hover:bg-white/70"}`}>
+            {label}<span className={`ml-1 rounded-full px-1.5 py-0.5 text-[9px] ${section === value ? "bg-[#f3e3cf] text-[#754600]" : "bg-[#eee8df] text-[#948a81]"}`}>{count}</span>
+          </button>
+        ))}
+      </div>
+
+      {section === "videos" && <div className="space-y-3">
+        <div><p className="text-sm font-semibold text-[#403a35]">Vincular vídeos e exercícios</p><p className="mt-0.5 text-[10px] text-[#948a81]">Selecione os exercícios em vídeo que este paciente poderá acessar.</p></div>
+        <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1">
+          {exercises.length === 0 ? <Empty text="Nenhum exercício em vídeo cadastrado." /> : exercises.map((item) => {
+            const selected = selectedExerciseIds.has(item.id);
+            return <button type="button" key={item.id} onClick={() => onToggleExercise(item.id)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selected ? "border-[#d6b77f] bg-[#fff8ee] shadow-[0_5px_14px_rgba(186,144,81,0.10)]" : "border-[#e6d8c5] bg-white hover:border-[#d8c5a9] hover:bg-[#fdfbf8]"}`}>
+              <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg border ${selected ? "border-[#754600] bg-[#754600] text-white" : "border-[#d8cbbd] bg-[#fffdf9] text-transparent"}`}><Check className="size-4" /></span>
+              <span className="min-w-0 flex-1"><span className="block truncate text-xs font-semibold text-[#403a35]">{item.name}</span><span className="mt-0.5 block truncate text-[10px] text-[#948a81]">{item.type || "Vídeo"}</span></span>
+              <Play className="size-4 shrink-0 text-[#A97A3C]" />
+            </button>;
+          })}
+        </div>
+      </div>}
+
+      {section === "pdfs" && <div className="space-y-3">
+        <div><p className="text-sm font-semibold text-[#403a35]">Vincular materiais PDF</p><p className="mt-0.5 text-[10px] text-[#948a81]">Selecione os PDFs específicos que estarão disponíveis para este paciente.</p></div>
+        <div className="max-h-[300px] space-y-2 overflow-y-auto pr-1">
+          {pdfMaterials.length === 0 ? <Empty text="Nenhum material PDF cadastrado." /> : pdfMaterials.map((item) => {
+            const selected = selectedPdfIds.has(item.id);
+            return <button type="button" key={item.id} onClick={() => onTogglePdf(item.id)} className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${selected ? "border-[#d6b77f] bg-[#fff8ee] shadow-[0_5px_14px_rgba(186,144,81,0.10)]" : "border-[#e6d8c5] bg-white hover:border-[#d8c5a9] hover:bg-[#fdfbf8]"}`}>
+              <span className={`flex size-8 shrink-0 items-center justify-center rounded-lg border ${selected ? "border-[#754600] bg-[#754600] text-white" : "border-[#d8cbbd] bg-[#fffdf9] text-transparent"}`}><Check className="size-4" /></span>
+              <span className="min-w-0 flex-1"><span className="block truncate text-xs font-semibold text-[#403a35]">{item.name}</span><span className="mt-0.5 block truncate text-[10px] text-[#948a81]">{item.description || "Material PDF"}</span></span>
+              <FileText className="size-4 shrink-0 text-[#A97A3C]" />
+            </button>;
+          })}
+        </div>
+      </div>}
+
+      {section === "document" && <div className="space-y-3">
+        <div><p className="text-sm font-semibold text-[#403a35]">Enviar documento específico</p><p className="mt-0.5 text-[10px] text-[#948a81]">Adicione um documento exclusivo deste paciente, como orientações, laudos ou materiais personalizados.</p></div>
+        <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#d8c5a9] bg-[#fffaf3] px-5 py-8 text-center transition hover:border-[#BA9051] hover:bg-[#fff7ec]">
+          <span className="flex size-12 items-center justify-center rounded-2xl border border-[#e5d3b8] bg-white text-[#754600] shadow-[0_5px_14px_rgba(64,48,30,0.06)]"><Upload className="size-5" /></span>
+          <p className="mt-3 text-xs font-semibold text-[#403a35]">{selectedDocument ? selectedDocument.name : "Selecionar documento"}</p>
+          <p className="mt-1 text-[10px] text-[#948a81]">PDF, DOC, DOCX, JPG ou PNG</p>
+          <input type="file" className="sr-only" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={(e) => onDocumentChange(e.target.files?.[0] ?? null)} />
+        </label>
+      </div>}
+
+      <div className="rounded-xl border border-[#eadcc9] bg-[#fffaf3] px-3 py-2.5 text-[10px] leading-relaxed text-[#8c8178]">
+        As seleções desta tela são específicas para <strong className="font-semibold text-[#754600]">{patient.full_name}</strong>. A gravação definitiva dos vínculos e do documento no banco/Storage será feita na próxima etapa.
+      </div>
+      <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
+        <Button type="button" variant="outline" onClick={close} className="h-10 rounded-xl text-xs">Fechar</Button>
+      </div>
+    </div>
+  </Modal>;
 }
 
 function Header({ title, text, action, onAction }: { title: string; text: string; action: string; onAction: () => void }) {
