@@ -1346,7 +1346,6 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
               </div>
               <div className="col-span-1"><Status active={p.status === "active"} /></div>
               <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
-            </div>
           ))}</div>
         </>}      </div>
       {filteredPatients.length > 0 && (
