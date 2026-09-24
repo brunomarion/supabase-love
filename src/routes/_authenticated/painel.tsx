@@ -107,6 +107,7 @@ function PainelPage() {
   const [selectedContentExercises, setSelectedContentExercises] = useState<Set<string>>(new Set());
   const [selectedContentPdfs, setSelectedContentPdfs] = useState<Set<string>>(new Set());
   const [selectedPatientDocument, setSelectedPatientDocument] = useState<File | null>(null);
+  const [savingContent, setSavingContent] = useState(false);
 
   useEffect(() => {
     void loadData();
@@ -223,6 +224,18 @@ function PainelPage() {
     setSelectedPatientDocument(null);
     setError("");
     setModal("content");
+    try {
+      const [{ data: exerciseLinks, error: exerciseError }, { data: pdfLinks, error: pdfError }] = await Promise.all([
+        supabase.from("patient_exercises").select("exercise_id").eq("patient_id", item.id),
+        supabase.from("patient_pdf_materials").select("pdf_material_id").eq("patient_id", item.id),
+      ]);
+      if (exerciseError) throw exerciseError;
+      if (pdfError) throw pdfError;
+      setSelectedContentExercises(new Set((exerciseLinks ?? []).map((row) => row.exercise_id)));
+      setSelectedContentPdfs(new Set((pdfLinks ?? []).map((row) => row.pdf_material_id)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível carregar os conteúdos vinculados.");
+    }
   }
 
   function toggleContentSelection(setter: Dispatch<SetStateAction<Set<string>>>, id: string) {
@@ -232,6 +245,53 @@ function PainelPage() {
       else next.add(id);
       return next;
     });
+  }
+
+  async function savePatientContent() {
+    if (!contentPatient || !physiotherapistId) return;
+    try {
+      setSavingContent(true);
+      setError("");
+      const { error: exerciseDeleteError } = await supabase.from("patient_exercises").delete().eq("patient_id", contentPatient.id);
+      if (exerciseDeleteError) throw exerciseDeleteError;
+      if (selectedContentExercises.size) {
+        const { error } = await supabase.from("patient_exercises").insert(Array.from(selectedContentExercises).map((exercise_id) => ({ patient_id: contentPatient.id, exercise_id })));
+        if (error) throw error;
+      }
+      const { error: pdfDeleteError } = await supabase.from("patient_pdf_materials").delete().eq("patient_id", contentPatient.id);
+      if (pdfDeleteError) throw pdfDeleteError;
+      if (selectedContentPdfs.size) {
+        const { error } = await supabase.from("patient_pdf_materials").insert(Array.from(selectedContentPdfs).map((pdf_material_id) => ({ patient_id: contentPatient.id, pdf_material_id })));
+        if (error) throw error;
+      }
+      if (selectedPatientDocument) {
+        const safeName = selectedPatientDocument.name.replace(/[^a-zA-Z0-9._-]+/g, "-");
+        const storagePath = `${contentPatient.id}/${crypto.randomUUID()}-${safeName}`;
+        const { error: uploadError } = await supabase.storage.from("patient-documents").upload(storagePath, selectedPatientDocument, { upsert: false });
+        if (uploadError) throw uploadError;
+        const { error: documentError } = await supabase.from("patient_documents").insert({
+          patient_id: contentPatient.id,
+          physiotherapist_id: physiotherapistId,
+          name: selectedPatientDocument.name.replace(/\.[^/.]+$/, ""),
+          file_name: selectedPatientDocument.name,
+          storage_path: storagePath,
+          mime_type: selectedPatientDocument.type || null,
+          file_size: selectedPatientDocument.size,
+        });
+        if (documentError) {
+          await supabase.storage.from("patient-documents").remove([storagePath]);
+          throw documentError;
+        }
+      }
+      setSelectedPatientDocument(null);
+      setContentPatient(null);
+      setPatientToast(`Conteúdos de "${contentPatient.full_name}" atualizados com sucesso.`);
+      closeModal();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível salvar os conteúdos do paciente.");
+    } finally {
+      setSavingContent(false);
+    }
   }
 
   function openSessionCreate(item: Patient) {
@@ -1058,10 +1118,12 @@ function PainelPage() {
           selectedExerciseIds={selectedContentExercises}
           selectedPdfIds={selectedContentPdfs}
           selectedDocument={selectedPatientDocument}
+          saving={savingContent}
           onToggleExercise={(id) => toggleContentSelection(setSelectedContentExercises, id)}
           onTogglePdf={(id) => toggleContentSelection(setSelectedContentPdfs, id)}
           onDocumentChange={setSelectedPatientDocument}
-          close={() => setModal(null)}
+          onSave={savePatientContent}
+          close={closeModal}
         />
       )}
 
@@ -1890,10 +1952,11 @@ function PatientContentModal({
       </div>}
 
       <div className="rounded-xl border border-[#eadcc9] bg-[#fffaf3] px-3 py-2.5 text-[10px] leading-relaxed text-[#8c8178]">
-        As seleções desta tela são específicas para <strong className="font-semibold text-[#754600]">{patient.full_name}</strong>. A gravação definitiva dos vínculos e do documento no banco/Storage será feita na próxima etapa.
+        As seleções desta tela são específicas para <strong className="font-semibold text-[#754600]">{patient.full_name}</strong>. Ao salvar, os vídeos, PDFs e novos documentos passam a ficar disponíveis somente para este paciente.
       </div>
       <div className="flex flex-col-reverse gap-2 pt-1 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" onClick={close} className="h-10 rounded-xl text-xs">Fechar</Button>
+        <Button type="button" variant="outline" onClick={close} disabled={saving} className="h-10 rounded-xl text-xs">Fechar</Button>
+        <Button type="button" onClick={onSave} disabled={saving} className="h-10 rounded-xl bg-[#754600] px-5 text-xs font-semibold text-white hover:bg-[#603800]">{saving ? "Salvando..." : "Salvar conteúdos"}</Button>
       </div>
     </div>
   </Modal>;
