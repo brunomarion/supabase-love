@@ -111,8 +111,12 @@ function LoginPage() {
       const { error } = await signInWithPassword(email, password);
       if (error) { setErrors({ form: authErrorMessage(error) }); return; }
       setRememberedEmail(remember ? email.trim() : null);
+      const { data: currentUser } = await supabase.auth.getUser();
+      const { data: patient } = currentUser.user
+        ? await supabase.from("patients").select("id").eq("auth_user_id", currentUser.user.id).maybeSingle()
+        : { data: null };
       toast.success("Login realizado com sucesso.");
-      navigate({ to: "/painel", replace: true });
+      navigate({ to: patient ? "/paciente" : "/painel", replace: true });
     } catch (error) { setErrors({ form: authErrorMessage(error) }); }
     finally { setSubmitting(false); }
   }
