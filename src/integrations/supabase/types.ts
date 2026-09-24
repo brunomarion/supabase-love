@@ -109,11 +109,11 @@ export type Database = {
       patients: {
         Row: {
           auth_user_id: string | null
-          cpf: string | null
           birth_date: string | null
           cep: string | null
           city: string | null
           complement: string | null
+          cpf: string | null
           created_at: string
           full_name: string
           id: string
@@ -131,11 +131,11 @@ export type Database = {
         }
         Insert: {
           auth_user_id?: string | null
-          cpf?: string | null
           birth_date?: string | null
           cep?: string | null
           city?: string | null
           complement?: string | null
+          cpf?: string | null
           created_at?: string
           full_name: string
           id?: string
@@ -153,11 +153,11 @@ export type Database = {
         }
         Update: {
           auth_user_id?: string | null
-          cpf?: string | null
           birth_date?: string | null
           cep?: string | null
           city?: string | null
           complement?: string | null
+          cpf?: string | null
           created_at?: string
           full_name?: string
           id?: string
