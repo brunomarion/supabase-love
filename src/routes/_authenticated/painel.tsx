@@ -1232,7 +1232,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
                 {p.cpf && <button type="button" onClick={() => toggleCpfVisibility(p.id)} aria-label="Visualizar CPF completo" title="Visualizar CPF completo" className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-[#e2cfb4] bg-[#fffdf9] text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5]"><Eye className="size-3.5" /></button>}
               </div>
               <div className="col-span-1"><Status active={p.status === "active"} /></div>
-              <div className="flex items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+              <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
             </div>
           ))}</div>
         </>}      </div>
@@ -1817,7 +1817,7 @@ function IconButton({ label, onClick, disabled, children }: { label: string; onC
         ? "border-[#3678c4] bg-[#3478c9] text-white shadow-[0_4px_12px_rgba(52,120,201,0.20)] hover:-translate-y-0.5 hover:border-[#2868b5] hover:bg-[#2868b5] hover:shadow-[0_7px_16px_rgba(52,120,201,0.26)]"
         : "border-[#c9d9ef] bg-[#f5f9ff] text-[#2f6fb3] hover:border-[#4d8dcc] hover:bg-[#edf5ff] hover:text-[#245d99]";
 
-  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-200 shadow-[0_3px_10px_rgba(64,48,30,0.10)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 active:shadow-[0_2px_6px_rgba(64,48,30,0.10)] disabled:cursor-not-allowed disabled:opacity-50 ${variant}`}>{children}</button>;
+  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 shrink-0 items-center justify-center rounded-xl border transition-all duration-200 shadow-[0_3px_10px_rgba(64,48,30,0.10)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 active:shadow-[0_2px_6px_rgba(64,48,30,0.10)] disabled:cursor-not-allowed disabled:opacity-50 ${variant}`}>{children}</button>;
 }
 
 function Status({ active }: { active: boolean }) {
