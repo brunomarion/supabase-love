@@ -1088,7 +1088,11 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
 
   function getMaskedCpf(cpf: string | null) {
     if (!cpf) return "Não informado";
-    return "XXX.000.000-XX";
+    const formatted = formatCpf(cpf);
+    if (formatted === "Não informado") return formatted;
+    const digits = formatted.replace(/\D/g, "");
+    if (digits.length !== 11) return formatted;
+    return `${digits.slice(0, 3)}.•••.•••-${digits.slice(9)}`;
   }
 
   const Filter = () => (
