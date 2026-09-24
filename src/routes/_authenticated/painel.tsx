@@ -1809,9 +1809,15 @@ function formatPatientAge(birthDate: string | null) {
   const [year, month, day] = birthDate.split("-").map(Number);
   const today = new Date();
   let years = today.getFullYear() - year;
-  const hasBirthdayPassed = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
-  if (!hasBirthdayPassed) years -= 1;
-  return years === 1 ? "1 ano" : years === 0 ? "Menos de 1 ano" : `${years} anos`;
+  let months = today.getMonth() + 1 - month;
+  const birthdayThisYearPassed = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+  if (!birthdayThisYearPassed) years -= 1;
+  if (today.getDate() < day) months -= 1;
+  if (months < 0) months += 12;
+  if (years === 0) return months === 1 ? "1 mês" : `${months} meses`;
+  const yearLabel = years === 1 ? "1 ano" : `${years} anos`;
+  const monthLabel = months === 1 ? "1 mês" : `${months} meses`;
+  return `${yearLabel} e ${monthLabel}`;
 }
 
 function initials(name: string) {
