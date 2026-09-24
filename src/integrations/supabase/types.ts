@@ -109,6 +109,7 @@ export type Database = {
       patients: {
         Row: {
           auth_user_id: string | null
+          cpf: string | null
           birth_date: string | null
           cep: string | null
           city: string | null
@@ -120,7 +121,6 @@ export type Database = {
           notes: string | null
           number: string | null
           physiotherapist_id: string
-          responsible_email: string | null
           responsible_name: string | null
           responsible_phone: string | null
           sex: string | null
@@ -131,6 +131,7 @@ export type Database = {
         }
         Insert: {
           auth_user_id?: string | null
+          cpf?: string | null
           birth_date?: string | null
           cep?: string | null
           city?: string | null
@@ -142,7 +143,6 @@ export type Database = {
           notes?: string | null
           number?: string | null
           physiotherapist_id: string
-          responsible_email?: string | null
           responsible_name?: string | null
           responsible_phone?: string | null
           sex?: string | null
@@ -153,6 +153,7 @@ export type Database = {
         }
         Update: {
           auth_user_id?: string | null
+          cpf?: string | null
           birth_date?: string | null
           cep?: string | null
           city?: string | null
@@ -164,7 +165,6 @@ export type Database = {
           notes?: string | null
           number?: string | null
           physiotherapist_id?: string
-          responsible_email?: string | null
           responsible_name?: string | null
           responsible_phone?: string | null
           sex?: string | null
