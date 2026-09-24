@@ -61,6 +61,24 @@ export type Database = {
           },
         ]
       }
+      patient_documents: {
+        Row: { id: string; patient_id: string; physiotherapist_id: string; name: string; file_name: string; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string; updated_at: string }
+        Insert: { id?: string; patient_id: string; physiotherapist_id: string; name: string; file_name: string; storage_path: string; mime_type?: string | null; file_size?: number | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; patient_id?: string; physiotherapist_id?: string; name?: string; file_name?: string; storage_path?: string; mime_type?: string | null; file_size?: number | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      patient_exercises: {
+        Row: { patient_id: string; exercise_id: string; created_at: string }
+        Insert: { patient_id: string; exercise_id: string; created_at?: string }
+        Update: { patient_id?: string; exercise_id?: string; created_at?: string }
+        Relationships: []
+      }
+      patient_pdf_materials: {
+        Row: { patient_id: string; pdf_material_id: string; created_at: string }
+        Insert: { patient_id: string; pdf_material_id: string; created_at?: string }
+        Update: { patient_id?: string; pdf_material_id?: string; created_at?: string }
+        Relationships: []
+      }
       patient_sessions: {
         Row: {
           created_at: string
