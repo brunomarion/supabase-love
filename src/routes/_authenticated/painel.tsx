@@ -1817,7 +1817,7 @@ function IconButton({ label, onClick, disabled, children }: { label: string; onC
         ? "border-[#3678c4] bg-[#3478c9] text-white shadow-[0_4px_12px_rgba(52,120,201,0.20)] hover:-translate-y-0.5 hover:border-[#2868b5] hover:bg-[#2868b5] hover:shadow-[0_7px_16px_rgba(52,120,201,0.26)]"
         : "border-[#c9d9ef] bg-[#f5f9ff] text-[#2f6fb3] hover:border-[#4d8dcc] hover:bg-[#edf5ff] hover:text-[#245d99]";
 
-  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${variant}`}>{children}</button>;
+  return <button type="button" aria-label={label} title={label} onClick={onClick} disabled={disabled} className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-200 shadow-[0_3px_10px_rgba(64,48,30,0.10)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 active:shadow-[0_2px_6px_rgba(64,48,30,0.10)] disabled:cursor-not-allowed disabled:opacity-50 ${variant}`}>{children}</button>;
 }
 
 function Status({ active }: { active: boolean }) {
