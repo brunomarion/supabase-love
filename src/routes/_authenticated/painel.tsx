@@ -1206,10 +1206,10 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
           ))}</div>
           <div className="hidden sm:block">{paginatedPatients.map((p) => (
             <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 border-b border-[#d9c8b4] px-3 py-3 sm:grid-cols-[1.35fr_1fr_1.25fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
-              <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">{formatPatientAge(p.birth_date)}</p></div></div>
+              <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">Data de Cadastro: {formatDate(p.created_at)}</p></div></div>
               <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
               <div className="hidden min-w-0 text-sm text-[#5f574f] sm:block"><p className="truncate" title={p.responsible_email || "Não informado"}>{p.responsible_email || "Não informado"}</p></div>
-              <div className="col-span-1 sm:col-span-1"><div className="flex flex-col gap-1"><Status active={p.status === "active"} /><span className="text-[10px] text-[#948a81]">Data de Cadastro: {formatDate(p.created_at)}</span></div></div>
+              <div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div>
               <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
             </div>
           ))}</div>
@@ -1802,20 +1802,6 @@ function Status({ active }: { active: boolean }) {
 
 function Empty({ text }: { text: string }) {
   return <div className="flex min-h-[180px] items-center justify-center p-8 text-center text-xs text-[#8c8178]">{text}</div>;
-}
-
-function formatPatientAge(birthDate: string | null) {
-  if (!birthDate) return "Idade não informada";
-  const [year, month, day] = birthDate.split("-").map(Number);
-  const today = new Date();
-  let years = today.getFullYear() - year;
-  const hasBirthdayPassed = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
-  if (!hasBirthdayPassed) years -= 1;
-  if (years >= 1) return years === 1 ? "1 ano" : `${years} anos`;
-  let months = (today.getFullYear() - year) * 12 + (today.getMonth() + 1 - month);
-  if (today.getDate() < day) months -= 1;
-  months = Math.max(0, months);
-  return months === 1 ? "1 mês" : `${months} meses`;
 }
 
 function initials(name: string) {
