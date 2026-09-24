@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -363,6 +363,22 @@ function PainelPage() {
     } catch {
       // O endereço continua editável manualmente caso o serviço de CEP esteja indisponível.
     }
+  }
+
+  function toggleCpfVisibility(patientId: string) {
+    setVisibleCpfs((current) => {
+      const next = new Set(current);
+      if (next.has(patientId)) next.delete(patientId);
+      else next.add(patientId);
+      return next;
+    });
+  }
+
+  function getMaskedCpf(cpf: string | null) {
+    if (!cpf) return "Não informado";
+    const formatted = formatCpf(cpf);
+    if (formatted.length < 7) return "•••";
+    return `${formatted.slice(0, 3)}.•••.•••-${formatted.slice(-2)}`;
   }
 
   function getPatientAddress(item: Patient) {
@@ -1075,6 +1091,7 @@ function Dashboard({ patients, exercises, animateFirstEntry }: { patients: numbe
 function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, onMap, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onSession: (patient: Patient) => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; onMap: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
   const [patientSearch, setPatientSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [visibleCpfs, setVisibleCpfs] = useState<Set<string>>(new Set());
 
   const Filter = () => (
     <div className="flex items-center gap-2 rounded-2xl border border-[#e6d8c5] bg-white/95 px-3 py-2.5 shadow-[0_6px_20px_rgba(64,48,30,0.07)]">
@@ -1193,7 +1210,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
       
     </div>
     <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d9c9] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.045)]">
-      <div className="hidden grid-cols-[1.5fr_1.1fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>Status</span><span>Ações</span></div>
+      <div className="hidden grid-cols-[1.3fr_1.1fr_1fr_0.8fr_110px] gap-4 border-b border-[#eee5d9] bg-[#fdfbf8] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9a9087] sm:grid"><span>Paciente</span><span>Responsável</span><span>CPF</span><span>Status</span><span>Ações</span></div>
       <div className="h-[calc(100vh-420px)] min-h-[180px] max-h-[calc(100vh-360px)] overflow-y-auto overscroll-contain divide-y divide-[#d9c8b4] sm:h-auto sm:min-h-[220px] sm:max-h-[calc(100vh-250px)]">
         {filteredPatients.length === 0 ? <Empty text={statusFilter === "all" ? "Nenhum paciente cadastrado ainda." : statusFilter === "active" ? "Nenhum paciente ativo encontrado." : "Nenhum paciente inativo encontrado."} /> : <>
           <div className="sm:hidden divide-y divide-[#d9c8b4]">{filteredPatients.map((p) => (
@@ -1205,12 +1222,15 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
             </div>
           ))}</div>
           <div className="hidden sm:block">{paginatedPatients.map((p) => (
-            <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 border-b border-[#d9c8b4] px-3 py-3 sm:grid-cols-[1.5fr_1.1fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
-              <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[10px] text-[#948a81] sm:text-[11px]">Data de Cadastro: {formatDate(p.created_at)}</p></div></div>
-              <div className="text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="sm:hidden font-semibold text-[#746c64]">Responsável: </span>{p.responsible_name || "Não informado"}{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{p.responsible_phone}</span>}</div>
-              
-              <div className="col-span-1 sm:col-span-1"><Status active={p.status === "active"} /></div>
-              <div className="row-span-2 flex items-center justify-end gap-1.5 sm:row-span-1 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+            <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 border-b border-[#d9c8b4] px-3 py-3 sm:grid-cols-[1.3fr_1.1fr_1fr_0.8fr_110px] sm:items-center sm:gap-4 sm:px-5 sm:py-4 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
+              <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold sm:text-sm">{p.full_name}</p><p className="text-[11px] text-[#948a81]">{formatPatientAge(p.birth_date)}</p></div></div>
+              <div className="min-w-0 text-[13px] font-medium text-[#5f574f] sm:text-sm"><span className="truncate">{p.responsible_name || "Não informado"}</span>{p.responsible_phone && <span className="block text-[12px] font-normal text-[#8b8178] sm:text-[13px]">{formatPhone(p.responsible_phone)}</span>}</div>
+              <div className="flex min-w-0 items-center gap-2 text-[12px] font-medium text-[#5f574f]">
+                <span className={`min-w-0 ${visibleCpfs.has(p.id) ? "" : "select-none blur-[5px]"}`}>{visibleCpfs.has(p.id) ? formatCpf(p.cpf ?? "") || "Não informado" : getMaskedCpf(p.cpf)}</span>
+                {p.cpf && <button type="button" onClick={() => toggleCpfVisibility(p.id)} aria-label={visibleCpfs.has(p.id) ? "Ocultar CPF" : "Visualizar CPF completo"} title={visibleCpfs.has(p.id) ? "Ocultar CPF" : "Visualizar CPF completo"} className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-[#e2cfb4] bg-[#fffdf9] text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5]">{visibleCpfs.has(p.id) ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}</button>}
+              </div>
+              <div className="col-span-1"><Status active={p.status === "active"} /></div>
+              <div className="flex items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
             </div>
           ))}</div>
         </>}      </div>
