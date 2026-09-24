@@ -15,6 +15,7 @@ import {
   sendPasswordReset,
   setRememberedEmail,
   signInWithPassword,
+  normalizeCpf,
 } from "@/lib/auth";
 import { useSession } from "@/hooks/use-session";
 
@@ -37,7 +38,8 @@ export const Route = createFileRoute("/")({
   component: LoginPage,
 });
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;\nconst CPF_REGEX = /^\d{11}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CPF_REGEX = /^\d{11}$/;
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -89,8 +91,13 @@ function LoginPage() {
 
   function validate() {
     const next: { email?: string; password?: string } = {};
-    if (!email.trim()) next.email = "Informe seu e-mail.";
-    else if (!EMAIL_REGEX.test(email.trim())) next.email = "Digite um e-mail válido.";
+    if (!email.trim()) next.email = "Informe seu usuário ou CPF.";
+    else {
+      const digits = normalizeCpf(email);
+      const cpfOk = !email.includes("@") && CPF_REGEX.test(digits);
+      const emailOk = email.includes("@") && EMAIL_REGEX.test(email.trim());
+      if (!cpfOk && !emailOk) next.email = "Digite um CPF válido ou um e-mail válido.";
+    }
     if (!password) next.password = "Informe sua senha.";
     setErrors(next);
     return Object.keys(next).length === 0;
