@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FileText, LogOut, Play, RefreshCw, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -93,7 +93,7 @@ function PatientPortal() {
   </main>;
 }
 
-function PortalSection({ title, subtitle, count, children }: { title: string; subtitle: string; count: number; children: React.ReactNode }) {
+function PortalSection({ title, subtitle, count, children }: { title: string; subtitle: string; count: number; children: ReactNode }) {
   return <section><div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{title}</p><h3 className="mt-1 text-lg font-semibold">{subtitle}</h3></div><span className="rounded-full bg-[#f3e3cf] px-3 py-1 text-[10px] font-semibold text-[#754600]">{count}</span></div>{children}</section>;
 }
 
