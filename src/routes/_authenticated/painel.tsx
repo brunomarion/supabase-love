@@ -1964,7 +1964,7 @@ function Empty({ text }: { text: string }) {
 
 function formatPatientAge(birthDate: string | null) {
   if (!birthDate) return "Idade não informada";
-  const [year, month, day] = birthDate.split("-").map(Number);
+  const [year = 0, month = 1, day = 1] = birthDate.split("-").map(Number);
   const today = new Date();
   let years = today.getFullYear() - year;
   let months = today.getMonth() + 1 - month;
