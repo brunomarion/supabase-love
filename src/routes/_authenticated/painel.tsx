@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type Dispatch, type FormEvent, type ReactNode, type SetStateAction } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CalendarPlus, Check, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, FolderOpen, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
@@ -225,7 +225,7 @@ function PainelPage() {
     setModal("content");
   }
 
-  function toggleContentSelection(setter: React.Dispatch<React.SetStateAction<Set<string>>>, id: string) {
+  function toggleContentSelection(setter: Dispatch<SetStateAction<Set<string>>>, id: string) {
     setter((current) => {
       const next = new Set(current);
       if (next.has(id)) next.delete(id);
