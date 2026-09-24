@@ -62,22 +62,124 @@ export type Database = {
         ]
       }
       patient_documents: {
-        Row: { id: string; patient_id: string; physiotherapist_id: string; name: string; file_name: string; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string; updated_at: string }
-        Insert: { id?: string; patient_id: string; physiotherapist_id: string; name: string; file_name: string; storage_path: string; mime_type?: string | null; file_size?: number | null; created_at?: string; updated_at?: string }
-        Update: { id?: string; patient_id?: string; physiotherapist_id?: string; name?: string; file_name?: string; storage_path?: string; mime_type?: string | null; file_size?: number | null; created_at?: string; updated_at?: string }
-        Relationships: []
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          name: string
+          patient_id: string
+          physiotherapist_id: string
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name: string
+          patient_id: string
+          physiotherapist_id: string
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          name?: string
+          patient_id?: string
+          physiotherapist_id?: string
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_documents_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_exercises: {
-        Row: { patient_id: string; exercise_id: string; created_at: string }
-        Insert: { patient_id: string; exercise_id: string; created_at?: string }
-        Update: { patient_id?: string; exercise_id?: string; created_at?: string }
-        Relationships: []
+        Row: {
+          created_at: string
+          exercise_id: string
+          patient_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          patient_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          patient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_exercises_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_pdf_materials: {
-        Row: { patient_id: string; pdf_material_id: string; created_at: string }
-        Insert: { patient_id: string; pdf_material_id: string; created_at?: string }
-        Update: { patient_id?: string; pdf_material_id?: string; created_at?: string }
-        Relationships: []
+        Row: {
+          created_at: string
+          patient_id: string
+          pdf_material_id: string
+        }
+        Insert: {
+          created_at?: string
+          patient_id: string
+          pdf_material_id: string
+        }
+        Update: {
+          created_at?: string
+          patient_id?: string
+          pdf_material_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_pdf_materials_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_pdf_materials_pdf_material_id_fkey"
+            columns: ["pdf_material_id"]
+            isOneToOne: false
+            referencedRelation: "pdf_materials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       patient_sessions: {
         Row: {

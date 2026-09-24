@@ -11,7 +11,20 @@ type Exercise = Tables<"exercises">;
 type PdfMaterial = Tables<"pdf_materials">;
 type PatientDocument = Tables<"patient_documents">;
 
-export const Route = createFileRoute("/paciente")({ ssr: false, component: PatientPortal });
+export const Route = createFileRoute("/paciente")({
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Área do paciente | Erick Paulino Fisioterapia" },
+      { name: "description", content: "Acesse exercícios e materiais liberados pelo seu fisioterapeuta." },
+      { property: "og:title", content: "Área do paciente | Erick Paulino Fisioterapia" },
+      { property: "og:description", content: "Acesse exercícios e materiais liberados pelo seu fisioterapeuta." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: PatientPortal,
+});
 
 function PatientPortal() {
   const navigate = useNavigate();

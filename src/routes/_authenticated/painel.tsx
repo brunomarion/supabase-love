@@ -1876,6 +1876,8 @@ function PatientContentModal({
   onToggleExercise,
   onTogglePdf,
   onDocumentChange,
+  onSave,
+  saving,
   close,
 }: {
   patient: Patient;
@@ -1887,6 +1889,8 @@ function PatientContentModal({
   onToggleExercise: (id: string) => void;
   onTogglePdf: (id: string) => void;
   onDocumentChange: (file: File | null) => void;
+  onSave: () => void | Promise<void>;
+  saving: boolean;
   close: () => void;
 }) {
   const [section, setSection] = useState<"videos" | "pdfs" | "document">("videos");
