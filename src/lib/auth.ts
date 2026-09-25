@@ -7,13 +7,14 @@ function normalizeCpf(value: string) {
 }
 
 function cpfToAuthEmail(cpf: string) {
-  return `${normalizeCpf(cpf)}@patient.erickfisio.local`;
+  return normalizeCpf(cpf) + "@pacientes.erickfisio.local";
 }
 
 export async function signInWithPassword(identifier: string, password: string) {
   const value = identifier.trim();
   const cpf = normalizeCpf(value);
   const isCpf = cpf.length === 11 && !value.includes("@");
+
   return supabase.auth.signInWithPassword({
     email: isCpf ? cpfToAuthEmail(cpf) : value,
     password,
