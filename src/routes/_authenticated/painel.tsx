@@ -91,6 +91,7 @@ function PainelPage() {
   const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
   const [confirmPdf, setConfirmPdf] = useState<PdfMaterial | null>(null);
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [patientFieldErrors, setPatientFieldErrors] = useState<{ cpf?: string; password?: string }>({});
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
@@ -549,8 +550,19 @@ function PainelPage() {
 
   async function savePatient(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setPatientFieldErrors({});
     if (!patient.full_name.trim()) {
       setError("Informe o nome completo do paciente.");
+      return;
+    }
+
+    const normalizedCpf = patient.cpf.replace(/\D/g, "");
+    if (!normalizedCpf) {
+      setPatientFieldErrors({ cpf: "Informe o CPF do paciente." });
+      return;
+    }
+    if (patient.password.length > 0 && patient.password.length < 6) {
+      setPatientFieldErrors({ password: "A senha deve ter pelo menos 6 caracteres." });
       return;
     }
 
@@ -612,8 +624,14 @@ function PainelPage() {
         await loadData();
       } else {
         if (!physiotherapistId) throw new Error("Fisioterapeuta não identificado.");
-        if (!patient.cpf.trim()) throw new Error("O CPF é necessário para criar o acesso.");
-        if (patient.password.length < 6) throw new Error("A senha deve ter pelo menos 6 caracteres.");
+        if (!patient.cpf.trim()) {
+          setPatientFieldErrors({ cpf: "O CPF é necessário para criar o acesso." });
+          return;
+        }
+        if (patient.password.length < 6) {
+          setPatientFieldErrors({ password: "A senha deve ter pelo menos 6 caracteres." });
+          return;
+        }
 
         const { data: createData, error: functionError } = await supabase.functions.invoke("criar_paciente", {
           body: {
@@ -693,7 +711,17 @@ function PainelPage() {
       setPatient(emptyPatient);
       if (!editingPatient) await loadData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível salvar o paciente.");
+      const message = err instanceof Error ? err.message : "Não foi possível salvar o paciente.";
+      const normalizedMessage = message.toLowerCase();
+      if (normalizedMessage.includes("cpf") && (normalizedMessage.includes("já") || normalizedMessage.includes("cadastrad") || normalizedMessage.includes("exist"))) {
+        setPatientFieldErrors({ cpf: "Este CPF já está cadastrado." });
+        return;
+      }
+      if (normalizedMessage.includes("senha") && (normalizedMessage.includes("6") || normalizedMessage.includes("caract"))) {
+        setPatientFieldErrors({ password: "A senha deve ter pelo menos 6 caracteres." });
+        return;
+      }
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -1003,9 +1031,9 @@ function PainelPage() {
               <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
             </div>
             <div className="space-y-4">
-              <Field label="CPF" value={patient.cpf} onChange={(v) => setPatient({ ...patient, cpf: formatCpf(v) })} placeholder="000.000.000-00" inputMode="numeric" required />
-              {editingPatient && <Field label="Nova senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Deixe em branco para manter a senha atual" />}
-              {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required />}
+              <Field label="CPF" value={patient.cpf} onChange={(v) => setPatient({ ...patient, cpf: formatCpf(v) })} placeholder="000.000.000-00" inputMode="numeric" required error={patientFieldErrors.cpf} />
+              {editingPatient && <Field label="Nova senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Deixe em branco para manter a senha atual" error={patientFieldErrors.password} />}
+              {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required error={patientFieldErrors.password} />}
               <div className="block">
               <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Status</span>
               <label className={`flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3 transition ${
@@ -1928,13 +1956,12 @@ function DeletePdfModal({ pdf, loading, close, confirm }: { pdf: PdfMaterial; lo
   </motion.div>;
 }
 
-function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false, inputMode }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: "text" | "tel" | "numeric" | "email"; required?: boolean; type?: string; multiline?: boolean }) {
+function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false, inputMode, error }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: "text" | "tel" | "numeric" | "email"; required?: boolean; type?: string; multiline?: boolean; error?: string }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
-  const className="w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10";
-  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} rows={3} className={`${className} min-h-24 py-3 resize-none`} /> : <div className="relative"><input type={isPassword && showPassword ? "text" : type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} className={`${className} h-11 appearance-none ${type === "date" ? "min-w-0 w-full block text-left" : ""} ${isPassword ? "pr-11" : ""}`} />{isPassword && <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? "Ocultar senha" : "Visualizar senha"} title={showPassword ? "Ocultar senha" : "Visualizar senha"} className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#A97A3C] transition hover:bg-[#f3e7d6] focus:outline-none focus:ring-2 focus:ring-[#BA9051]/20">{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>}</div>}</label>;
+  const className = "w-full rounded-xl border " + (error ? "border-[#d34f4f] bg-[#fff7f7]" : "border-[#e6d8c5] bg-[#fdfbf8]") + " px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10";
+  return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} rows={3} className={className + " min-h-24 py-3 resize-none"} /> : <div className="relative"><input type={isPassword && showPassword ? "text" : type} inputMode={inputMode} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} className={className + " h-11 appearance-none " + (type === "date" ? "min-w-0 w-full block text-left" : "") + (isPassword ? " pr-11" : "")} />{isPassword && <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? "Ocultar senha" : "Visualizar senha"} title={showPassword ? "Ocultar senha" : "Visualizar senha"} className="absolute right-3 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-lg text-[#A97A3C] transition hover:bg-[#f3e7d6] focus:outline-none focus:ring-2 focus:ring-[#BA9051]/20">{showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}</button>}</div>}{error && <span className="mt-1.5 block text-[11px] font-medium text-[#d34f4f]">{error}</span>}</label>;
 }
-
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
   return <label className="block"><span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="h-11 w-full rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10">{options.map(([optionValue, optionLabel]) => <option key={optionValue} value={optionValue}>{optionLabel}</option>)}</select></label>;
 }
