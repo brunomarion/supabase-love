@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,14 @@ import type { Tables } from "@/integrations/supabase/types";
 const logo = "/images/logo-editada-chatgpt.png";
 
 export const Route = createFileRoute("/_authenticated/painel")({
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/" });
+    if (data.user.user_metadata?.account_type === "patient") {
+      throw redirect({ to: "/paciente" });
+    }
+    return { user: data.user };
+  },
   head: () => ({ meta: [
     { title: "Painel | Erick Paulino Fisioterapia" },
     { name: "description", content: "Painel administrativo do fisioterapeuta Erick Paulino." },
