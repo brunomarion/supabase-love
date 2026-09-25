@@ -65,7 +65,10 @@ function LoginPage() {
   }, []);
 
   useEffect(() => {
-    if (!sessionLoading && session) navigate({ to: "/painel", replace: true });
+    if (!sessionLoading && session) {
+      const isPatient = session.user.user_metadata?.account_type === "patient";
+      navigate({ to: isPatient ? "/paciente" : "/painel", replace: true });
+    }
   }, [session, sessionLoading, navigate]);
 
   useEffect(() => {
@@ -103,11 +106,12 @@ function LoginPage() {
     if (submitting || !validate()) return;
     setSubmitting(true); setErrors({});
     try {
-      const { error } = await signInWithPassword(email, password);
+      const { data, error } = await signInWithPassword(email, password);
       if (error) { setErrors({ form: authErrorMessage(error) }); return; }
       setRememberedEmail(remember ? email.trim() : null);
       toast.success("Login realizado com sucesso.");
-      navigate({ to: "/painel", replace: true });
+      const isPatient = data.user?.user_metadata?.account_type === "patient";
+      navigate({ to: isPatient ? "/paciente" : "/painel", replace: true });
     } catch (error) { setErrors({ form: authErrorMessage(error) }); }
     finally { setSubmitting(false); }
   }
