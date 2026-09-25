@@ -1,35 +1,34 @@
 import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, Menu, X } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
+
+const logo = "/images/logo-editada-chatgpt.png";
 
 export const Route = createFileRoute("/_authenticated/paciente")({
   head: () => ({
     meta: [
-      { title: "Área do Paciente | Erick Paulino Fisioterapia" },
+      { title: "Painel | Erick Paulino Fisioterapia" },
+      { name: "description", content: "Área exclusiva do paciente." },
       { name: "robots", content: "noindex" },
     ],
   }),
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
-
-    if (error || !data.user) {
-      throw redirect({ to: "/" });
-    }
-
+    if (error || !data.user) throw redirect({ to: "/" });
     if (data.user.user_metadata?.account_type !== "patient") {
       throw redirect({ to: "/painel" });
     }
-
     return { user: data.user };
   },
   component: PatientPage,
 });
 
-type PatientTab = "dashboard" | "exercicios" | "documentos";
+type Tab = "dashboard" | "exercicios" | "documentos";
 
-const nav: { id: PatientTab; label: string; icon: typeof Home }[] = [
+const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
   { id: "exercicios", label: "Exercícios", icon: Dumbbell },
   { id: "documentos", label: "Documentos", icon: FileText },
@@ -37,233 +36,141 @@ const nav: { id: PatientTab; label: string; icon: typeof Home }[] = [
 
 function PatientPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<PatientTab>("dashboard");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [tab, setTab] = useState<Tab>("dashboard");
+  const [isFirstDashboardEntry, setIsFirstDashboardEntry] = useState(true);
   const [patientName, setPatientName] = useState("Paciente");
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-
     void supabase.auth.getUser().then(({ data }) => {
-      if (!mounted || !data.user) return;
-      const name = data.user.user_metadata?.full_name;
-      if (typeof name === "string" && name.trim()) {
-        setPatientName(name.trim());
-      }
+      const name = data.user?.user_metadata?.full_name;
+      if (typeof name === "string" && name.trim()) setPatientName(name.trim());
     });
+  }, []);
 
-    return () => {
-      mounted = false;
-    };
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsFirstDashboardEntry(false), 1400);
+    return () => window.clearTimeout(timer);
   }, []);
 
   async function logout() {
     await signOut();
+    setConfirmLogout(false);
     navigate({ to: "/", replace: true });
   }
 
-  function selectTab(nextTab: PatientTab) {
-    setTab(nextTab);
-    setMenuOpen(false);
-  }
-
   return (
-    <main className="min-h-screen bg-[#f8f6f2] text-[#2d2823]">
+    <main className={`h-screen overflow-hidden text-[#2D2823] lg:bg-[#faf8f4] ${tab === "dashboard" ? "bg-[linear-gradient(to_top,#c09a66_0%,#ffffff_78%,#ffffff_100%)]" : "bg-[#faf8f4]"}`}>
       <div className="flex min-h-screen">
-        <aside className="hidden w-[255px] shrink-0 border-r border-[#e6d8c5] bg-white lg:flex lg:flex-col">
-          <div className="flex h-[92px] items-center justify-center border-b border-[#eee6dc] px-7">
-            <img
-              src="/images/logo-editada-chatgpt.png"
-              alt="Erick Paulino Fisioterapia"
-              className="h-auto max-h-16 w-full object-contain"
-            />
+        <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
+          <div className="flex h-[92px] items-center justify-center border-b border-[#eee5d9] px-4">
+            <img src={logo} alt="Erick Paulino Fisioterapeuta" className="h-full w-full object-contain" />
           </div>
 
-          <nav className="flex-1 space-y-2 px-4 py-7">
-            {nav.map((item) => {
-              const Icon = item.icon;
-              const active = tab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => selectTab(item.id)}
-                  className={`group flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-sm font-semibold transition-all duration-200 ${
-                    active
-                      ? "bg-[linear-gradient(135deg,#ba9051,#a97a3c)] text-white shadow-[0_10px_25px_rgba(169,122,60,0.24)]"
-                      : "text-[#746c64] hover:bg-[#f7f0e7] hover:text-[#a97a3c]"
-                  }`}
-                >
-                  <Icon className="size-[19px]" strokeWidth={1.8} />
-                  {item.label}
-                </button>
-              );
-            })}
+          <nav className="flex-1 space-y-1 px-4 py-6">
+            {nav.map(({ id, label, icon: Icon }) => (
+              <button key={id} type="button" onClick={() => setTab(id)} data-active={tab === id ? "true" : "false"} className={`premium-tab-button flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-[13px] font-medium transition ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C] shadow-[inset_3px_0_0_#BA9051]" : "text-[#746C64] hover:bg-[#faf7f2] hover:text-[#2D2823]"}`}>
+                <Icon className={tab === id ? "size-[18px] text-[#BA9051]" : "size-[18px] text-[#9b9084]"} strokeWidth={1.8} />{label}
+              </button>
+            ))}
           </nav>
 
-          <div className="border-t border-[#eee6dc] p-4">
-            <button
-              type="button"
-              onClick={() => void logout()}
-              className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-semibold text-[#746c64] transition hover:bg-[#f7f0e7] hover:text-[#a97a3c]"
-            >
-              <LogOut className="size-[19px]" strokeWidth={1.8} />
-              Sair
+          <div className="border-t border-[#eee5d9] p-4">
+            <button type="button" onClick={() => setConfirmLogout(true)} className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-[#c94b4b] transition hover:bg-[#fff0f0] hover:text-[#b83d3d]">
+              <LogOut className="size-[18px]" /> Sair
             </button>
           </div>
         </aside>
 
-        {menuOpen ? (
-          <div className="fixed inset-0 z-50 bg-black/20 lg:hidden" onClick={() => setMenuOpen(false)}>
-            <aside
-              className="flex h-full w-[285px] flex-col border-r border-[#e6d8c5] bg-white shadow-[10px_0_40px_rgba(45,40,35,0.12)]"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <div className="flex h-[88px] items-center justify-between border-b border-[#eee6dc] px-5">
-                <img
-                  src="/images/logo-editada-chatgpt.png"
-                  alt="Erick Paulino Fisioterapia"
-                  className="h-auto max-h-14 w-[190px] object-contain"
-                />
-                <button type="button" onClick={() => setMenuOpen(false)} className="rounded-xl p-2 text-[#746c64] hover:bg-[#f7f0e7]">
-                  <X className="size-5" />
-                </button>
-              </div>
-
-              <nav className="flex-1 space-y-2 px-4 py-6">
-                {nav.map((item) => {
-                  const Icon = item.icon;
-                  const active = tab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => selectTab(item.id)}
-                      className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-left text-sm font-semibold ${
-                        active ? "bg-[linear-gradient(135deg,#ba9051,#a97a3c)] text-white shadow-[0_10px_25px_rgba(169,122,60,0.24)]" : "text-[#746c64] hover:bg-[#f7f0e7]"
-                      }`}
-                    >
-                      <Icon className="size-[19px]" strokeWidth={1.8} />
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </nav>
-
-              <div className="border-t border-[#eee6dc] p-4">
-                <button type="button" onClick={() => void logout()} className="flex w-full items-center gap-3 rounded-2xl px-4 py-3.5 text-sm font-semibold text-[#746c64] hover:bg-[#f7f0e7]">
-                  <LogOut className="size-[19px]" strokeWidth={1.8} />
-                  Sair
-                </button>
-              </div>
-            </aside>
-          </div>
-        ) : null}
-
-        <section className="min-w-0 flex-1">
-          <header className="sticky top-0 z-30 flex h-[76px] items-center justify-between border-b border-[#e6d8c5] bg-white/95 px-4 shadow-[0_4px_18px_rgba(45,40,35,0.04)] backdrop-blur md:px-7 lg:px-9">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setMenuOpen(true)}
-                className="rounded-xl border border-[#e6d8c5] bg-white p-2.5 text-[#746c64] shadow-sm lg:hidden"
-                aria-label="Abrir menu"
-              >
-                <Menu className="size-5" />
+        <div className="min-w-0 flex-1 overflow-hidden pb-24 lg:pb-0">
+          <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
+            <div className="flex items-center justify-center lg:hidden">
+              <img src={logo} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
+              <button type="button" onClick={() => setConfirmLogout(true)} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]">
+                <LogOut className="size-4" /> Sair
               </button>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#ba9051]">Área do paciente</p>
-                <h1 className="text-lg font-semibold text-[#2d2823] md:text-xl">{nav.find((item) => item.id === tab)?.label}</h1>
-              </div>
-            </div>
-            <div className="hidden items-center gap-3 rounded-2xl border border-[#e6d8c5] bg-[#fcfaf7] px-4 py-2.5 sm:flex">
-              <div className="flex size-9 items-center justify-center rounded-full bg-[#f1e3d0] text-[#a97a3c]">
-                <span className="text-sm font-bold">{patientName.charAt(0).toUpperCase()}</span>
-              </div>
-              <div className="max-w-[190px]">
-                <p className="truncate text-sm font-semibold text-[#2d2823]">{patientName}</p>
-                <p className="text-xs text-[#746c64]">Paciente</p>
-              </div>
             </div>
           </header>
 
-          <div className="mx-auto w-full max-w-[1450px] p-4 md:p-7 lg:p-9">
-            {tab === "dashboard" && (
-              <div className="space-y-7">
-                <section className="rounded-[2rem] border border-[#e6d8c5] bg-[radial-gradient(circle_at_top_right,rgba(186,144,81,0.18),transparent_38%),linear-gradient(145deg,#ffffff_0%,#fcfaf7_52%,#f5eee4_100%)] p-6 shadow-[0_20px_55px_rgba(64,48,30,0.08)] md:p-9">
-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#ba9051]">Bem-vindo</p>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#2d2823] md:text-3xl">
-                    Olá, {patientName.split(" ")[0]}!
-                  </h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#746c64] md:text-base">
-                    Acompanhe aqui seus exercícios e os documentos disponibilizados pelo seu fisioterapeuta.
-                  </p>
-                </section>
-
-                <div className="grid gap-5 md:grid-cols-2">
-                  <button
-                    type="button"
-                    onClick={() => setTab("exercicios")}
-                    className="group rounded-[1.7rem] border border-[#e6d8c5] bg-white p-6 text-left shadow-[0_14px_35px_rgba(64,48,30,0.06)] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(64,48,30,0.10)]"
-                  >
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#f3e5d2] text-[#a97a3c]">
-                      <Dumbbell className="size-6" strokeWidth={1.8} />
-                    </span>
-                    <h3 className="mt-5 text-lg font-semibold">Meus exercícios</h3>
-                    <p className="mt-1 text-sm text-[#746c64]">Acesse os exercícios indicados para o seu tratamento.</p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTab("documentos")}
-                    className="group rounded-[1.7rem] border border-[#e6d8c5] bg-white p-6 text-left shadow-[0_14px_35px_rgba(64,48,30,0.06)] transition hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(64,48,30,0.10)]"
-                  >
-                    <span className="flex size-12 items-center justify-center rounded-2xl bg-[#f3e5d2] text-[#a97a3c]">
-                      <FileText className="size-6" strokeWidth={1.8} />
-                    </span>
-                    <h3 className="mt-5 text-lg font-semibold">Meus documentos</h3>
-                    <p className="mt-1 text-sm text-[#746c64]">Consulte os materiais disponibilizados para você.</p>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {tab === "exercicios" && (
-              <section className="rounded-[2rem] border border-[#e6d8c5] bg-white p-6 shadow-[0_18px_45px_rgba(64,48,30,0.07)] md:p-8">
-                <div className="flex items-center gap-4">
-                  <span className="flex size-12 items-center justify-center rounded-2xl bg-[#f3e5d2] text-[#a97a3c]">
-                    <Dumbbell className="size-6" strokeWidth={1.8} />
-                  </span>
-                  <div>
-                    <h2 className="text-2xl font-semibold">Exercícios</h2>
-                    <p className="mt-1 text-sm text-[#746c64]">Seus exercícios serão exibidos aqui.</p>
-                  </div>
-                </div>
-                <div className="mt-8 rounded-2xl border border-dashed border-[#d9c8b2] bg-[#fcfaf7] p-8 text-center text-sm text-[#746c64]">
-                  Nenhum exercício disponível no momento.
-                </div>
-              </section>
-            )}
-
-            {tab === "documentos" && (
-              <section className="rounded-[2rem] border border-[#e6d8c5] bg-white p-6 shadow-[0_18px_45px_rgba(64,48,30,0.07)] md:p-8">
-                <div className="flex items-center gap-4">
-                  <span className="flex size-12 items-center justify-center rounded-2xl bg-[#f3e5d2] text-[#a97a3c]">
-                    <FileText className="size-6" strokeWidth={1.8} />
-                  </span>
-                  <div>
-                    <h2 className="text-2xl font-semibold">Documentos</h2>
-                    <p className="mt-1 text-sm text-[#746c64]">Seus materiais serão exibidos aqui.</p>
-                  </div>
-                </div>
-                <div className="mt-8 rounded-2xl border border-dashed border-[#d9c8b2] bg-[#fcfaf7] p-8 text-center text-sm text-[#746c64]">
-                  Nenhum documento disponível no momento.
-                </div>
-              </section>
-            )}
+          <div className="mx-auto h-full max-w-[1400px] overflow-hidden px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-14">
+            <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
+              {tab === "dashboard" && (
+                <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} />
+              )}
+              {tab === "exercicios" && (
+                <Placeholder icon={Dumbbell} title="Exercícios" text="Aqui serão exibidos os exercícios disponibilizados pelo seu fisioterapeuta." />
+              )}
+              {tab === "documentos" && (
+                <Placeholder icon={FileText} title="Documentos" text="Aqui serão exibidos os documentos disponibilizados pelo seu fisioterapeuta." />
+              )}
+            </motion.div>
           </div>
-        </section>
+        </div>
       </div>
+
+      <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-3 items-stretch gap-1 rounded-2xl border border-[#dfd0bb] bg-white/95 px-2 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
+        {nav.map(({ id, label, icon: Icon }) => (
+          <button key={id} type="button" onClick={() => setTab(id)} data-active={tab === id ? "true" : "false"} className={`premium-tab-button flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[9px] font-medium transition ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c] hover:bg-[#faf7f2]"}`}>
+            <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <AnimatePresence mode="wait">
+        {confirmLogout && (
+          <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/35 px-4 backdrop-blur-[2px]">
+            <motion.div initial={{ opacity: 0, y: 12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.98 }} className="w-full max-w-md rounded-[1.5rem] border border-[#e6d8c5] bg-white p-6 shadow-[0_25px_70px_rgba(45,40,35,0.20)]">
+              <h2 className="text-lg font-semibold text-[#2D2823]">Sair da conta?</h2>
+              <p className="mt-2 text-sm text-[#746C64]">Você será desconectado desta área do paciente.</p>
+              <div className="mt-6 flex justify-end gap-3">
+                <button type="button" onClick={() => setConfirmLogout(false)} className="rounded-xl border border-[#e6d8c5] px-4 py-2.5 text-sm font-medium text-[#746C64]">Cancelar</button>
+                <button type="button" onClick={() => void logout()} className="rounded-xl bg-[#ba9051] px-4 py-2.5 text-sm font-semibold text-white">Sair</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </main>
+  );
+}
+
+function Dashboard({ name, animateFirstEntry }: { name: string; animateFirstEntry: boolean }) {
+  return (
+    <div className="space-y-8">
+      <section className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 shadow-[0_10px_30px_rgba(64,48,30,0.06)] sm:p-8">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#BA9051]">Painel</p>
+        <h1 className="mt-2 text-2xl font-semibold text-[#2D2823] sm:text-3xl">Olá, {name.split(" ")[0]}!</h1>
+        <p className="mt-2 text-sm text-[#746C64]">Acompanhe aqui os conteúdos disponibilizados pelo seu fisioterapeuta.</p>
+      </section>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        <button type="button" className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
+          <Dumbbell className="size-6 text-[#BA9051]" strokeWidth={1.8} />
+          <h2 className="mt-4 text-lg font-semibold">Exercícios</h2>
+          <p className="mt-1 text-sm text-[#746C64]">Acesse os exercícios indicados para você.</p>
+        </button>
+        <button type="button" className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
+          <FileText className="size-6 text-[#BA9051]" strokeWidth={1.8} />
+          <h2 className="mt-4 text-lg font-semibold">Documentos</h2>
+          <p className="mt-1 text-sm text-[#746C64]">Consulte os materiais disponibilizados para você.</p>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Placeholder({ icon: Icon, title, text }: { icon: typeof Home; title: string; text: string }) {
+  return (
+    <section className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 shadow-[0_10px_30px_rgba(64,48,30,0.06)] sm:p-8">
+      <div className="flex items-center gap-4">
+        <span className="flex size-12 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]">
+          <Icon className="size-6" strokeWidth={1.8} />
+        </span>
+        <div>
+          <h1 className="text-xl font-semibold text-[#2D2823] sm:text-2xl">{title}</h1>
+          <p className="mt-1 text-sm text-[#746C64]">{text}</p>
+        </div>
+      </div>
+    </section>
   );
 }
