@@ -93,17 +93,26 @@ function PatientPage() {
           </header>
 
           <div className="mx-auto h-full max-w-[1400px] overflow-hidden px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-14">
-            <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
-              {tab === "dashboard" && (
-                <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} />
-              )}
-              {tab === "exercicios" && (
-                <Placeholder icon={Dumbbell} title="Exercícios" text="Aqui serão exibidos os exercícios disponibilizados pelo seu fisioterapeuta." />
-              )}
-              {tab === "documentos" && (
-                <Placeholder icon={FileText} title="Documentos" text="Aqui serão exibidos os documentos disponibilizados pelo seu fisioterapeuta." />
-              )}
-            </motion.div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={tab}
+                className="premium-tab-content"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.36, ease: "easeOut" }}
+              >
+                {tab === "dashboard" && (
+                  <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} />
+                )}
+                {tab === "exercicios" && (
+                  <Placeholder icon={Dumbbell} title="Exercícios" text="Aqui serão exibidos os exercícios disponibilizados pelo seu fisioterapeuta." />
+                )}
+                {tab === "documentos" && (
+                  <Placeholder icon={FileText} title="Documentos" text="Aqui serão exibidos os documentos disponibilizados pelo seu fisioterapeuta." />
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
