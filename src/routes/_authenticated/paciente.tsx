@@ -118,16 +118,54 @@ function PatientPage() {
 
       <AnimatePresence mode="wait">
         {confirmLogout && (
-          <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/35 px-4 backdrop-blur-[2px]">
-            <motion.div initial={{ opacity: 0, y: 12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.98 }} className="w-full max-w-md rounded-[1.5rem] border border-[#e6d8c5] bg-white p-6 shadow-[0_25px_70px_rgba(45,40,35,0.20)]">
-              <h2 className="text-lg font-semibold text-[#2D2823]">Sair da conta?</h2>
-              <p className="mt-2 text-sm text-[#746C64]">Você será desconectado desta área do paciente.</p>
-              <div className="mt-6 flex justify-end gap-3">
-                <button type="button" onClick={() => setConfirmLogout(false)} className="rounded-xl border border-[#e6d8c5] px-4 py-2.5 text-sm font-medium text-[#746C64]">Cancelar</button>
-                <button type="button" onClick={() => void logout()} className="rounded-xl bg-[#ba9051] px-4 py-2.5 text-sm font-semibold text-white">Sair</button>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
+            className="premium-modal-backdrop fixed inset-0 z-[80] flex items-center justify-center bg-[#2D2823]/40 p-4 backdrop-blur-sm"
+            onClick={(e) => e.target === e.currentTarget && setConfirmLogout(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97, y: 8 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]"
+            >
+              <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+              <div className="p-6 sm:p-7">
+                <div className="flex items-start gap-4">
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#f8f0e5] text-[#A97A3C]">
+                    <LogOut className="size-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2 className="text-base font-semibold text-[#2D2823]">Deseja mesmo sair?</h2>
+                    <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">
+                      Deseja mesmo sair do sistema? Você precisará fazer login novamente para acessar o sistema.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmLogout(false)}
+                    className="h-10 rounded-xl border border-[#e6d8c5] px-4 text-xs font-medium text-[#746C64]"
+                  >
+                    Continuar no sistema
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#c94b4b] px-4 text-xs font-semibold text-white transition hover:bg-[#b83d3d]"
+                  >
+                    <LogOut className="size-4" />
+                    Sim, sair do sistema
+                  </button>
+                </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </main>
