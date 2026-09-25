@@ -26,8 +26,6 @@ export const Route = createFileRoute("/_authenticated/paciente")({
 });
 
 function PatientPage() {
-  const { data: sessionData } = supabase.auth.onAuthStateChange(() => {});
-  
   return (
     <main className="min-h-screen bg-[#fcfaf7] px-6 py-10 text-[#2d2823]">
       <div className="mx-auto max-w-5xl">
