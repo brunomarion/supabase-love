@@ -84,8 +84,8 @@ function LoginPage() {
 
   function validate() {
     const next: { email?: string; password?: string } = {};
-    if (!email.trim()) next.email = "Informe seu e-mail.";
-    else if (!EMAIL_REGEX.test(email.trim())) next.email = "Digite um e-mail válido.";
+    if (!email.trim()) next.email = "Informe seu CPF.";
+    else if (!isCpf(email.trim())) next.email = "Digite um CPF válido.";
     if (!password) next.password = "Informe sua senha.";
     setErrors(next);
     return Object.keys(next).length === 0;
