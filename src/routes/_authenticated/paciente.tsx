@@ -355,9 +355,9 @@ function ContentState({ loading, error, onRetry }: { loading: boolean; error: st
 }
 
 function ExercisesTab({ exercises, patientName, loading, error, onRetry, onView }: { exercises: Exercise[]; patientName: string; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios recomendados pelo Tio Erick para {patientName.split(" ")[0]}." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle={`Exercícios recomendados pelo Tio Erick para ${patientName.split(" ")[0]}.`} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
-    <SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." />
+    <SectionHeader icon={Dumbbell} title="Exercícios" subtitle={`Exercícios recomendados pelo Tio Erick para ${patientName.split(" ")[0]}.`} />
     {exercises.length === 0 ? <EmptyContent icon={Dumbbell} title="Nenhum exercício disponível" text="Seu fisioterapeuta ainda não liberou exercícios para sua conta." /> :
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{exercises.map((exercise) => (
         <article key={exercise.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
