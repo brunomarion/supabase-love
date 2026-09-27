@@ -269,7 +269,7 @@ function PatientPage() {
 function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTab }: { name: string; animateFirstEntry: boolean; exerciseCount: number; documentCount: number; onTab: (tab: Tab) => void }) {
   return (
     <div className="space-y-8">
-      <section className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 shadow-[0_10px_30px_rgba(64,48,30,0.06)] sm:p-8">
+      <section className="p-0">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#BA9051]">Painel</p>
         <h1 className="mt-2 text-2xl font-semibold text-[#2D2823] sm:text-3xl">Olá, {name.split(" ")[0]}!</h1>
         <p className="mt-2 text-sm text-[#746C64]">Acompanhe aqui os conteúdos disponibilizados pelo seu fisioterapeuta.</p>
@@ -328,6 +328,7 @@ function ExercisesTab({ exercises, loading, error, onRetry, onView }: { exercise
         <article key={exercise.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
           <div className="relative aspect-video bg-[#f4eee6]">
             {exercise.thumbnail_url ? <img src={exercise.thumbnail_url} alt={exercise.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-[#BA9051]"><Dumbbell className="size-10" strokeWidth={1.4} /></div>}
+            <button type="button" onClick={() => onView(exercise)} aria-label={`Reproduzir ${exercise.name}`} className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(45,40,35,0.22)] transition hover:scale-105 hover:bg-white sm:size-16"><Play className="ml-0.5 size-7 fill-current sm:size-8" /></button>
             <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#A97A3C] shadow"><Play className="size-3" />Vídeo</span>
           </div>
           <div className="p-5"><h2 className="truncate text-base font-semibold text-[#2D2823]">{exercise.name}</h2>{exercise.description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#746C64]">{exercise.description}</p>}
