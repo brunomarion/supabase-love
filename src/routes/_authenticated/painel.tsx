@@ -119,6 +119,7 @@ function PainelPage() {
   const [accessPdfIds, setAccessPdfIds] = useState<Set<string>>(new Set());
   const [patientDocuments, setPatientDocuments] = useState<PatientDocument[]>([]);
   const [loadingAccess, setLoadingAccess] = useState(false);
+  const [savingAccess, setSavingAccess] = useState(false);
   const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);
 
   useEffect(() => {
@@ -156,69 +157,84 @@ function PainelPage() {
     setLoadingAccess(true);
     setModal("access");
     setError("");
-    setPatientDocuments([]);
-
     try {
-      const { data, error: documentsError } = await supabase
-        .from("patient_documents")
-        .select("*")
-        .eq("patient_id", target.id)
-        .eq("physiotherapist_id", physiotherapistId ?? "")
-        .order("created_at", { ascending: false });
-
+      const db = supabase as any;
+      const [{ data: exerciseAccess, error: exerciseError }, { data: pdfAccess, error: pdfError }, { data: documents, error: documentsError }] = await Promise.all([
+        db.from("patient_exercise_access").select("exercise_id").eq("patient_id", target.id),
+        db.from("patient_pdf_access").select("pdf_material_id").eq("patient_id", target.id),
+        db.from("patient_documents").select("*").eq("patient_id", target.id).order("created_at", { ascending: false }),
+      ]);
+      if (exerciseError) throw exerciseError;
+      if (pdfError) throw pdfError;
       if (documentsError) throw documentsError;
-      setPatientDocuments(data ?? []);
+      setAccessExerciseIds(new Set((exerciseAccess ?? []).map((item: { exercise_id: string }) => item.exercise_id)));
+      setAccessPdfIds(new Set((pdfAccess ?? []).map((item: { pdf_material_id: string }) => item.pdf_material_id)));
+      setPatientDocuments((documents ?? []) as PatientDocument[]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível carregar os documentos do paciente.");
+      console.error(err);
+      setError("Não foi possível carregar os acessos deste paciente. Verifique se a estrutura de acessos já foi criada no Supabase.");
     } finally {
       setLoadingAccess(false);
     }
   }
 
-  async function uploadPatientDocument(file: File) {
-    if (!accessPatient || !physiotherapistId) {
-      setError("Não foi possível identificar o paciente ou o fisioterapeuta.");
-      return;
-    }
-
+  async function savePatientAccess() {
+    if (!accessPatient || !physiotherapistId) return;
+    setSavingAccess(true);
+    setError("");
     try {
-      setUploadingPatientDocument(true);
-      setError("");
+      const db = supabase as any;
+      const { error: deleteExercisesError } = await db.from("patient_exercise_access").delete().eq("patient_id", accessPatient.id);
+      if (deleteExercisesError) throw deleteExercisesError;
+      const { error: deletePdfsError } = await db.from("patient_pdf_access").delete().eq("patient_id", accessPatient.id);
+      if (deletePdfsError) throw deletePdfsError;
 
-      const safeName = file.name
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9._-]+/g, "-")
-        .replace(/^-+|-+$/g, "") || "documento";
-      const storagePath = physiotherapistId + "/" + accessPatient.id + "/" + crypto.randomUUID() + "-" + safeName;
-
-      const { error: uploadError } = await supabase.storage
-        .from("patient-documents")
-        .upload(storagePath, file, { upsert: false, contentType: file.type || "application/octet-stream" });
-
-      if (uploadError) throw uploadError;
-
-      const { data, error: insertError } = await supabase
-        .from("patient_documents")
-        .insert({
-          patient_id: accessPatient.id,
-          physiotherapist_id: physiotherapistId,
-          file_name: file.name,
-          storage_path: storagePath,
-          mime_type: file.type || null,
-          file_size: file.size,
-        })
-        .select("*")
-        .single();
-
-      if (insertError) {
-        await supabase.storage.from("patient-documents").remove([storagePath]);
-        throw insertError;
+      if (accessExerciseIds.size) {
+        const { error } = await db.from("patient_exercise_access").insert(
+          Array.from(accessExerciseIds).map((exercise_id) => ({ patient_id: accessPatient.id, exercise_id, physiotherapist_id: physiotherapistId }))
+        );
+        if (error) throw error;
       }
-
-      setPatientDocuments((current) => [data as PatientDocument, ...current]);
-      setPatientToast("Documento \"" + file.name + "\" anexado com sucesso.");
+      if (accessPdfIds.size) {
+        const { error } = await db.from("patient_pdf_access").insert(
+          Array.from(accessPdfIds).map((pdf_material_id) => ({ patient_id: accessPatient.id, pdf_material_id, physiotherapist_id: physiotherapistId }))
+        );
+        if (error) throw error;
+      }
+      setPatientToast("Acessos do paciente atualizados com sucesso.");
+      setModal(null);
+      setAccessPatient(null);
     } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Não foi possível salvar os acessos do paciente.");
+    } finally {
+      setSavingAccess(false);
+    }
+  }
+
+  async function uploadPatientDocument(file: File) {
+    if (!accessPatient || !physiotherapistId) return;
+    setUploadingPatientDocument(true);
+    setError("");
+    try {
+      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
+      const path = physiotherapistId + "/" + accessPatient.id + "/" + crypto.randomUUID() + "-" + safeName;
+      const { error: uploadError } = await supabase.storage.from("patient-documents").upload(path, file, { upsert: false, contentType: file.type || undefined });
+      if (uploadError) throw uploadError;
+      const db = supabase as any;
+      const { data, error: insertError } = await db.from("patient_documents").insert({
+        patient_id: accessPatient.id,
+        physiotherapist_id: physiotherapistId,
+        file_name: file.name,
+        storage_path: path,
+        mime_type: file.type || null,
+        file_size: file.size,
+      }).select("*").single();
+      if (insertError) throw insertError;
+      setPatientDocuments((current) => [data as PatientDocument, ...current]);
+      setPatientToast("Documento anexado com sucesso.");
+    } catch (err) {
+      console.error(err);
       setError(err instanceof Error ? err.message : "Não foi possível anexar o documento.");
     } finally {
       setUploadingPatientDocument(false);
@@ -226,35 +242,20 @@ function PainelPage() {
   }
 
   async function removePatientDocument(document: PatientDocument) {
-    if (!physiotherapistId) {
-      setError("Fisioterapeuta não identificado.");
-      return;
-    }
-
     try {
       setDeleting(document.id);
       setError("");
-
-      const { error: storageError } = await supabase.storage
-        .from("patient-documents")
-        .remove([document.storage_path]);
-
+      const { error: storageError } = await supabase.storage.from("patient-documents").remove([document.storage_path]);
       if (storageError) throw storageError;
-
-      const { error: deleteError } = await supabase
-        .from("patient_documents")
-        .delete()
-        .eq("id", document.id)
-        .eq("patient_id", accessPatient?.id ?? "")
-        .eq("physiotherapist_id", physiotherapistId);
-
-      if (deleteError) throw deleteError;
-
+      const db = supabase as any;
+      const { error } = await db.from("patient_documents").delete().eq("id", document.id);
+      if (error) throw error;
       setPatientDocuments((current) => current.filter((item) => item.id !== document.id));
       setConfirmPatientDocument(null);
-      setPatientToast("Documento \"" + document.file_name + "\" excluído com sucesso.");
+      setPatientToast("Documento removido.");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível excluir o documento.");
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Não foi possível remover o documento.");
     } finally {
       setDeleting(null);
     }
@@ -1049,69 +1050,51 @@ function PainelPage() {
         {viewingExercise && <ExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
 
       {modal === "access" && accessPatient && (
-        <Modal title={`Acessos de ${accessPatient.full_name}`} close={() => !uploadingPatientDocument && !deleting && setModal(null)}>
+        <Modal title={`Acessos de ${accessPatient.full_name}`} close={() => !savingAccess && setModal(null)}>
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Vídeo de boas-vindas</p>
-              <p className="mt-1 text-xs leading-relaxed text-[#837970]">Este vídeo será exibido para todos os pacientes assim que acessarem a plataforma.</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Permissões individuais</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#837970]">Selecione o conteúdo que este paciente poderá visualizar na própria conta.</p>
             </div>
 
-            <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d8c5] bg-[#171412] shadow-[0_14px_40px_rgba(45,40,35,0.12)]">
-              <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
-                <div className="text-center">
-                  <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
-                    <Play className="ml-1 size-7 fill-current" />
-                  </span>
-                  <p className="mt-4 text-sm font-semibold text-white">Vídeo de boas-vindas</p>
-                  <p className="mt-1 text-xs text-white/60">O vídeo será incorporado aqui quando estiver pronto.</p>
-                </div>
-              </div>
-            </div>
+            {loadingAccess ? <div className="flex min-h-40 items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Carregando acessos...</div> : <>
+              <AccessSection title="Exercícios em vídeo" icon={Dumbbell} empty="Nenhum exercício ativo cadastrado.">
+                {exercises.filter((item) => item.is_active).map((item) => (
+                  <AccessCheckbox key={item.id} checked={accessExerciseIds.has(item.id)} onChange={() => setAccessExerciseIds((current) => { const next = new Set(current); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} title={item.name} subtitle={item.type || "Vídeo"} />
+                ))}
+              </AccessSection>
 
-            <div className="rounded-2xl border border-[#e6d8c5] bg-white p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Documentos</p>
-                  <p className="mt-1 text-xs leading-relaxed text-[#837970]">Anexe documentos que ficarão disponíveis para este paciente.</p>
-                </div>
-                <label className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-[#BA9051] px-3 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(186,144,81,0.16)] transition hover:bg-[#A97A3C]">
-                  <Upload className="size-4" />
-                  {uploadingPatientDocument ? "Anexando..." : "Anexar"}
-                  <input type="file" className="sr-only" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" disabled={uploadingPatientDocument} onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    event.currentTarget.value = "";
-                    if (file) void uploadPatientDocument(file);
-                  }} />
-                </label>
-              </div>
+              <AccessSection title="Materiais em PDF" icon={FileText} empty="Nenhum PDF cadastrado.">
+                {pdfMaterials.map((item) => (
+                  <AccessCheckbox key={item.id} checked={accessPdfIds.has(item.id)} onChange={() => setAccessPdfIds((current) => { const next = new Set(current); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} title={item.name} subtitle={item.description || item.file_name} />
+                ))}
+              </AccessSection>
 
-              <div className="mt-4 space-y-2">
-                {loadingAccess ? (
-                  <div className="flex items-center justify-center rounded-xl border border-dashed border-[#dccbb5] bg-[#fdfbf8] px-4 py-8 text-xs text-[#948a81]">
-                    <RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" /> Carregando documentos...
-                  </div>
-                ) : patientDocuments.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-[#dccbb5] bg-[#fdfbf8] px-4 py-8 text-center text-xs text-[#948a81]">Nenhum documento anexado para este paciente.</div>
-                ) : (
-                  patientDocuments.map((document) => (
-                    <div key={document.id} className="flex items-center gap-3 rounded-xl border border-[#eee5d9] bg-[#fdfbf8] px-3 py-3">
+              <div className="border-t border-[#eee5d9] pt-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div><h3 className="text-sm font-semibold text-[#A97A3C]">Documentos</h3><p className="mt-0.5 text-[10px] text-[#948a81]">Arquivos privados disponíveis somente para este paciente.</p></div>
+                  <label className="flex h-9 cursor-pointer items-center gap-2 rounded-xl border border-[#dfc28f] bg-[#fffaf2] px-3 text-[11px] font-semibold text-[#A97A3C] transition hover:bg-[#f7eddf]">
+                    {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                    Anexar
+                    <input type="file" className="sr-only" disabled={uploadingPatientDocument} accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void uploadPatientDocument(file); }} />
+                  </label>
+                </div>
+                <div className="space-y-2">
+                  {patientDocuments.length === 0 ? <div className="rounded-xl border border-dashed border-[#dfd2c1] bg-[#fdfbf8] px-4 py-6 text-center text-[11px] text-[#948a81]">Nenhum documento anexado para este paciente.</div> : patientDocuments.map((document) => (
+                    <div key={document.id} className="flex items-center gap-3 rounded-xl border border-[#e6d8c5] bg-white px-3 py-2.5">
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f3e3cf] text-[#A97A3C]"><FileText className="size-4" /></span>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs font-semibold text-[#403a35]">{document.file_name}</p>
-                        <p className="mt-0.5 text-[10px] text-[#948a81]">{formatFileSize(document.file_size)}</p>
-                      </div>
-                      <button type="button" onClick={() => setConfirmPatientDocument(document)} disabled={deleting === document.id} aria-label={"Excluir " + document.file_name} title="Excluir documento" className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dc4c4c] bg-[#d94b4b] text-white shadow-[0_4px_12px_rgba(217,75,75,0.20)] transition hover:-translate-y-0.5 hover:bg-[#c83e3e] disabled:cursor-not-allowed disabled:opacity-50">
-                        <Trash2 className="size-4" />
-                      </button>
+                      <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium text-[#403a35]">{document.file_name}</p><p className="mt-0.5 text-[10px] text-[#948a81]">{formatFileSize(document.file_size)}</p></div>
+                      <button type="button" onClick={() => setConfirmPatientDocument(document)} disabled={deleting === document.id} className="flex size-8 shrink-0 items-center justify-center rounded-lg text-[#d66a6a] transition hover:bg-[#fff0f0]" aria-label={`Excluir ${document.file_name}`}><Trash2 className="size-3.5" /></button>
                     </div>
-                  ))
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <div className="flex justify-end border-t border-[#eee5d9] pt-4">
-              <Button type="button" variant="outline" onClick={() => setModal(null)} disabled={uploadingPatientDocument || !!deleting} className="h-10 rounded-xl border-[#dfd2c1] text-xs">Fechar</Button>
-            </div>
+              <div className="flex items-center justify-end gap-2 border-t border-[#eee5d9] pt-4">
+                <Button type="button" variant="outline" onClick={() => setModal(null)} disabled={savingAccess} className="h-10 rounded-xl border-[#dfd2c1] text-xs">Cancelar</Button>
+                <Button type="button" onClick={() => void savePatientAccess()} disabled={savingAccess} className="h-10 rounded-xl bg-[#BA9051] px-5 text-xs font-semibold text-white hover:bg-[#A97A3C]">{savingAccess ? <RefreshCw className="size-4 animate-spin" /> : null}Salvar acessos</Button>
+              </div>
+            </>}
           </div>
         </Modal>
       )}
