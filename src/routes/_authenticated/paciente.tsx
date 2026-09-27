@@ -119,14 +119,11 @@ function PatientPage() {
     }
   }
 
-  async function openStorageFile(storagePath: string, id: string) {
+  async function openStorageFile(storagePath: string, id: string, bucket: string) {
     if (!storagePath || openingFile) return;
     setOpeningFile(id);
     try {
-      const match = storagePath.match(/^([^/]+)\/(.+)$/);
-      if (!match) throw new Error("Arquivo inválido.");
-      const [, bucket, path] = match;
-      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 10);
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(storagePath, 60 * 10);
       if (error) throw error;
       window.open(data.signedUrl, "_blank", "noopener,noreferrer");
     } catch (err) {
@@ -195,7 +192,8 @@ function PatientPage() {
                   <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
                 {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
-                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}\n                {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id)} onRetry={() => void loadPatientContent()} />}
+                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id, "pdf-materials")} onRetry={() => void loadPatientContent()} />}
+                {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
           </div>
