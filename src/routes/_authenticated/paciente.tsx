@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getDocument } from "pdfjs-dist";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
@@ -365,31 +365,54 @@ function ContentState({ loading, error, onRetry }: { loading: boolean; error: st
 function ExercisesTab({ exercises, patientName, patientSex, loading, error, onRetry, onView }: { exercises: Exercise[]; patientName: string; patientSex: "male" | "female" | ""; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
   const article = patientSex === "female" ? "a" : "o";
   const personalizedSubtitle = `Exercícios recomendados para ${article} ${patientName.split(" ")[0]}.`;
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  function scrollCarousel(direction: "previous" | "next") {
+    const container = carouselRef.current;
+    if (!container) return;
+
+    const card = container.querySelector<HTMLElement>("[data-exercise-card]");
+    const distance = card ? card.offsetWidth + 20 : container.clientWidth * 0.88;
+    container.scrollBy({ left: direction === "next" ? distance : -distance, behavior: "smooth" });
+  }
+
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
     <SectionHeader icon={Dumbbell} title="Exercícios" subtitle={personalizedSubtitle} />
     {exercises.length === 0 ? <EmptyContent icon={Dumbbell} title="Nenhum exercício disponível" text="Seu fisioterapeuta ainda não liberou exercícios para sua conta." /> :
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{exercises.map((exercise) => (
-        <article key={exercise.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
-          <div className="relative aspect-video bg-[#f4eee6]">
-            {exercise.thumbnail_url ? <img src={exercise.thumbnail_url} alt={exercise.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-[#BA9051]"><Dumbbell className="size-10" strokeWidth={1.4} /></div>}
-            <button type="button" onClick={() => onView(exercise)} aria-label={`Reproduzir ${exercise.name}`} className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(45,40,35,0.22)] transition hover:scale-105 hover:bg-white sm:size-16"><Play className="ml-0.5 size-7 fill-current sm:size-8" /></button>
-            <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#A97A3C] shadow"><Play className="size-3" />Vídeo</span>
+      <div className="relative -mx-1 overflow-hidden sm:mx-0 sm:overflow-visible">
+        <div className="relative rounded-[1.35rem] border border-[#e6d9c9] bg-white p-2 shadow-[0_10px_30px_rgba(64,48,30,0.045)] sm:p-3">
+          <button type="button" onClick={() => scrollCarousel("previous")} aria-label="Exercícios anteriores" className="absolute left-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#dfd2c1] bg-white/95 text-[#746c64] shadow-[0_8px_22px_rgba(64,48,30,0.14)] backdrop-blur-sm transition hover:border-[#BA9051] hover:bg-[#fffaf2] hover:text-[#A97A3C] lg:flex">
+            <ChevronLeft className="size-5" />
+          </button>
+          <button type="button" onClick={() => scrollCarousel("next")} aria-label="Próximos exercícios" className="absolute right-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#dfd2c1] bg-white/95 text-[#746c64] shadow-[0_8px_22px_rgba(64,48,30,0.14)] backdrop-blur-sm transition hover:border-[#BA9051] hover:bg-[#fffaf2] hover:text-[#A97A3C] lg:flex">
+            <ChevronRight className="size-5" />
+          </button>
+
+          <div ref={carouselRef} className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-y-visible sm:overflow-x-hidden sm:pb-1 sm:snap-none xl:grid-cols-3">
+            {exercises.map((exercise) => (
+              <article key={exercise.id} data-exercise-card className="w-[86vw] shrink-0 snap-start overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)] sm:w-auto">
+                <div className="relative aspect-video bg-[#f4eee6]">
+                  {exercise.thumbnail_url ? <img src={exercise.thumbnail_url} alt={exercise.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-[#BA9051]"><Dumbbell className="size-10" strokeWidth={1.4} /></div>}
+                  <button type="button" onClick={() => onView(exercise)} aria-label={`Reproduzir ${exercise.name}`} className="absolute left-1/2 top-1/2 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(45,40,35,0.22)] transition hover:scale-105 hover:bg-white sm:size-16"><Play className="ml-0.5 size-7 fill-current sm:size-8" /></button>
+                  <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#A97A3C] shadow"><Play className="size-3" />Vídeo</span>
+                </div>
+                <div className="p-5"><h2 className="truncate text-base font-semibold text-[#2D2823]">{exercise.name}</h2>{exercise.description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#746C64]">{exercise.description}</p>}
+                  {exercise.video_url && (
+                    <button type="button" onClick={() => onView(exercise)} className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white transition hover:bg-[#A97A3C]">
+                      <Play className="size-3.5 fill-current" />
+                      Assistir exercício
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
           </div>
-          <div className="p-5"><h2 className="truncate text-base font-semibold text-[#2D2823]">{exercise.name}</h2>{exercise.description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#746C64]">{exercise.description}</p>}
-            {exercise.video_url && (
-              <button type="button" onClick={() => onView(exercise)} className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white transition hover:bg-[#A97A3C]">
-                <Play className="size-3.5 fill-current" />
-                Assistir exercício
-              </button>
-            )}
-          </div>
-        </article>
-      ))}</div>
+        </div>
+      </div>
     }
   </section>;
 }
-
 function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, onRetry, onView }: { pdfMaterials: PdfMaterial[]; patientName: string; patientSex: "male" | "female" | ""; previewUrls: Record<string, string>; loading: boolean; error: string; onRetry: () => void; onView: (pdf: PdfMaterial) => void }) {
   const article = patientSex === "female" ? "a" : "o";
   const personalizedSubtitle = `Orientações recomendadas para ${article} ${patientName.split(" ")[0]}.`;
