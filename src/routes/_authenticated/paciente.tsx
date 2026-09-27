@@ -54,7 +54,8 @@ function PatientPage() {
   const [loadingContent, setLoadingContent] = useState(true);
   const [contentError, setContentError] = useState("");
   const [openingFile, setOpeningFile] = useState<string | null>(null);
-  const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);\n  const [viewingPdf, setViewingPdf] = useState<PdfMaterial | null>(null);
+  const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);
+  const [viewingPdf, setViewingPdf] = useState<PdfMaterial | null>(null);
 
   useEffect(() => {
     void loadPatientContent();
@@ -242,7 +243,8 @@ function PatientPage() {
       </nav>
 
       <AnimatePresence mode="wait">
-        {viewingExercise && <PatientExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}\n        {viewingPdf && <PatientPdfModal pdf={viewingPdf} previewUrl={pdfPreviewUrls[viewingPdf.id] ?? null} close={() => setViewingPdf(null)} />}
+        {viewingExercise && <PatientExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
+        {viewingPdf && <PatientPdfModal pdf={viewingPdf} previewUrl={pdfPreviewUrls[viewingPdf.id] ?? null} close={() => setViewingPdf(null)} />}
         {confirmLogout && (
           <motion.div
             initial={{ opacity: 0 }}
