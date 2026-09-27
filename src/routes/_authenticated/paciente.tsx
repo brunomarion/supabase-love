@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut, Play, Download, ExternalLink, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
+import type { Tables } from "@/integrations/supabase/types";
 
 const logo = "/images/logo-editada-chatgpt.png";
 
@@ -27,6 +28,9 @@ export const Route = createFileRoute("/_authenticated/paciente")({
 });
 
 type Tab = "dashboard" | "exercicios" | "documentos";
+type Exercise = Tables<"exercises">;
+type PdfMaterial = Tables<"pdf_materials">;
+type PatientDocument = Tables<"patient_documents">;
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
@@ -40,13 +44,96 @@ function PatientPage() {
   const [isFirstDashboardEntry, setIsFirstDashboardEntry] = useState(true);
   const [patientName, setPatientName] = useState("Paciente");
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [patientId, setPatientId] = useState<string | null>(null);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [pdfMaterials, setPdfMaterials] = useState<PdfMaterial[]>([]);
+  const [documents, setDocuments] = useState<PatientDocument[]>([]);
+  const [loadingContent, setLoadingContent] = useState(true);
+  const [contentError, setContentError] = useState("");
+  const [openingFile, setOpeningFile] = useState<string | null>(null);
 
   useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => {
-      const name = data.user?.user_metadata?.full_name;
-      if (typeof name === "string" && name.trim()) setPatientName(name.trim());
-    });
+    void loadPatientContent();
   }, []);
+
+  async function loadPatientContent() {
+    setLoadingContent(true);
+    setContentError("");
+    try {
+      const { data: authData, error: authError } = await supabase.auth.getUser();
+      if (authError || !authData.user) throw new Error("Sessão do paciente não encontrada.");
+
+      const metadataName = authData.user.user_metadata?.full_name;
+      if (typeof metadataName === "string" && metadataName.trim()) setPatientName(metadataName.trim());
+
+      const { data: patientRow, error: patientError } = await supabase
+        .from("patients")
+        .select("id, full_name")
+        .eq("auth_user_id", authData.user.id)
+        .maybeSingle();
+
+      if (patientError) throw patientError;
+      if (!patientRow) throw new Error("Paciente autenticado não encontrado.");
+      setPatientId(patientRow.id);
+      if (patientRow.full_name?.trim()) setPatientName(patientRow.full_name.trim());
+
+      const [
+        { data: exerciseAccess, error: exerciseAccessError },
+        { data: pdfAccess, error: pdfAccessError },
+        { data: patientDocs, error: docsError },
+      ] = await Promise.all([
+        supabase.from("patient_exercise_access").select("exercise_id").eq("patient_id", patientRow.id),
+        supabase.from("patient_pdf_access").select("pdf_material_id").eq("patient_id", patientRow.id),
+        supabase.from("patient_documents").select("*").eq("patient_id", patientRow.id).order("created_at", { ascending: false }),
+      ]);
+
+      if (exerciseAccessError) throw exerciseAccessError;
+      if (pdfAccessError) throw pdfAccessError;
+      if (docsError) throw docsError;
+
+      const exerciseIds = (exerciseAccess ?? []).map((item) => item.exercise_id);
+      const pdfIds = (pdfAccess ?? []).map((item) => item.pdf_material_id);
+
+      const [{ data: exerciseRows, error: exercisesError }, { data: pdfRows, error: pdfError }] = await Promise.all([
+        exerciseIds.length
+          ? supabase.from("exercises").select("*").in("id", exerciseIds).eq("is_active", true).order("created_at", { ascending: false })
+          : Promise.resolve({ data: [], error: null }),
+        pdfIds.length
+          ? supabase.from("pdf_materials").select("*").in("id", pdfIds).order("created_at", { ascending: false })
+          : Promise.resolve({ data: [], error: null }),
+      ]);
+
+      if (exercisesError) throw exercisesError;
+      if (pdfError) throw pdfError;
+
+      setExercises(exerciseRows ?? []);
+      setPdfMaterials(pdfRows ?? []);
+      setDocuments((patientDocs ?? []) as PatientDocument[]);
+    } catch (err) {
+      console.error("Erro ao carregar conteúdos do paciente:", err);
+      setContentError(err instanceof Error ? err.message : "Não foi possível carregar seus conteúdos.");
+    } finally {
+      setLoadingContent(false);
+    }
+  }
+
+  async function openStorageFile(storagePath: string, id: string) {
+    if (!storagePath || openingFile) return;
+    setOpeningFile(id);
+    try {
+      const match = storagePath.match(/^([^/]+)\/(.+)$/);
+      if (!match) throw new Error("Arquivo inválido.");
+      const [, bucket, path] = match;
+      const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 10);
+      if (error) throw error;
+      window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      console.error("Erro ao abrir arquivo:", err);
+      setContentError("Não foi possível abrir este arquivo.");
+    } finally {
+      setOpeningFile(null);
+    }
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsFirstDashboardEntry(false), 1400);
@@ -103,14 +190,10 @@ function PatientPage() {
                 transition={{ duration: 0.36, ease: "easeOut" }}
               >
                 {tab === "dashboard" && (
-                  <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} />
+                  <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={pdfMaterials.length + documents.length} onTab={setTab} />
                 )}
-                {tab === "exercicios" && (
-                  <Placeholder icon={Dumbbell} title="Exercícios" text="Aqui serão exibidos os exercícios disponibilizados pelo seu fisioterapeuta." />
-                )}
-                {tab === "documentos" && (
-                  <Placeholder icon={FileText} title="Documentos" text="Aqui serão exibidos os documentos disponibilizados pelo seu fisioterapeuta." />
-                )}
+                {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} />}
+                {tab === "documentos" && <DocumentsTab pdfMaterials={pdfMaterials} documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id)} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -181,7 +264,7 @@ function PatientPage() {
   );
 }
 
-function Dashboard({ name, animateFirstEntry }: { name: string; animateFirstEntry: boolean }) {
+function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTab }: { name: string; animateFirstEntry: boolean; exerciseCount: number; documentCount: number; onTab: (tab: Tab) => void }) {
   return (
     <div className="space-y-8">
       <section className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 shadow-[0_10px_30px_rgba(64,48,30,0.06)] sm:p-8">
@@ -194,16 +277,69 @@ function Dashboard({ name, animateFirstEntry }: { name: string; animateFirstEntr
         <button type="button" className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
           <Dumbbell className="size-6 text-[#BA9051]" strokeWidth={1.8} />
           <h2 className="mt-4 text-lg font-semibold">Exercícios</h2>
-          <p className="mt-1 text-sm text-[#746C64]">Acesse os exercícios indicados para você.</p>
+          <p className="mt-1 text-sm text-[#746C64]">{exerciseCount} {exerciseCount === 1 ? "exercício disponível" : "exercícios disponíveis"}.</p>
         </button>
         <button type="button" className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
           <FileText className="size-6 text-[#BA9051]" strokeWidth={1.8} />
           <h2 className="mt-4 text-lg font-semibold">Documentos</h2>
-          <p className="mt-1 text-sm text-[#746C64]">Consulte os materiais disponibilizados para você.</p>
+          <p className="mt-1 text-sm text-[#746C64]">{documentCount} {documentCount === 1 ? "documento disponível" : "documentos disponíveis"}.</p>
         </button>
       </div>
     </div>
   );
+}
+
+function ContentState({ loading, error, onRetry }: { loading: boolean; error: string; onRetry: () => void }) {
+  if (loading) return <div className="flex min-h-[280px] items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Carregando conteúdos...</div>;
+  if (error) return <div className="rounded-2xl border border-[#efcaca] bg-[#fff7f7] p-6 text-center"><p className="text-sm font-medium text-[#c94b4b]">Não foi possível carregar os conteúdos.</p><p className="mt-1 text-xs text-[#8a8178]">{error}</p><button type="button" onClick={onRetry} className="mt-4 rounded-xl bg-[#BA9051] px-4 py-2 text-xs font-semibold text-white hover:bg-[#A97A3C]">Tentar novamente</button></div>;
+  return null;
+}
+
+function ExercisesTab({ exercises, loading, error, onRetry }: { exercises: Exercise[]; loading: boolean; error: string; onRetry: () => void }) {
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  return <section className="space-y-5">
+    <SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." />
+    {exercises.length === 0 ? <EmptyContent icon={Dumbbell} title="Nenhum exercício disponível" text="Seu fisioterapeuta ainda não liberou exercícios para sua conta." /> :
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{exercises.map((exercise) => (
+        <article key={exercise.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
+          <div className="relative aspect-video bg-[#f4eee6]">
+            {exercise.thumbnail_url ? <img src={exercise.thumbnail_url} alt={exercise.name} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center text-[#BA9051]"><Dumbbell className="size-10" strokeWidth={1.4} /></div>}
+            <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#A97A3C] shadow"><Play className="size-3" />Vídeo</span>
+          </div>
+          <div className="p-5"><h2 className="truncate text-base font-semibold text-[#2D2823]">{exercise.name}</h2>{exercise.description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#746C64]">{exercise.description}</p>}
+            {exercise.video_url ? <a href={exercise.video_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white transition hover:bg-[#A97A3C]"><Play className="size-4" />Assistir exercício</a> : <p className="mt-4 text-[11px] text-[#a79d94]">Vídeo indisponível.</p>}
+          </div>
+        </article>
+      ))}</div>}
+  </section>;
+}
+
+function DocumentsTab({ pdfMaterials, documents, loading, error, openingFile, onOpenPdf, onOpenDocument, onRetry }: { pdfMaterials: PdfMaterial[]; documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Materiais e documentos disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  return <section className="space-y-6">
+    <SectionHeader icon={FileText} title="Documentos" subtitle="Materiais e documentos disponibilizados pelo seu fisioterapeuta." />
+    <DocumentGroup title="Materiais em PDF" items={pdfMaterials.map((pdf) => ({ id: pdf.id, name: pdf.name, meta: pdf.file_name, onOpen: () => onOpenPdf(pdf), opening: openingFile === pdf.id }))} empty="Nenhum PDF foi liberado para você." icon={FileText} />
+    <DocumentGroup title="Relatórios e documentos" items={documents.map((document) => ({ id: document.id, name: document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
+  </section>;
+}
+
+function SectionHeader({ icon: Icon, title, subtitle }: { icon: typeof Home; title: string; subtitle: string }) {
+  return <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" strokeWidth={1.8} /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Área do paciente</p><h1 className="mt-1 text-xl font-semibold text-[#2D2823] sm:text-2xl">{title}</h1><p className="mt-1 text-sm text-[#746C64]">{subtitle}</p></div></div>;
+}
+
+function DocumentGroup({ title, items, empty, icon: Icon }: { title: string; items: { id: string; name: string; meta: string; onOpen: () => void; opening: boolean }[]; empty: string; icon: typeof FileText }) {
+  return <div className="space-y-3"><h2 className="text-sm font-semibold text-[#A97A3C]">{title}</h2>{items.length === 0 ? <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">{empty}</div> : <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <article key={item.id} className="flex items-center gap-3 rounded-2xl border border-[#E6D8C5] bg-white p-4 shadow-[0_8px_24px_rgba(64,48,30,0.05)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Icon className="size-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-xs font-semibold text-[#2D2823]">{item.name}</h3><p className="mt-1 truncate text-[10px] text-[#948a81]">{item.meta}</p></div><button type="button" onClick={item.onOpen} disabled={item.opening} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${item.name}`} title={`Abrir ${item.name}`}>{item.opening ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}</button></article>)}</div>}</div>;
+}
+
+function EmptyContent({ icon: Icon, title, text }: { icon: typeof Home; title: string; text: string }) {
+  return <div className="rounded-[1.35rem] border border-dashed border-[#dfd2c1] bg-white p-10 text-center shadow-[0_8px_24px_rgba(64,48,30,0.04)]"><span className="mx-auto flex size-12 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" /></span><h2 className="mt-4 text-sm font-semibold text-[#403a35]">{title}</h2><p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-[#948a81]">{text}</p></div>;
+}
+
+function formatFileSize(size: number | null) {
+  if (!size) return "Tamanho não informado";
+  if (size < 1024) return size + " B";
+  if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+  return (size / (1024 * 1024)).toFixed(1) + " MB";
 }
 
 function Placeholder({ icon: Icon, title, text }: { icon: typeof Home; title: string; text: string }) {
