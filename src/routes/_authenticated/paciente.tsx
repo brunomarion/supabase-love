@@ -373,29 +373,35 @@ function ExercisesTab({ exercises, patientName, patientSex, loading, error, onRe
             <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#A97A3C] shadow"><Play className="size-3" />Vídeo</span>
           </div>
           <div className="p-5"><h2 className="truncate text-base font-semibold text-[#2D2823]">{exercise.name}</h2>{exercise.description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#746C64]">{exercise.description}</p>}
-            {exercise.video_url ? <button type="button" onClick={() => onView(exercise)} className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibfunction OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, onRetry, onView }: { pdfMaterials: PdfMaterial[]; patientName: string; patientSex: "male" | "female" | ""; previewUrls: Record<string, string>; loading: boolean; error: string; onRetry: () => void; onView: (pdf: PdfMaterial) => void }) {
+            {exercise.video_url && (
+              <button type="button" onClick={() => onView(exercise)} className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white transition hover:bg-[#A97A3C]">
+                <Play className="size-3.5 fill-current" />
+                Assistir exercício
+              </button>
+            )}
+          </div>
+        </article>
+      ))}</div>
+    }
+  </section>;
+}
+
+function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, onRetry, onView }: { pdfMaterials: PdfMaterial[]; patientName: string; patientSex: "male" | "female" | ""; previewUrls: Record<string, string>; loading: boolean; error: string; onRetry: () => void; onView: (pdf: PdfMaterial) => void }) {
   const article = patientSex === "female" ? "a" : "o";
   const personalizedSubtitle = `Orientações recomendadas pelo Tio Erick para ${article} ${patientName.split(" ")[0]}.`;
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
     <SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} />
     {pdfMaterials.length === 0 ? (
-      <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">
-        Nenhuma orientação em PDF foi liberada para você.
-      </div>
+      <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">Nenhuma orientação em PDF foi liberada para você.</div>
     ) : (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {pdfMaterials.map((pdf) => (
           <article key={pdf.id} className="flex min-w-0 items-center gap-3 rounded-[1.25rem] border border-[#E6D8C5] bg-white p-4 shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:border-[#d7bd94] hover:shadow-[0_14px_34px_rgba(64,48,30,0.09)]">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]">
-              <FileText className="size-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h3 className="truncate text-sm font-semibold text-[#2D2823]">{pdf.name}</h3>
-            </div>
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><FileText className="size-5" /></span>
+            <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold text-[#2D2823]">{pdf.name}</h3></div>
             <button type="button" onClick={() => onView(pdf)} disabled={!previewUrls[pdf.id]} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-[#BA9051] px-3 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45">
-              <ExternalLink className="size-3.5" />
-              Visualizar
+              <ExternalLink className="size-3.5" />Visualizar
             </button>
           </article>
         ))}
