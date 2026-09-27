@@ -91,6 +91,7 @@ function PainelPage() {
   const [confirmPatient, setConfirmPatient] = useState<Patient | null>(null);
   const [confirmExercise, setConfirmExercise] = useState<Exercise | null>(null);
   const [confirmPdf, setConfirmPdf] = useState<PdfMaterial | null>(null);
+  const [confirmPatientDocument, setConfirmPatientDocument] = useState<PatientDocument | null>(null);
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [patientFieldErrors, setPatientFieldErrors] = useState<{ cpf?: string; password?: string }>({});
   const [error, setError] = useState("");
@@ -152,9 +153,111 @@ function PainelPage() {
 
   async function openPatientAccess(target: Patient) {
     setAccessPatient(target);
-    setLoadingAccess(false);
+    setLoadingAccess(true);
     setModal("access");
     setError("");
+    setPatientDocuments([]);
+
+    try {
+      const { data, error: documentsError } = await supabase
+        .from("patient_documents")
+        .select("*")
+        .eq("patient_id", target.id)
+        .eq("physiotherapist_id", physiotherapistId ?? "")
+        .order("created_at", { ascending: false });
+
+      if (documentsError) throw documentsError;
+      setPatientDocuments(data ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível carregar os documentos do paciente.");
+    } finally {
+      setLoadingAccess(false);
+    }
+  }
+
+  async function uploadPatientDocument(file: File) {
+    if (!accessPatient || !physiotherapistId) {
+      setError("Não foi possível identificar o paciente ou o fisioterapeuta.");
+      return;
+    }
+
+    try {
+      setUploadingPatientDocument(true);
+      setError("");
+
+      const safeName = file.name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/^-+|-+$/g, "") || "documento";
+      const storagePath = physiotherapistId + "/" + accessPatient.id + "/" + crypto.randomUUID() + "-" + safeName;
+
+      const { error: uploadError } = await supabase.storage
+        .from("patient-documents")
+        .upload(storagePath, file, { upsert: false, contentType: file.type || "application/octet-stream" });
+
+      if (uploadError) throw uploadError;
+
+      const { data, error: insertError } = await supabase
+        .from("patient_documents")
+        .insert({
+          patient_id: accessPatient.id,
+          physiotherapist_id: physiotherapistId,
+          file_name: file.name,
+          storage_path: storagePath,
+          mime_type: file.type || null,
+          file_size: file.size,
+        })
+        .select("*")
+        .single();
+
+      if (insertError) {
+        await supabase.storage.from("patient-documents").remove([storagePath]);
+        throw insertError;
+      }
+
+      setPatientDocuments((current) => [data as PatientDocument, ...current]);
+      setPatientToast("Documento \"" + file.name + "\" anexado com sucesso.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível anexar o documento.");
+    } finally {
+      setUploadingPatientDocument(false);
+    }
+  }
+
+  async function removePatientDocument(document: PatientDocument) {
+    if (!physiotherapistId) {
+      setError("Fisioterapeuta não identificado.");
+      return;
+    }
+
+    try {
+      setDeleting(document.id);
+      setError("");
+
+      const { error: storageError } = await supabase.storage
+        .from("patient-documents")
+        .remove([document.storage_path]);
+
+      if (storageError) throw storageError;
+
+      const { error: deleteError } = await supabase
+        .from("patient_documents")
+        .delete()
+        .eq("id", document.id)
+        .eq("patient_id", accessPatient?.id ?? "")
+        .eq("physiotherapist_id", physiotherapistId);
+
+      if (deleteError) throw deleteError;
+
+      setPatientDocuments((current) => current.filter((item) => item.id !== document.id));
+      setConfirmPatientDocument(null);
+      setPatientToast("Documento \"" + document.file_name + "\" excluído com sucesso.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível excluir o documento.");
+    } finally {
+      setDeleting(null);
+    }
   }
 
   async function getPhysiotherapistId() {
@@ -946,29 +1049,68 @@ function PainelPage() {
         {viewingExercise && <ExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
 
       {modal === "access" && accessPatient && (
-        <Modal title={`Acessos de ${accessPatient.full_name}`} close={() => setModal(null)}>
+        <Modal title={`Acessos de ${accessPatient.full_name}`} close={() => !uploadingPatientDocument && !deleting && setModal(null)}>
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Vídeo de boas-vindas</p>
               <p className="mt-1 text-xs leading-relaxed text-[#837970]">Este vídeo será exibido para todos os pacientes assim que acessarem a plataforma.</p>
             </div>
 
-            {loadingAccess ? <div className="flex min-h-40 items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Preparando vídeo...</div> : (
-              <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d8c5] bg-[#171412] shadow-[0_14px_40px_rgba(45,40,35,0.12)]">
-                <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
-                  <div className="text-center">
-                    <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
-                      <Play className="ml-1 size-7 fill-current" />
-                    </span>
-                    <p className="mt-4 text-sm font-semibold text-white">Vídeo de boas-vindas</p>
-                    <p className="mt-1 text-xs text-white/60">O vídeo será incorporado aqui quando estiver pronto.</p>
-                  </div>
+            <div className="overflow-hidden rounded-[1.35rem] border border-[#e6d8c5] bg-[#171412] shadow-[0_14px_40px_rgba(45,40,35,0.12)]">
+              <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
+                <div className="text-center">
+                  <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
+                    <Play className="ml-1 size-7 fill-current" />
+                  </span>
+                  <p className="mt-4 text-sm font-semibold text-white">Vídeo de boas-vindas</p>
+                  <p className="mt-1 text-xs text-white/60">O vídeo será incorporado aqui quando estiver pronto.</p>
                 </div>
               </div>
-            )}
+            </div>
+
+            <div className="rounded-2xl border border-[#e6d8c5] bg-white p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Documentos</p>
+                  <p className="mt-1 text-xs leading-relaxed text-[#837970]">Anexe documentos que ficarão disponíveis para este paciente.</p>
+                </div>
+                <label className="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-xl bg-[#BA9051] px-3 text-xs font-semibold text-white shadow-[0_5px_15px_rgba(186,144,81,0.16)] transition hover:bg-[#A97A3C]">
+                  <Upload className="size-4" />
+                  {uploadingPatientDocument ? "Anexando..." : "Anexar"}
+                  <input type="file" className="sr-only" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" disabled={uploadingPatientDocument} onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.currentTarget.value = "";
+                    if (file) void uploadPatientDocument(file);
+                  }} />
+                </label>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                {loadingAccess ? (
+                  <div className="flex items-center justify-center rounded-xl border border-dashed border-[#dccbb5] bg-[#fdfbf8] px-4 py-8 text-xs text-[#948a81]">
+                    <RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" /> Carregando documentos...
+                  </div>
+                ) : patientDocuments.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-[#dccbb5] bg-[#fdfbf8] px-4 py-8 text-center text-xs text-[#948a81]">Nenhum documento anexado para este paciente.</div>
+                ) : (
+                  patientDocuments.map((document) => (
+                    <div key={document.id} className="flex items-center gap-3 rounded-xl border border-[#eee5d9] bg-[#fdfbf8] px-3 py-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f3e3cf] text-[#A97A3C]"><FileText className="size-4" /></span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-[#403a35]">{document.file_name}</p>
+                        <p className="mt-0.5 text-[10px] text-[#948a81]">{formatFileSize(document.file_size)}</p>
+                      </div>
+                      <button type="button" onClick={() => setConfirmPatientDocument(document)} disabled={deleting === document.id} aria-label={"Excluir " + document.file_name} title="Excluir documento" className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dc4c4c] bg-[#d94b4b] text-white shadow-[0_4px_12px_rgba(217,75,75,0.20)] transition hover:-translate-y-0.5 hover:bg-[#c83e3e] disabled:cursor-not-allowed disabled:opacity-50">
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
 
             <div className="flex justify-end border-t border-[#eee5d9] pt-4">
-              <Button type="button" variant="outline" onClick={() => setModal(null)} className="h-10 rounded-xl border-[#dfd2c1] text-xs">Fechar</Button>
+              <Button type="button" variant="outline" onClick={() => setModal(null)} disabled={uploadingPatientDocument || !!deleting} className="h-10 rounded-xl border-[#dfd2c1] text-xs">Fechar</Button>
             </div>
           </div>
         </Modal>
@@ -1209,6 +1351,7 @@ function PainelPage() {
        {confirmExercise && <DeleteExerciseModal exercise={confirmExercise} loading={deleting === confirmExercise.id} close={() => !deleting && setConfirmExercise(null)} confirm={() => void removeExercise(confirmExercise)} />}
        {confirmPdf && <DeletePdfModal pdf={confirmPdf} loading={deleting === confirmPdf.id} close={() => !deleting && setConfirmPdf(null)} confirm={() => void removePdf(confirmPdf)} />}
        {confirmSession && <DeleteSessionModal session={confirmSession} loading={deleting === confirmSession.id} close={() => !deleting && setConfirmSession(null)} confirm={() => void removeSession(confirmSession)} />}
+       {confirmPatientDocument && <DeletePatientDocumentModal document={confirmPatientDocument} loading={deleting === confirmPatientDocument.id} close={() => !deleting && setConfirmPatientDocument(null)} confirm={() => void removePatientDocument(confirmPatientDocument)} />}
 
       {modal === "exercise" && <Modal title={editingExercise ? "Editar exercício" : "Cadastrar Exercício"} close={() => !saving && setModal(null)}>
         <form onSubmit={saveExercise} className="space-y-4">
@@ -1944,6 +2087,32 @@ function DeleteSessionModal({ session, loading, close, confirm }: { session: Pat
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
           <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">{loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}{loading ? "Excluindo..." : "Sim, excluir sessão"}</Button>
+        </div>
+      </div>
+    </motion.div>
+  </motion.div>;
+}
+
+function DeletePatientDocumentModal({ document, loading, close, confirm }: { document: PatientDocument; loading: boolean; close: () => void; confirm: () => void }) {
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[70] flex items-center justify-center bg-[#2D2823]/35 p-4 backdrop-blur-sm" onClick={(e) => e.target === e.currentTarget && !loading && close()}>
+    <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="premium-modal-panel w-full max-w-[410px] overflow-hidden rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_25px_80px_rgba(64,48,30,0.24)]">
+      <div className="h-1.5 bg-[linear-gradient(90deg,#BA9051,#C69A59,#A97A3C)]" />
+      <div className="p-6 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#fff1f1] text-[#d34f4f]"><Trash2 className="size-5" /></span>
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-[#2D2823]">Excluir documento?</h2>
+            <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir o documento:</p>
+            <p className="mt-1 text-sm font-semibold text-[#A97A3C] break-words">{document.file_name}</p>
+            <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita e o documento será removido dos arquivos do paciente.</p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl border-[#e6d8c5] text-xs text-[#746C64]">Cancelar</Button>
+          <Button type="button" onClick={confirm} disabled={loading} className="h-10 rounded-xl bg-[#c94b4b] text-xs font-semibold text-white hover:bg-[#b83d3d]">
+            {loading ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            {loading ? "Excluindo..." : "Sim, excluir documento"}
+          </Button>
         </div>
       </div>
     </motion.div>
