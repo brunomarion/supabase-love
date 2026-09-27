@@ -300,18 +300,7 @@ function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTa
         </div>
       </section>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <button type="button" onClick={() => onTab("exercicios")} className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
-          <Dumbbell className="size-6 text-[#BA9051]" strokeWidth={1.8} />
-          <h2 className="mt-4 text-lg font-semibold">Exercícios</h2>
-          <p className="mt-1 text-sm text-[#746C64]">{exerciseCount} {exerciseCount === 1 ? "exercício disponível" : "exercícios disponíveis"}.</p>
-        </button>
-        <button type="button" onClick={() => onTab("documentos")} className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
-          <FileText className="size-6 text-[#BA9051]" strokeWidth={1.8} />
-          <h2 className="mt-4 text-lg font-semibold">Documentos</h2>
-          <p className="mt-1 text-sm text-[#746C64]">{documentCount} {documentCount === 1 ? "documento disponível" : "documentos disponíveis"}.</p>
-        </button>
-      </div>
+
     </div>
   );
 }
@@ -345,7 +334,7 @@ function ContentState({ loading, error, onRetry }: { loading: boolean; error: st
 }
 
 function ExercisesTab({ exercises, loading, error, onRetry, onView }: { exercises: Exercise[]; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo Tio Erick." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
     <SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." />
     {exercises.length === 0 ? <EmptyContent icon={Dumbbell} title="Nenhum exercício disponível" text="Seu fisioterapeuta ainda não liberou exercícios para sua conta." /> :
