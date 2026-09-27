@@ -178,7 +178,7 @@ function PatientPage() {
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1 overflow-hidden pb-24 lg:pb-0">
+        <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-hidden pb-24 lg:pb-0">
           <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
             <div className="flex items-center justify-center lg:hidden">
               <img src={logo} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
@@ -188,7 +188,7 @@ function PatientPage() {
             </div>
           </header>
 
-          <div className="mx-auto h-full max-w-[1400px] overflow-hidden px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-14">
+          <div className="mx-auto h-full w-full max-w-[1400px] min-w-0 overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-14">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={tab}
@@ -381,7 +381,7 @@ function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, 
 }
 
 function SectionHeader({ icon: Icon, title, subtitle }: { icon: typeof Home; title: string; subtitle: string }) {
-  return <div className="flex items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" strokeWidth={1.8} /></span><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Área do paciente</p><h1 className="mt-1 text-xl font-semibold text-[#2D2823] sm:text-2xl">{title}</h1><p className="mt-1 text-sm text-[#746C64]">{subtitle}</p></div></div>;
+  return <div className="flex min-w-0 items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" strokeWidth={1.8} /></span><div className="min-w-0 flex-1"><h1 className="mt-1 text-xl font-semibold text-[#2D2823] sm:text-2xl">{title}</h1><p className="mt-1 text-sm text-[#746C64]">{subtitle}</p></div></div>;
 }
 
 function DocumentGroup({ title, items, empty, icon: Icon }: { title: string; items: { id: string; name: string; meta: string; onOpen: () => void; opening: boolean }[]; empty: string; icon: typeof FileText }) {
