@@ -210,7 +210,7 @@ function PatientPage() {
         </div>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-3 items-stretch gap-1 rounded-2xl border border-[#dfd0bb] bg-white/95 px-2 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-4 items-stretch gap-1 rounded-2xl border border-[#dfd0bb] bg-white/95 px-2 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
         {nav.map(({ id, label, icon: Icon }) => (
           <button key={id} type="button" onClick={() => setTab(id)} data-active={tab === id ? "true" : "false"} className={`premium-tab-button flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[9px] font-medium transition ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c] hover:bg-[#faf7f2]"}`}>
             <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
@@ -286,9 +286,7 @@ function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTa
 
       <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
         <div className="border-b border-[#eee5d9] px-5 py-4 sm:px-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Boas-vindas</p>
-          <h2 className="mt-1 text-lg font-semibold text-[#2D2823]">Vídeo de boas-vindas</h2>
-          <p className="mt-1 text-sm text-[#746C64]">Uma mensagem especial do seu fisioterapeuta para você.</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Boas Vindas</p>
         </div>
         <div className="bg-[#171412]">
           <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
@@ -296,8 +294,7 @@ function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTa
               <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
                 <Play className="ml-1 size-7 fill-current" />
               </span>
-              <p className="mt-4 text-sm font-semibold text-white">Vídeo de boas-vindas</p>
-              <p className="mt-1 text-xs text-white/60">O vídeo será disponibilizado aqui em breve.</p>
+              <p className="mt-4 text-sm font-semibold text-white">Boas Vindas</p>
             </div>
           </div>
         </div>
