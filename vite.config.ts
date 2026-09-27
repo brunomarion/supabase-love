@@ -12,4 +12,12 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    resolve: {
+      alias: {
+        // pdfjs-dist importa "canvas" opcionalmente (apenas em Node); usar stub vazio no bundle.
+        canvas: "/dev-server/src/lib/canvas-stub.ts",
+      },
+    },
+  },
 });

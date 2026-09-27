@@ -66,7 +66,7 @@ function LoginPage() {
 
   useEffect(() => {
     if (!sessionLoading && session) {
-      const isPatient = session.user.user_metadata?.account_type === "patient";
+      const isPatient = session.user.user_metadata?.["account_type"] === "patient";
       navigate({ to: isPatient ? "/paciente" : "/painel", replace: true });
     }
   }, [session, sessionLoading, navigate]);
@@ -110,7 +110,7 @@ function LoginPage() {
       if (error) { setErrors({ form: authErrorMessage(error) }); return; }
       setRememberedEmail(remember ? email.trim() : null);
       toast.success("Login realizado com sucesso.");
-      const isPatient = data.user?.user_metadata?.account_type === "patient";
+      const isPatient = data.user?.user_metadata?.["account_type"] === "patient";
       navigate({ to: isPatient ? "/paciente" : "/painel", replace: true });
     } catch (error) { setErrors({ form: authErrorMessage(error) }); }
     finally { setSubmitting(false); }

@@ -20,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/paciente")({
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/" });
-    if (data.user.user_metadata?.account_type !== "patient") {
+    if (data.user.user_metadata?.["account_type"] !== "patient") {
       throw redirect({ to: "/painel" });
     }
     return { user: data.user };
@@ -69,7 +69,7 @@ function PatientPage() {
       const { data: authData, error: authError } = await supabase.auth.getUser();
       if (authError || !authData.user) throw new Error("Sessão do paciente não encontrada.");
 
-      const metadataName = authData.user.user_metadata?.full_name;
+      const metadataName = authData.user.user_metadata?.["full_name"];
       if (typeof metadataName === "string" && metadataName.trim()) setPatientName(metadataName.trim());
 
       const { data: patientRow, error: patientError } = await supabase
@@ -123,8 +123,8 @@ function PatientPage() {
             const match = pdf.storage_path?.match(/^([^/]+)\/(.+)$/);
             if (!match) return null;
             const { data, error } = await supabase.storage
-              .from(match[1])
-              .createSignedUrl(match[2], 60 * 10);
+              .from(match[1]!)
+              .createSignedUrl(match[2]!, 60 * 10);
             if (error || !data?.signedUrl) return null;
             return [pdf.id, data.signedUrl] as const;
           } catch {
@@ -154,8 +154,8 @@ function PatientPage() {
       if (!storageBucket) {
         const match = storagePath.match(/^([^/]+)\/(.+)$/);
         if (!match) throw new Error("Arquivo inválido.");
-        storageBucket = match[1];
-        storageObjectPath = match[2];
+        storageBucket = match[1]!;
+        storageObjectPath = match[2]!;
       }
 
       const { data, error } = await supabase.storage.from(storageBucket).createSignedUrl(storageObjectPath, 60 * 10);
@@ -445,7 +445,6 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
 
         const loadingTask = getDocument({
           data: new Uint8Array(buffer),
-          disableWorker: true,
           disableAutoFetch: true,
           disableStream: true,
         });
