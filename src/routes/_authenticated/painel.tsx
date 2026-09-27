@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated/painel")({
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/" });
-    if (data.user.user_metadata?.account_type === "patient") {
+    if (data.user.user_metadata?.["account_type"] === "patient") {
       throw redirect({ to: "/paciente" });
     }
     return { user: data.user };
@@ -219,7 +219,7 @@ function PainelPage() {
     try {
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
       const path = physiotherapistId + "/" + accessPatient.id + "/" + crypto.randomUUID() + "-" + safeName;
-      const { error: uploadError } = await supabase.storage.from("patient-documents").upload(path, file, { upsert: false, contentType: file.type || undefined });
+      const { error: uploadError } = await supabase.storage.from("patient-documents").upload(path, file, { upsert: false, contentType: file.type || "application/octet-stream" });
       if (uploadError) throw uploadError;
       const db = supabase as any;
       const { data, error: insertError } = await db.from("patient_documents").insert({
@@ -2125,7 +2125,7 @@ function DeletePdfModal({ pdf, loading, close, confirm }: { pdf: PdfMaterial; lo
   </motion.div>;
 }
 
-function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false, inputMode, error }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: "text" | "tel" | "numeric" | "email"; required?: boolean; type?: string; multiline?: boolean; error?: string }) {
+function Field({ label, value, onChange, placeholder, required, type = "text", multiline = false, inputMode, error }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; inputMode?: "text" | "tel" | "numeric" | "email"; required?: boolean; type?: string; multiline?: boolean; error?: string | undefined }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
   const className = "w-full rounded-xl border " + (error ? "border-[#d34f4f] bg-[#fff7f7]" : "border-[#e6d8c5] bg-[#fdfbf8]") + " px-3 text-base sm:text-sm outline-none focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10";
