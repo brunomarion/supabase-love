@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, ShieldCheck, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -34,6 +34,7 @@ type Patient = Tables<"patients">;
 type Exercise = Tables<"exercises">;
 type PdfMaterial = Tables<"pdf_materials">;
 type PatientSession = Tables<"patient_sessions">;
+type PatientDocument = { id: string; patient_id: string; physiotherapist_id: string; file_name: string; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string };
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
@@ -112,6 +113,13 @@ function PainelPage() {
   const [selectedSession, setSelectedSession] = useState<PatientSession | null>(null);
   const [editingSession, setEditingSession] = useState(false);
   const [confirmSession, setConfirmSession] = useState<PatientSession | null>(null);
+  const [accessPatient, setAccessPatient] = useState<Patient | null>(null);
+  const [accessExerciseIds, setAccessExerciseIds] = useState<Set<string>>(new Set());
+  const [accessPdfIds, setAccessPdfIds] = useState<Set<string>>(new Set());
+  const [patientDocuments, setPatientDocuments] = useState<PatientDocument[]>([]);
+  const [loadingAccess, setLoadingAccess] = useState(false);
+  const [savingAccess, setSavingAccess] = useState(false);
+  const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);
 
   useEffect(() => {
     void loadData();
@@ -142,6 +150,110 @@ function PainelPage() {
     }, 4500);
     return () => window.clearTimeout(timer);
   }, [notice, error]);
+
+  async function openPatientAccess(target: Patient) {
+    setAccessPatient(target);
+    setLoadingAccess(true);
+    setModal("access");
+    setError("");
+    try {
+      const db = supabase as any;
+      const [{ data: exerciseAccess, error: exerciseError }, { data: pdfAccess, error: pdfError }, { data: documents, error: documentsError }] = await Promise.all([
+        db.from("patient_exercise_access").select("exercise_id").eq("patient_id", target.id),
+        db.from("patient_pdf_access").select("pdf_material_id").eq("patient_id", target.id),
+        db.from("patient_documents").select("*").eq("patient_id", target.id).order("created_at", { ascending: false }),
+      ]);
+      if (exerciseError) throw exerciseError;
+      if (pdfError) throw pdfError;
+      if (documentsError) throw documentsError;
+      setAccessExerciseIds(new Set((exerciseAccess ?? []).map((item: { exercise_id: string }) => item.exercise_id)));
+      setAccessPdfIds(new Set((pdfAccess ?? []).map((item: { pdf_material_id: string }) => item.pdf_material_id)));
+      setPatientDocuments((documents ?? []) as PatientDocument[]);
+    } catch (err) {
+      console.error(err);
+      setError("Não foi possível carregar os acessos deste paciente. Verifique se a estrutura de acessos já foi criada no Supabase.");
+    } finally {
+      setLoadingAccess(false);
+    }
+  }
+
+  async function savePatientAccess() {
+    if (!accessPatient || !physiotherapistId) return;
+    setSavingAccess(true);
+    setError("");
+    try {
+      const db = supabase as any;
+      const { error: deleteExercisesError } = await db.from("patient_exercise_access").delete().eq("patient_id", accessPatient.id);
+      if (deleteExercisesError) throw deleteExercisesError;
+      const { error: deletePdfsError } = await db.from("patient_pdf_access").delete().eq("patient_id", accessPatient.id);
+      if (deletePdfsError) throw deletePdfsError;
+
+      if (accessExerciseIds.size) {
+        const { error } = await db.from("patient_exercise_access").insert(
+          Array.from(accessExerciseIds).map((exercise_id) => ({ patient_id: accessPatient.id, exercise_id, physiotherapist_id: physiotherapistId }))
+        );
+        if (error) throw error;
+      }
+      if (accessPdfIds.size) {
+        const { error } = await db.from("patient_pdf_access").insert(
+          Array.from(accessPdfIds).map((pdf_material_id) => ({ patient_id: accessPatient.id, pdf_material_id, physiotherapist_id: physiotherapistId }))
+        );
+        if (error) throw error;
+      }
+      setPatientToast("Acessos do paciente atualizados com sucesso.");
+      setModal(null);
+      setAccessPatient(null);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Não foi possível salvar os acessos do paciente.");
+    } finally {
+      setSavingAccess(false);
+    }
+  }
+
+  async function uploadPatientDocument(file: File) {
+    if (!accessPatient || !physiotherapistId) return;
+    setUploadingPatientDocument(true);
+    setError("");
+    try {
+      const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
+      const path = physiotherapistId + "/" + accessPatient.id + "/" + crypto.randomUUID() + "-" + safeName;
+      const { error: uploadError } = await supabase.storage.from("patient-documents").upload(path, file, { upsert: false, contentType: file.type || undefined });
+      if (uploadError) throw uploadError;
+      const db = supabase as any;
+      const { data, error: insertError } = await db.from("patient_documents").insert({
+        patient_id: accessPatient.id,
+        physiotherapist_id: physiotherapistId,
+        file_name: file.name,
+        storage_path: path,
+        mime_type: file.type || null,
+        file_size: file.size,
+      }).select("*").single();
+      if (insertError) throw insertError;
+      setPatientDocuments((current) => [data as PatientDocument, ...current]);
+      setPatientToast("Documento anexado com sucesso.");
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Não foi possível anexar o documento.");
+    } finally {
+      setUploadingPatientDocument(false);
+    }
+  }
+
+  async function deletePatientDocument(document: PatientDocument) {
+    try {
+      const { error: storageError } = await supabase.storage.from("patient-documents").remove([document.storage_path]);
+      if (storageError) throw storageError;
+      const db = supabase as any;
+      const { error } = await db.from("patient_documents").delete().eq("id", document.id);
+      if (error) throw error;
+      setPatientDocuments((current) => current.filter((item) => item.id !== document.id));
+      setPatientToast("Documento removido.");
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Não foi possível remover o documento.");
+    }
+  }
 
   async function getPhysiotherapistId() {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -910,7 +1022,7 @@ function PainelPage() {
 
             <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
-              {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onSession={openSessionCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
+              {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onSession={openSessionCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onAccess={openPatientAccess} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
               {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onEditPdf={openPdfEdit} onDeletePdf={(item) => setConfirmPdf(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
@@ -930,6 +1042,56 @@ function PainelPage() {
       <AnimatePresence mode="wait">
         {confirmLogout && <LogoutModal loading={false} close={() => setConfirmLogout(false)} confirm={() => void logout()} />}
         {viewingExercise && <ExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
+
+      {modal === "access" && accessPatient && (
+        <Modal title={`Acessos de ${accessPatient.full_name}`} close={() => !savingAccess && setModal(null)}>
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Permissões individuais</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#837970]">Selecione o conteúdo que este paciente poderá visualizar na própria conta.</p>
+            </div>
+
+            {loadingAccess ? <div className="flex min-h-40 items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Carregando acessos...</div> : <>
+              <AccessSection title="Exercícios em vídeo" icon={Dumbbell} empty="Nenhum exercício ativo cadastrado.">
+                {exercises.filter((item) => item.is_active).map((item) => (
+                  <AccessCheckbox key={item.id} checked={accessExerciseIds.has(item.id)} onChange={() => setAccessExerciseIds((current) => { const next = new Set(current); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} title={item.name} subtitle={item.type || "Vídeo"} />
+                ))}
+              </AccessSection>
+
+              <AccessSection title="Materiais em PDF" icon={FileText} empty="Nenhum PDF cadastrado.">
+                {pdfMaterials.map((item) => (
+                  <AccessCheckbox key={item.id} checked={accessPdfIds.has(item.id)} onChange={() => setAccessPdfIds((current) => { const next = new Set(current); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} title={item.name} subtitle={item.description || item.file_name} />
+                ))}
+              </AccessSection>
+
+              <div className="border-t border-[#eee5d9] pt-5">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div><h3 className="text-sm font-semibold text-[#A97A3C]">Relatórios e documentos</h3><p className="mt-0.5 text-[10px] text-[#948a81]">Arquivos privados disponíveis somente para este paciente.</p></div>
+                  <label className="flex h-9 cursor-pointer items-center gap-2 rounded-xl border border-[#dfc28f] bg-[#fffaf2] px-3 text-[11px] font-semibold text-[#A97A3C] transition hover:bg-[#f7eddf]">
+                    {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                    Anexar
+                    <input type="file" className="sr-only" disabled={uploadingPatientDocument} accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp" onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) void uploadPatientDocument(file); }} />
+                  </label>
+                </div>
+                <div className="space-y-2">
+                  {patientDocuments.length === 0 ? <div className="rounded-xl border border-dashed border-[#dfd2c1] bg-[#fdfbf8] px-4 py-6 text-center text-[11px] text-[#948a81]">Nenhum documento anexado para este paciente.</div> : patientDocuments.map((document) => (
+                    <div key={document.id} className="flex items-center gap-3 rounded-xl border border-[#e6d8c5] bg-white px-3 py-2.5">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f3e3cf] text-[#A97A3C]"><FileText className="size-4" /></span>
+                      <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium text-[#403a35]">{document.file_name}</p><p className="mt-0.5 text-[10px] text-[#948a81]">{formatFileSize(document.file_size)}</p></div>
+                      <button type="button" onClick={() => void deletePatientDocument(document)} className="flex size-8 shrink-0 items-center justify-center rounded-lg text-[#d66a6a] transition hover:bg-[#fff0f0]" aria-label={`Excluir ${document.file_name}`}><Trash2 className="size-3.5" /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 border-t border-[#eee5d9] pt-4">
+                <Button type="button" variant="outline" onClick={() => setModal(null)} disabled={savingAccess} className="h-10 rounded-xl border-[#dfd2c1] text-xs">Cancelar</Button>
+                <Button type="button" onClick={() => void savePatientAccess()} disabled={savingAccess} className="h-10 rounded-xl bg-[#BA9051] px-5 text-xs font-semibold text-white hover:bg-[#A97A3C]">{savingAccess ? <RefreshCw className="size-4 animate-spin" /> : null}Salvar acessos</Button>
+              </div>
+            </>}
+          </div>
+        </Modal>
+      )}
 
       {modal === "patient" && <Modal title={editingPatient ? "Editar paciente" : "Cadastro de pacientes"} close={() => !saving && setModal(null)}>
         <form onSubmit={savePatient} className="space-y-5">
@@ -1199,7 +1361,7 @@ function Dashboard({ patients, exercises, animateFirstEntry }: { patients: numbe
   </section>;
 }
 
-function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onSession: (patient: Patient) => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
+function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, onAccess, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onSession: (patient: Patient) => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; onAccess: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
   const [patientSearch, setPatientSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCpfs, setVisibleCpfs] = useState<Set<string>>(new Set());
@@ -1341,7 +1503,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
           <div className="sm:hidden divide-y divide-[#d9c8b4]">{filteredPatients.map((p) => (
             <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] gap-x-3 gap-y-2 px-3 py-3 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
               <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold">{p.full_name}</p><p className="text-[11px] text-[#948a81]">{formatPatientAge(p.birth_date)}</p></div></div>
-              <div className="row-span-2 flex items-center justify-end border-l border-[#e9dfd3] pl-3"><div className="grid grid-cols-2 grid-rows-2 content-center gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+              <div className="row-span-2 flex items-center justify-end border-l border-[#e9dfd3] pl-3"><div className="grid grid-cols-2 grid-rows-2 content-center gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Acessos do paciente" onClick={() => onAccess(p)}><ShieldCheck className="size-4" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
               </div>
               <div className="flex min-w-0 items-center gap-2"><Status active={p.status === "active"} /><span className="whitespace-nowrap text-[9px] text-[#948a81]">Data de Cadastro: {formatDate(p.created_at)}</span></div>
             </div>
@@ -1355,7 +1517,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
                 {p.cpf && <button type="button" onClick={() => toggleCpfVisibility(p.id)} aria-label="Visualizar CPF completo" title="Visualizar CPF completo" className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-[#e2cfb4] bg-[#fffdf9] text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5]"><Eye className="size-3.5" /></button>}
               </div>
               <div className="col-span-1"><Status active={p.status === "active"} /></div>
-              <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
+              <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Acessos do paciente" onClick={() => onAccess(p)}><ShieldCheck className="size-4" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
           ))}</div>
         </>}      </div>
       {filteredPatients.length > 0 && (
@@ -1942,6 +2104,28 @@ function SelectField({ label, value, onChange, options }: { label: string; value
 
 function Actions({ close, label, loading }: { close: () => void; label: string; loading: boolean }) {
   return <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end"><Button type="button" variant="outline" onClick={close} disabled={loading} className="h-10 rounded-xl text-xs">Cancelar</Button><Button type="submit" disabled={loading} className="h-10 rounded-xl bg-[#BA9051] text-xs font-semibold hover:bg-[#A97A3C]">{loading ? <RefreshCw className="size-4 animate-spin" /> : null}{loading ? "Salvando..." : label}</Button></div>;
+}
+
+function AccessSection({ title, icon: Icon, empty, children }: { title: string; icon: typeof Dumbbell; empty: string; children: ReactNode }) {
+  const hasChildren = !!children && (Array.isArray(children) ? children.length > 0 : true);
+  return <div className="space-y-2">
+    <div className="flex items-center gap-2"><span className="flex size-8 items-center justify-center rounded-lg bg-[#f3e3cf] text-[#A97A3C]"><Icon className="size-4" /></span><div><h3 className="text-sm font-semibold text-[#403a35]">{title}</h3><p className="text-[10px] text-[#948a81]">Marque os conteúdos liberados.</p></div></div>
+    <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] p-2">{hasChildren ? children : <p className="px-3 py-4 text-center text-[11px] text-[#948a81]">{empty}</p>}</div>
+  </div>;
+}
+
+function AccessCheckbox({ checked, onChange, title, subtitle }: { checked: boolean; onChange: () => void; title: string; subtitle: string }) {
+  return <label className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${checked ? "border-[#dfc28f] bg-[#fff8ec]" : "border-transparent hover:border-[#e6d8c5] hover:bg-white"}`}>
+    <input type="checkbox" checked={checked} onChange={onChange} className="size-4 accent-[#BA9051]" />
+    <span className="min-w-0 flex-1"><span className="block truncate text-xs font-semibold text-[#403a35]">{title}</span><span className="block truncate text-[10px] text-[#948a81]">{subtitle}</span></span>
+  </label>;
+}
+
+function formatFileSize(size: number | null) {
+  if (!size) return "Tamanho não informado";
+  if (size < 1024) return size + " B";
+  if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+  return (size / (1024 * 1024)).toFixed(1) + " MB";
 }
 
 function IconButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: ReactNode }) {
