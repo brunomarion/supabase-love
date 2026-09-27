@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, MapPin, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -385,28 +385,6 @@ function PainelPage() {
     } catch {
       // O endereço continua editável manualmente caso o serviço de CEP esteja indisponível.
     }
-  }
-
-  function getPatientAddress(item: Patient) {
-    return [
-      item.street,
-      item.number,
-      item.complement,
-      item.neighborhood,
-      item.city,
-      item.state,
-      item.cep,
-    ].filter(Boolean).join(", ");
-  }
-
-  function openPatientMap(item: Patient) {
-    const address = getPatientAddress(item);
-    if (!address) return;
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
   }
 
   async function saveSession(e: FormEvent<HTMLFormElement>) {
@@ -1221,7 +1199,7 @@ function Dashboard({ patients, exercises, animateFirstEntry }: { patients: numbe
   </section>;
 }
 
-function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, onMap, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onSession: (patient: Patient) => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; onMap: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
+function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, deleting, statusFilter, onStatusFilterChange }: { patients: Patient[]; patientCount: number; onAdd: () => void; onSession: (patient: Patient) => void; onEdit: (patient: Patient) => void; onDelete: (patient: Patient) => void; deleting: string | null; statusFilter: "all" | "active" | "inactive"; onStatusFilterChange: (value: "all" | "active" | "inactive") => void }) {
   const [patientSearch, setPatientSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCpfs, setVisibleCpfs] = useState<Set<string>>(new Set());
@@ -1265,10 +1243,6 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
       </label>
     </div>
   );
-
-  function getPatientAddress(item: Patient) {
-    return [item.street, item.number, item.complement, item.neighborhood, item.city, item.state, item.cep].filter(Boolean).join(", ");
-  }
 
   const filteredPatients = patients.filter((patient) => {
     const matchesStatus = statusFilter === "all" || patient.status === statusFilter;
@@ -1367,7 +1341,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
           <div className="sm:hidden divide-y divide-[#d9c8b4]">{filteredPatients.map((p) => (
             <div key={p.id} className={`grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] gap-x-3 gap-y-2 px-3 py-3 ${p.sex === "female" ? "bg-[#fff1f6] hover:bg-[#ffebf2]" : p.sex === "male" ? "bg-[#eff7ff] hover:bg-[#e7f2ff]" : "bg-white hover:bg-[#fdfbf8]"} transition-colors`}>
               <div className="flex min-w-0 items-center gap-2.5"><span className={`flex size-9 shrink-0 items-center justify-center rounded-full ${p.sex === "female" ? "bg-[#ffe4ef] text-[#d95c91]" : p.sex === "male" ? "bg-[#e2f0ff] text-[#3d82c8]" : "bg-[#f3e3cf] text-[#8a6335]"}`}>{p.sex === "male" || p.sex === "female" ? <UserRound className="size-[18px]" strokeWidth={2} /> : initials(p.full_name)}</span><div className="min-w-0"><p className="truncate text-[14px] font-semibold">{p.full_name}</p><p className="text-[11px] text-[#948a81]">{formatPatientAge(p.birth_date)}</p></div></div>
-              <div className="row-span-2 flex items-center justify-end border-l border-[#e9dfd3] pl-3"><div className="grid grid-cols-2 grid-rows-2 content-center gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
+              <div className="row-span-2 flex items-center justify-end border-l border-[#e9dfd3] pl-3"><div className="grid grid-cols-2 grid-rows-2 content-center gap-1.5"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div>
               </div>
               <div className="flex min-w-0 items-center gap-2"><Status active={p.status === "active"} /><span className="whitespace-nowrap text-[9px] text-[#948a81]">Data de Cadastro: {formatDate(p.created_at)}</span></div>
             </div>
@@ -1381,7 +1355,7 @@ function Patients({ patients, patientCount, onAdd, onSession, onEdit, onDelete, 
                 {p.cpf && <button type="button" onClick={() => toggleCpfVisibility(p.id)} aria-label="Visualizar CPF completo" title="Visualizar CPF completo" className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-[#e2cfb4] bg-[#fffdf9] text-[#A97A3C] transition hover:border-[#BA9051] hover:bg-[#f8f0e5]"><Eye className="size-3.5" /></button>}
               </div>
               <div className="col-span-1"><Status active={p.status === "active"} /></div>
-              <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton>{getPatientAddress(p) && <IconButton label="Abrir endereço no Google Maps" onClick={() => onMap(p)}><MapPin className="size-4" /></IconButton>}<IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
+              <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2"><IconButton label="Registrar sessão" onClick={() => onSession(p)}><CalendarPlus className="size-4" /></IconButton><IconButton label="Editar" onClick={() => onEdit(p)}><Pencil className="size-4" /></IconButton><IconButton label="Excluir" onClick={() => onDelete(p)} disabled={deleting === p.id}>{deleting === p.id ? <RefreshCw className="size-4 animate-spin" /> : <Trash2 className="size-4" />}</IconButton></div></div>
           ))}</div>
         </>}      </div>
       {filteredPatients.length > 0 && (
@@ -1971,14 +1945,11 @@ function Actions({ close, label, loading }: { close: () => void; label: string; 
 }
 
 function IconButton({ label, onClick, disabled, children }: { label: string; onClick: () => void; disabled?: boolean; children: ReactNode }) {
-  const location = label === "Abrir endereço no Google Maps";
   const destructive = label === "Excluir";
   const edit = label === "Editar";
   const session = label === "Registrar sessão";
 
-  const variant = location
-    ? "border-transparent bg-[linear-gradient(135deg,#4285F4_0%,#34A853_38%,#FBBC05_68%,#EA4335_100%)] text-white shadow-[0_4px_12px_rgba(66,133,244,0.22)] hover:-translate-y-0.5 hover:shadow-[0_7px_16px_rgba(66,133,244,0.28)]"
-    : destructive
+  const variant = destructive
       ? "border-[#dc4c4c] bg-[#d94b4b] text-white shadow-[0_4px_12px_rgba(217,75,75,0.20)] hover:-translate-y-0.5 hover:border-[#c83e3e] hover:bg-[#c83e3e] hover:shadow-[0_7px_16px_rgba(217,75,75,0.26)]"
       : session
       ? "border-[#d6b77f] bg-[#f4eadb] text-[#A97A3C] shadow-[0_4px_12px_rgba(186,144,81,0.16)] hover:-translate-y-0.5 hover:border-[#BA9051] hover:bg-[#ecddc8] hover:text-[#8f6631]"
