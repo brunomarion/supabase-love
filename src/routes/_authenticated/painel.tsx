@@ -910,7 +910,7 @@ function PainelPage() {
 
             <motion.div key={tab} className="premium-tab-content" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, ease: "easeOut" }}>
               {tab === "dashboard" && <Dashboard patients={activePatientCount} exercises={exerciseCount} animateFirstEntry={isFirstDashboardEntry} />}
-              {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onSession={openSessionCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onMap={openPatientMap} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
+              {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onSession={openSessionCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
               {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onEditPdf={openPdfEdit} onDeletePdf={(item) => setConfirmPdf(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
               {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
