@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
-import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { getDocument } from "pdfjs-dist";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { BookOpen, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -412,8 +411,6 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
   </section>;
 }
 
-GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-
 function PatientPdfModal({ pdf, previewUrl, close }: { pdf: PdfMaterial; previewUrl: string | null; close: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[75] flex items-center justify-center bg-[#2D2823]/60 p-2 backdrop-blur-sm sm:p-4" onClick={(e) => e.target === e.currentTarget && close()}>
@@ -441,12 +438,23 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
     async function renderPdf() {
       try {
         setState("loading");
-        const loadingTask = getDocument({ url });
+        const response = await fetch(url, { method: "GET", cache: "no-store" });
+        if (!response.ok) throw new Error(`Falha ao baixar o PDF: ${response.status}`);
+        const buffer = await response.arrayBuffer();
+        if (cancelled) return;
+
+        const loadingTask = getDocument({
+          data: new Uint8Array(buffer),
+          disableWorker: true,
+          disableAutoFetch: true,
+          disableStream: true,
+        });
         pdfDocument = await loadingTask.promise;
         if (cancelled) {
           await pdfDocument.destroy();
           return;
         }
+
         const container = containerRef.current;
         if (!container) throw new Error("Visualizador não encontrado.");
         container.replaceChildren();
@@ -460,6 +468,7 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           if (!context) throw new Error("Não foi possível preparar o documento.");
+
           const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
           canvas.width = Math.ceil(viewport.width * pixelRatio);
           canvas.height = Math.ceil(viewport.height * pixelRatio);
@@ -468,8 +477,10 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
           canvas.className = "block rounded-xl bg-white shadow-[0_6px_20px_rgba(64,48,30,0.08)]";
           context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
           container.appendChild(canvas);
+
           await page.render({ canvasContext: context, viewport }).promise;
         }
+
         if (!cancelled) setState("ready");
       } catch (error) {
         console.error("Erro ao renderizar PDF:", error);
@@ -478,7 +489,9 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
         if (pdfDocument && cancelled) await pdfDocument.destroy().catch(() => undefined);
       }
     }
+
     void renderPdf();
+
     return () => {
       cancelled = true;
       if (pdfDocument) void pdfDocument.destroy();
