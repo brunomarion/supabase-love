@@ -364,7 +364,7 @@ function ContentState({ loading, error, onRetry }: { loading: boolean; error: st
 
 function ExercisesTab({ exercises, patientName, patientSex, loading, error, onRetry, onView }: { exercises: Exercise[]; patientName: string; patientSex: "male" | "female" | ""; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
   const article = patientSex === "female" ? "a" : "o";
-  const personalizedSubtitle = `Exercícios recomendados pelo Tio Erick para ${article} ${patientName.split(" ")[0]}.`;
+  const personalizedSubtitle = `Exercícios recomendados para ${article} ${patientName.split(" ")[0]}.`;
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
     <SectionHeader icon={Dumbbell} title="Exercícios" subtitle={personalizedSubtitle} />
@@ -392,7 +392,7 @@ function ExercisesTab({ exercises, patientName, patientSex, loading, error, onRe
 
 function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, onRetry, onView }: { pdfMaterials: PdfMaterial[]; patientName: string; patientSex: "male" | "female" | ""; previewUrls: Record<string, string>; loading: boolean; error: string; onRetry: () => void; onView: (pdf: PdfMaterial) => void }) {
   const article = patientSex === "female" ? "a" : "o";
-  const personalizedSubtitle = `Orientações recomendadas pelo Tio Erick para ${article} ${patientName.split(" ")[0]}.`;
+  const personalizedSubtitle = `Orientações recomendadas para ${article} ${patientName.split(" ")[0]}.`;
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
     <SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} />
