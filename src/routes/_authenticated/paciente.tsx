@@ -45,6 +45,7 @@ function PatientPage() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [isFirstDashboardEntry, setIsFirstDashboardEntry] = useState(true);
   const [patientName, setPatientName] = useState("Paciente");
+  const [responsibleName, setResponsibleName] = useState("Responsável");
   const [patientSex, setPatientSex] = useState<"male" | "female" | "">("");
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
@@ -74,7 +75,7 @@ function PatientPage() {
 
       const { data: patientRow, error: patientError } = await supabase
         .from("patients")
-        .select("id, full_name, sex")
+        .select("id, full_name, sex, responsible_name")
         .eq("auth_user_id", authData.user.id)
         .maybeSingle();
 
@@ -82,6 +83,7 @@ function PatientPage() {
       if (!patientRow) throw new Error("Paciente autenticado não encontrado.");
       setPatientId(patientRow.id);
       if (patientRow.full_name?.trim()) setPatientName(patientRow.full_name.trim());
+      if (patientRow.responsible_name?.trim()) setResponsibleName(patientRow.responsible_name.trim());
       setPatientSex(patientRow.sex === "female" ? "female" : patientRow.sex === "male" ? "male" : "");
 
       const [
@@ -224,7 +226,7 @@ function PatientPage() {
                 transition={{ duration: 0.36, ease: "easeOut" }}
               >
                 {tab === "dashboard" && (
-                  <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
+                  <Dashboard name={patientName} responsibleName={responsibleName} patientSex={patientSex} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
                 {tab === "exercicios" && <ExercisesTab exercises={exercises} patientName={patientName} patientSex={patientSex} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
                 {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} patientName={patientName} patientSex={patientSex} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingPdf} />}
@@ -301,13 +303,14 @@ function PatientPage() {
   );
 }
 
-function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTab }: { name: string; animateFirstEntry: boolean; exerciseCount: number; documentCount: number; onTab: (tab: Tab) => void }) {
+function Dashboard({ name, responsibleName, patientSex, animateFirstEntry, exerciseCount, documentCount, onTab }: { name: string; responsibleName: string; patientSex: "male" | "female" | ""; animateFirstEntry: boolean; exerciseCount: number; documentCount: number; onTab: (tab: Tab) => void }) {
+  const article = patientSex === "female" ? "a" : "o";
   return (
     <div className="space-y-8">
       <section className="p-0">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#BA9051]">Painel</p>
-        <h1 className="mt-2 text-2xl font-semibold text-[#2D2823] sm:text-3xl">Olá, {name.split(" ")[0]}!</h1>
-        <p className="mt-2 text-sm text-[#746C64]">Acompanhe aqui os conteúdos disponibilizados pelo seu fisioterapeuta.</p>
+        <h1 className="mt-2 text-2xl font-semibold text-[#2D2823] sm:text-3xl">Olá, {responsibleName.split(" ")[0]}! Como está {article} {name.split(" ")[0]} hoje? 💛</h1>
+        <p className="mt-2 text-sm text-[#746C64]">Estamos aqui para acompanhar vocês em cada etapa!</p>
       </section>
 
       <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
