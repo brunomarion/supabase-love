@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { BookOpen, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -410,24 +412,87 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
   </section>;
 }
 
+GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+
 function PatientPdfModal({ pdf, previewUrl, close }: { pdf: PdfMaterial; previewUrl: string | null; close: () => void }) {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[75] flex items-center justify-center bg-[#2D2823]/60 p-2 backdrop-blur-sm sm:p-4" onClick={(e) => e.target === e.currentTarget && close()}>
       <motion.div initial={{ opacity: 0, scale: 0.98, y: 8 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 8 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="relative flex h-[calc(100dvh-1rem)] w-full max-w-6xl flex-col overflow-hidden rounded-[1.25rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.34)] sm:h-[calc(100dvh-2rem)] sm:rounded-[1.5rem]">
         <div className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-[#eee5d9] bg-white px-3 sm:h-16 sm:px-5">
           <h2 className="min-w-0 truncate text-sm font-semibold text-[#2D2823] sm:text-base">{pdf.name}</h2>
-          <button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar documento" title="Fechar">
-            <X className="size-5" />
-          </button>
+          <button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar documento" title="Fechar"><X className="size-5" /></button>
         </div>
-        <div className="min-h-0 flex-1 bg-[#f1eee9] p-1 sm:p-2">
-          {previewUrl ? <iframe src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0`} title={pdf.name} className="size-full rounded-lg border border-[#ddd2c4] bg-white" /> : <div className="flex h-full items-center justify-center p-6 text-center text-sm text-[#948a81]">Não foi possível carregar este documento.</div>}
+        <div className="min-h-0 flex-1 overflow-y-auto bg-[#f1eee9] p-2 sm:p-4">
+          {previewUrl ? <PdfDocumentViewer url={previewUrl} title={pdf.name} /> : <div className="flex min-h-[320px] items-center justify-center p-6 text-center text-sm text-[#948a81]">Não foi possível carregar este documento.</div>}
         </div>
       </motion.div>
     </motion.div>
   );
 }
 
+function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+    let pdfDocument: Awaited<ReturnType<typeof getDocument>>["promise"] extends Promise<infer T> ? T : never;
+
+    async function renderPdf() {
+      try {
+        setState("loading");
+        const loadingTask = getDocument({ url });
+        pdfDocument = await loadingTask.promise;
+        if (cancelled) {
+          await pdfDocument.destroy();
+          return;
+        }
+        const container = containerRef.current;
+        if (!container) throw new Error("Visualizador não encontrado.");
+        container.replaceChildren();
+
+        for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+          if (cancelled) break;
+          const page = await pdfDocument.getPage(pageNumber);
+          const baseViewport = page.getViewport({ scale: 1 });
+          const availableWidth = Math.max(container.clientWidth - 8, 280);
+          const viewport = page.getViewport({ scale: availableWidth / baseViewport.width });
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          if (!context) throw new Error("Não foi possível preparar o documento.");
+          const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = Math.ceil(viewport.width * pixelRatio);
+          canvas.height = Math.ceil(viewport.height * pixelRatio);
+          canvas.style.width = "100%";
+          canvas.style.height = "auto";
+          canvas.className = "block rounded-xl bg-white shadow-[0_6px_20px_rgba(64,48,30,0.08)]";
+          context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+          container.appendChild(canvas);
+          await page.render({ canvasContext: context, viewport }).promise;
+        }
+        if (!cancelled) setState("ready");
+      } catch (error) {
+        console.error("Erro ao renderizar PDF:", error);
+        if (!cancelled) setState("error");
+      } finally {
+        if (pdfDocument && cancelled) await pdfDocument.destroy().catch(() => undefined);
+      }
+    }
+    void renderPdf();
+    return () => {
+      cancelled = true;
+      if (pdfDocument) void pdfDocument.destroy();
+    };
+  }, [url]);
+
+  return (
+    <div className="relative min-h-full">
+      {state === "loading" && <div className="flex min-h-[320px] items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Carregando orientação...</div>}
+      {state === "error" && <div className="flex min-h-[320px] flex-col items-center justify-center p-6 text-center"><FileText className="size-10 text-[#BA9051]" /><p className="mt-3 text-sm font-semibold text-[#2D2823]">Não foi possível visualizar esta orientação.</p><p className="mt-1 max-w-md text-xs leading-relaxed text-[#948a81]">O documento não pôde ser renderizado neste momento.</p></div>}
+      <div ref={containerRef} className={state === "error" ? "hidden" : "space-y-3"} aria-label={title} />
+    </div>
+  );
+}
 function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
