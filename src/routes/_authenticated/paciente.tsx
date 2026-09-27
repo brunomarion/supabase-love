@@ -422,13 +422,19 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
     {pdfMaterials.length === 0 ? (
       <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">Nenhuma orientação em PDF foi liberada para você.</div>
     ) : (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {pdfMaterials.map((pdf) => (
-          <article key={pdf.id} className="flex min-w-0 items-center gap-3 rounded-[1.25rem] border border-[#E6D8C5] bg-white p-4 shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:border-[#d7bd94] hover:shadow-[0_14px_34px_rgba(64,48,30,0.09)]">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><FileText className="size-5" /></span>
-            <div className="min-w-0 flex-1"><h3 className="truncate text-sm font-semibold text-[#2D2823]">{pdf.name}</h3></div>
-            <button type="button" onClick={() => onView(pdf)} disabled={!previewUrls[pdf.id]} className="flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-[#BA9051] px-3 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45">
-              <ExternalLink className="size-3.5" />Visualizar
+          <article key={pdf.id} className="flex min-h-[180px] min-w-0 flex-col justify-between rounded-[1.35rem] border border-[#E6D8C5] bg-white p-5 shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:border-[#d7bd94] hover:shadow-[0_16px_38px_rgba(64,48,30,0.10)] sm:p-6">
+            <div>
+              <div className="flex items-start justify-between gap-4">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><FileText className="size-6" /></span>
+                <span className="rounded-full border border-[#E6D8C5] bg-[#fffaf2] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#A97A3C]">PDF</span>
+              </div>
+              <h3 className="mt-5 line-clamp-2 text-base font-semibold leading-snug text-[#2D2823]">{pdf.name}</h3>
+              <p className="mt-2 text-xs leading-relaxed text-[#746C64]">Material de orientação preparado pelo seu fisioterapeuta para acompanhamento em casa.</p>
+            </div>
+            <button type="button" onClick={() => onView(pdf)} disabled={!previewUrls[pdf.id]} className="mt-6 flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(186,144,81,0.20)] transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45">
+              <ExternalLink className="size-4" />Visualizar orientação
             </button>
           </article>
         ))}
@@ -532,10 +538,10 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
   );
 }
 function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Aqui você encontra relatórios e documentos solicitados" /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
     <SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." />
-    <DocumentGroup title="Relatórios e documentos" items={documents.map((document) => ({ id: document.id, name: document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
+    <DocumentGroup title="" items={documents.map((document) => ({ id: document.id, name: document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
   </section>;
 }
 
@@ -544,7 +550,7 @@ function SectionHeader({ icon: Icon, title, subtitle }: { icon: typeof Home; tit
 }
 
 function DocumentGroup({ title, items, empty, icon: Icon }: { title: string; items: { id: string; name: string; meta: string; onOpen: () => void; opening: boolean }[]; empty: string; icon: typeof FileText }) {
-  return <div className="space-y-3"><h2 className="text-sm font-semibold text-[#A97A3C]">{title}</h2>{items.length === 0 ? <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">{empty}</div> : <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <article key={item.id} className="flex items-center gap-3 rounded-2xl border border-[#E6D8C5] bg-white p-4 shadow-[0_8px_24px_rgba(64,48,30,0.05)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Icon className="size-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-xs font-semibold text-[#2D2823]">{item.name}</h3><p className="mt-1 truncate text-[10px] text-[#948a81]">{item.meta}</p></div><button type="button" onClick={item.onOpen} disabled={item.opening} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${item.name}`} title={`Abrir ${item.name}`}>{item.opening ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}</button></article>)}</div>}</div>;
+  return <div className="space-y-3">{title && <h2 className="text-sm font-semibold text-[#A97A3C]">{title}</h2>}{items.length === 0 ? <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">{empty}</div> : <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <article key={item.id} className="flex items-center gap-3 rounded-2xl border border-[#E6D8C5] bg-white p-4 shadow-[0_8px_24px_rgba(64,48,30,0.05)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Icon className="size-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-xs font-semibold text-[#2D2823]">{item.name}</h3><p className="mt-1 truncate text-[10px] text-[#948a81]">{item.meta}</p></div><button type="button" onClick={item.onOpen} disabled={item.opening} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${item.name}`} title={`Abrir ${item.name}`}>{item.opening ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}</button></article>)}</div>}</div>;
 }
 
 function EmptyContent({ icon: Icon, title, text }: { icon: typeof Home; title: string; text: string }) {
