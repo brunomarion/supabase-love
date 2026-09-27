@@ -274,12 +274,12 @@ function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTa
       </section>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <button type="button" className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
+        <button type="button" onClick={() => onTab("exercicios")} className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
           <Dumbbell className="size-6 text-[#BA9051]" strokeWidth={1.8} />
           <h2 className="mt-4 text-lg font-semibold">Exercícios</h2>
           <p className="mt-1 text-sm text-[#746C64]">{exerciseCount} {exerciseCount === 1 ? "exercício disponível" : "exercícios disponíveis"}.</p>
         </button>
-        <button type="button" className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
+        <button type="button" onClick={() => onTab("documentos")} className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
           <FileText className="size-6 text-[#BA9051]" strokeWidth={1.8} />
           <h2 className="mt-4 text-lg font-semibold">Documentos</h2>
           <p className="mt-1 text-sm text-[#746C64]">{documentCount} {documentCount === 1 ? "documento disponível" : "documentos disponíveis"}.</p>
