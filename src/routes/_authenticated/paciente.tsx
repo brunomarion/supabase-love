@@ -284,6 +284,25 @@ function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTa
         <p className="mt-2 text-sm text-[#746C64]">Acompanhe aqui os conteúdos disponibilizados pelo seu fisioterapeuta.</p>
       </section>
 
+      <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
+        <div className="border-b border-[#eee5d9] px-5 py-4 sm:px-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Boas-vindas</p>
+          <h2 className="mt-1 text-lg font-semibold text-[#2D2823]">Vídeo de boas-vindas</h2>
+          <p className="mt-1 text-sm text-[#746C64]">Uma mensagem especial do seu fisioterapeuta para você.</p>
+        </div>
+        <div className="bg-[#171412]">
+          <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
+            <div className="text-center">
+              <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
+                <Play className="ml-1 size-7 fill-current" />
+              </span>
+              <p className="mt-4 text-sm font-semibold text-white">Vídeo de boas-vindas</p>
+              <p className="mt-1 text-xs text-white/60">O vídeo será disponibilizado aqui em breve.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-5 md:grid-cols-2">
         <button type="button" onClick={() => onTab("exercicios")} className="rounded-[1.5rem] border border-[#E6D8C5] bg-white p-6 text-left shadow-[0_10px_30px_rgba(64,48,30,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(64,48,30,0.10)]">
           <Dumbbell className="size-6 text-[#BA9051]" strokeWidth={1.8} />
