@@ -118,7 +118,7 @@ function LoginPage() {
 
   function handleForgotPassword() {
     const phone = "5583986422203";
-    const message = "Olá, Erick! Estou com problemas para acessar o sistema e preciso de ajuda com meu login e senha.";
+    const message = "Olá, Tio Erick! 👋 Estou com problemas para acessar o sistema e preciso de ajuda com meu login e senha. 🔐 Poderia me ajudar? 😊";
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   }
 
