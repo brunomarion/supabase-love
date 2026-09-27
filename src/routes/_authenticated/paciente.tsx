@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, Play, Download, ExternalLink, RefreshCw } from "lucide-react";
+import { Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
@@ -51,6 +51,7 @@ function PatientPage() {
   const [loadingContent, setLoadingContent] = useState(true);
   const [contentError, setContentError] = useState("");
   const [openingFile, setOpeningFile] = useState<string | null>(null);
+  const [viewingExercise, setViewingExercise] = useState<Exercise | null>(null);
 
   useEffect(() => {
     void loadPatientContent();
@@ -192,7 +193,7 @@ function PatientPage() {
                 {tab === "dashboard" && (
                   <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={pdfMaterials.length + documents.length} onTab={setTab} />
                 )}
-                {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} />}
+                {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
                 {tab === "documentos" && <DocumentsTab pdfMaterials={pdfMaterials} documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id)} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
@@ -209,6 +210,7 @@ function PatientPage() {
       </nav>
 
       <AnimatePresence mode="wait">
+        {viewingExercise && <PatientExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
         {confirmLogout && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -289,13 +291,35 @@ function Dashboard({ name, animateFirstEntry, exerciseCount, documentCount, onTa
   );
 }
 
+function getVideoEmbedUrl(url: string | null) {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    if (host === "youtu.be") { const id = parsed.pathname.slice(1).split("/")[0]; return id ? "https://www.youtube.com/embed/" + id + "?rel=0" : null; }
+    if (host === "youtube.com" || host === "m.youtube.com") { const id = parsed.searchParams.get("v") || parsed.pathname.match(/\/(?:shorts|embed)\/([^/?]+)/)?.[1]; return id ? "https://www.youtube.com/embed/" + id + "?rel=0" : null; }
+    if (host === "vimeo.com" || host === "player.vimeo.com") { const id = parsed.pathname.match(/\/(?:video\/)?(\d+)/)?.[1]; return id ? "https://player.vimeo.com/video/" + id : null; }
+    return url;
+  } catch { return null; }
+}
+
+function PatientExerciseVideoModal({ exercise, close }: { exercise: Exercise; close: () => void }) {
+  const embedUrl = getVideoEmbedUrl(exercise.video_url);
+  return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.28, ease: "easeOut" }} className="premium-modal-backdrop fixed inset-0 z-[70] flex items-center justify-center overflow-hidden bg-[#2D2823]/55 p-3 backdrop-blur-sm sm:p-5" onClick={(e) => e.target === e.currentTarget && close()}>
+    <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }} transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }} className="premium-modal-panel max-h-[calc(100dvh-1.5rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-[1.5rem] border border-[#e3d3bd] bg-white shadow-[0_30px_100px_rgba(45,40,35,0.32)] sm:max-h-[calc(100dvh-2.5rem)]">
+      <div className="flex items-center justify-between gap-4 border-b border-[#eee5d9] px-4 py-3 sm:px-5 sm:py-4"><div className="min-w-0"><p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#A97A3C]">{exercise.type || "Vídeo"}</p><h2 className="mt-0.5 truncate text-base font-semibold text-[#302b26] sm:text-lg">{exercise.name}</h2></div><button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-[#e2cfb4] bg-[#fffdf9] text-[#746c64] transition hover:border-[#BA9051] hover:bg-[#f8f0e5] hover:text-[#A97A3C]" aria-label="Fechar vídeo"><X className="size-5" /></button></div>
+      <div className="bg-[#171412]">{embedUrl ? <div className="aspect-video w-full"><iframe src={embedUrl} title={exercise.name} className="size-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /></div> : <div className="flex aspect-video items-center justify-center p-6 text-center text-sm text-white/70">Este exercício ainda não possui um link de vídeo válido.</div>}</div>
+      <div className="px-5 py-4 sm:px-6 sm:py-5"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#A97A3C]">Orientações</p><p className="mt-2 text-sm leading-relaxed text-[#746c64]">{exercise.description || "Nenhuma orientação cadastrada para este exercício."}</p></div>
+    </motion.div>
+  </motion.div>;
+}
 function ContentState({ loading, error, onRetry }: { loading: boolean; error: string; onRetry: () => void }) {
   if (loading) return <div className="flex min-h-[280px] items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Carregando conteúdos...</div>;
   if (error) return <div className="rounded-2xl border border-[#efcaca] bg-[#fff7f7] p-6 text-center"><p className="text-sm font-medium text-[#c94b4b]">Não foi possível carregar os conteúdos.</p><p className="mt-1 text-xs text-[#8a8178]">{error}</p><button type="button" onClick={onRetry} className="mt-4 rounded-xl bg-[#BA9051] px-4 py-2 text-xs font-semibold text-white hover:bg-[#A97A3C]">Tentar novamente</button></div>;
   return null;
 }
 
-function ExercisesTab({ exercises, loading, error, onRetry }: { exercises: Exercise[]; loading: boolean; error: string; onRetry: () => void }) {
+function ExercisesTab({ exercises, loading, error, onRetry, onView }: { exercises: Exercise[]; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
     <SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." />
@@ -307,7 +331,7 @@ function ExercisesTab({ exercises, loading, error, onRetry }: { exercises: Exerc
             <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#A97A3C] shadow"><Play className="size-3" />Vídeo</span>
           </div>
           <div className="p-5"><h2 className="truncate text-base font-semibold text-[#2D2823]">{exercise.name}</h2>{exercise.description && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#746C64]">{exercise.description}</p>}
-            {exercise.video_url ? <a href={exercise.video_url} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white transition hover:bg-[#A97A3C]"><Play className="size-4" />Assistir exercício</a> : <p className="mt-4 text-[11px] text-[#a79d94]">Vídeo indisponível.</p>}
+            {exercise.video_url ? <button type="button" onClick={() => onView(exercise)} className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#BA9051] px-4 text-xs font-semibold text-white transition hover:bg-[#A97A3C]"><Play className="size-4" />Assistir exercício</button> : <p className="mt-4 text-[11px] text-[#a79d94]">Vídeo indisponível.</p>}
           </div>
         </article>
       ))}</div>}
