@@ -116,13 +116,10 @@ function LoginPage() {
     finally { setSubmitting(false); }
   }
 
-  async function handleForgotPassword() {
-    if (!email.trim() || isCpf(email.trim())) { setErrors({ email: "A recuperação de senha está disponível por e-mail." }); return; }
-    try {
-      const { error } = await sendPasswordReset(email);
-      if (error) { toast.error(authErrorMessage(error)); return; }
-      toast.success("Enviamos um link de recuperação para o seu e-mail.");
-    } catch (error) { toast.error(authErrorMessage(error)); }
+  function handleForgotPassword() {
+    const phone = "5583986422203";
+    const message = "Olá, Erick! Estou com problemas para acessar o sistema e preciso de ajuda com meu login e senha.";
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   }
 
   return (
