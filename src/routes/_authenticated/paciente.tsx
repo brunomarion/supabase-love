@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
+import { BookOpen, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/paciente")({
   component: PatientPage,
 });
 
-type Tab = "dashboard" | "exercicios" | "documentos";
+type Tab = "dashboard" | "exercicios" | "orientacoes" | "documentos";
 type Exercise = Tables<"exercises">;
 type PdfMaterial = Tables<"pdf_materials">;
 type PatientDocument = Tables<"patient_documents">;
@@ -35,6 +35,7 @@ type PatientDocument = Tables<"patient_documents">;
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
   { id: "exercicios", label: "Exercícios", icon: Dumbbell },
+  { id: "orientacoes", label: "Orientações", icon: BookOpen },
   { id: "documentos", label: "Documentos", icon: FileText },
 ];
 
@@ -191,10 +192,10 @@ function PatientPage() {
                 transition={{ duration: 0.36, ease: "easeOut" }}
               >
                 {tab === "dashboard" && (
-                  <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={pdfMaterials.length + documents.length} onTab={setTab} />
+                  <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
                 {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
-                {tab === "documentos" && <DocumentsTab pdfMaterials={pdfMaterials} documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id)} onRetry={() => void loadPatientContent()} />}
+                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}\n                {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id)} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -339,11 +340,18 @@ function ExercisesTab({ exercises, loading, error, onRetry, onView }: { exercise
   </section>;
 }
 
-function DocumentsTab({ pdfMaterials, documents, loading, error, openingFile, onOpenPdf, onOpenDocument, onRetry }: { pdfMaterials: PdfMaterial[]; documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Materiais e documentos disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+function OrientacoesTab({ pdfMaterials, loading, error, openingFile, onOpenPdf, onRetry }: { pdfMaterials: PdfMaterial[]; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onRetry: () => void }) {
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
-    <SectionHeader icon={FileText} title="Documentos" subtitle="Materiais e documentos disponibilizados pelo seu fisioterapeuta." />
-    <DocumentGroup title="Materiais em PDF" items={pdfMaterials.map((pdf) => ({ id: pdf.id, name: pdf.name, meta: pdf.file_name, onOpen: () => onOpenPdf(pdf), opening: openingFile === pdf.id }))} empty="Nenhum PDF foi liberado para você." icon={FileText} />
+    <SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo seu fisioterapeuta." />
+    <DocumentGroup title="Materiais em PDF" items={pdfMaterials.map((pdf) => ({ id: pdf.id, name: pdf.name, meta: pdf.file_name, onOpen: () => onOpenPdf(pdf), opening: openingFile === pdf.id }))} empty="Nenhuma orientação em PDF foi liberada para você." icon={FileText} />
+  </section>;
+}
+
+function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  return <section className="space-y-6">
+    <SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." />
     <DocumentGroup title="Relatórios e documentos" items={documents.map((document) => ({ id: document.id, name: document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
   </section>;
 }
