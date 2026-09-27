@@ -44,6 +44,7 @@ function PatientPage() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [isFirstDashboardEntry, setIsFirstDashboardEntry] = useState(true);
   const [patientName, setPatientName] = useState("Paciente");
+  const [patientSex, setPatientSex] = useState<"male" | "female" | "">("");
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -71,7 +72,7 @@ function PatientPage() {
 
       const { data: patientRow, error: patientError } = await supabase
         .from("patients")
-        .select("id, full_name")
+        .select("id, full_name, sex")
         .eq("auth_user_id", authData.user.id)
         .maybeSingle();
 
@@ -79,6 +80,7 @@ function PatientPage() {
       if (!patientRow) throw new Error("Paciente autenticado não encontrado.");
       setPatientId(patientRow.id);
       if (patientRow.full_name?.trim()) setPatientName(patientRow.full_name.trim());
+      setPatientSex(patientRow.sex === "female" ? "female" : patientRow.sex === "male" ? "male" : "");
 
       const [
         { data: exerciseAccess, error: exerciseAccessError },
@@ -222,8 +224,8 @@ function PatientPage() {
                 {tab === "dashboard" && (
                   <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
-                {tab === "exercicios" && <ExercisesTab exercises={exercises} patientName={patientName} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
-                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}
+                {tab === "exercicios" && <ExercisesTab exercises={exercises} patientName={patientName} patientSex={patientSex} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
+                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} patientName={patientName} patientSex={patientSex} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}
                 {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
@@ -354,10 +356,12 @@ function ContentState({ loading, error, onRetry }: { loading: boolean; error: st
   return null;
 }
 
-function ExercisesTab({ exercises, patientName, loading, error, onRetry, onView }: { exercises: Exercise[]; patientName: string; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle={`Exercícios recomendados pelo Tio Erick para ${patientName.split(" ")[0]}.`} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+function ExercisesTab({ exercises, patientName, patientSex, loading, error, onRetry, onView }: { exercises: Exercise[]; patientName: string; patientSex: "male" | "female" | ""; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
+  const article = patientSex === "female" ? "a" : "o";
+  const personalizedSubtitle = `Exercícios recomendados pelo Tio Erick para ${article} ${patientName.split(" ")[0]}.`;
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
-    <SectionHeader icon={Dumbbell} title="Exercícios" subtitle={`Exercícios recomendados pelo Tio Erick para ${patientName.split(" ")[0]}.`} />
+    <SectionHeader icon={Dumbbell} title="Exercícios" subtitle={personalizedSubtitle} />
     {exercises.length === 0 ? <EmptyContent icon={Dumbbell} title="Nenhum exercício disponível" text="Seu fisioterapeuta ainda não liberou exercícios para sua conta." /> :
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{exercises.map((exercise) => (
         <article key={exercise.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
@@ -374,10 +378,12 @@ function ExercisesTab({ exercises, patientName, loading, error, onRetry, onView 
   </section>;
 }
 
-function OrientacoesTab({ pdfMaterials, previewUrls, loading, error, openingFile, onOpenPdf, onRetry }: { pdfMaterials: PdfMaterial[]; previewUrls: Record<string, string>; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onRetry: () => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo Tio Erick." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, openingFile, onOpenPdf, onRetry }: { pdfMaterials: PdfMaterial[]; previewUrls: Record<string, string>; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onRetry: () => void }) {
+  const article = patientSex === "female" ? "a" : "o";
+  const personalizedSubtitle = `Orientações recomendadas pelo Tio Erick para ${article} ${patientName.split(" ")[0]}.`;
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
-    <SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo Tio Erick." />
+    <SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} />
     <div className="space-y-5">
       <h2 className="text-sm font-semibold text-[#A97A3C]">Materiais em PDF</h2>
       {pdfMaterials.length === 0 ? (
