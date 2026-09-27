@@ -419,18 +419,6 @@ function PatientPdfModal({ pdf, previewUrl, close }: { pdf: PdfMaterial; preview
     </motion.div>
   );
 }
-t-center text-xs text-[#948a81]">
-                    Não foi possível incorporar este PDF.
-                  </div>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-    </div>
-  </section>;
-}
 
 function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
