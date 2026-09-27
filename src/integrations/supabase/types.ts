@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      patient_exercise_access: {
+        Row: { id: string; patient_id: string; exercise_id: string; physiotherapist_id: string; created_at: string },
+        Insert: { id?: string; patient_id: string; exercise_id: string; physiotherapist_id: string; created_at?: string },
+        Update: { id?: string; patient_id?: string; exercise_id?: string; physiotherapist_id?: string; created_at?: string },
+        Relationships: []
+      },
+      patient_pdf_access: {
+        Row: { id: string; patient_id: string; pdf_material_id: string; physiotherapist_id: string; created_at: string },
+        Insert: { id?: string; patient_id: string; pdf_material_id: string; physiotherapist_id: string; created_at?: string },
+        Update: { id?: string; patient_id?: string; pdf_material_id?: string; physiotherapist_id?: string; created_at?: string },
+        Relationships: []
+      },
+      patient_documents: {
+        Row: { id: string; patient_id: string; physiotherapist_id: string; file_name: string; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string },
+        Insert: { id?: string; patient_id: string; physiotherapist_id: string; file_name: string; storage_path: string; mime_type?: string | null; file_size?: number | null; created_at?: string },
+        Update: { id?: string; patient_id?: string; physiotherapist_id?: string; file_name?: string; storage_path?: string; mime_type?: string | null; file_size?: number | null; created_at?: string },
+        Relationships: []
+      },
       exercises: {
         Row: {
           created_at: string
