@@ -502,7 +502,7 @@ function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, 
 }
 
 function SectionHeader({ icon: Icon, title, subtitle }: { icon: typeof Home; title: string; subtitle: string }) {
-  return <div className="flex min-w-0 items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" strokeWidth={1.8} /></span><div className="min-w-0 flex-1"><h1 className="mt-1 text-xl font-semibold text-[#2D2823] sm:text-2xl">{title}</h1><p className="mt-1 text-sm text-[#746C64]">{subtitle}</p></div></div>;
+  return <div className="flex min-w-0 items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" strokeWidth={1.8} /></span><div className="min-w-0 flex-1"><h1 className="mt-1 text-lg font-semibold text-[#2D2823] sm:text-2xl">{title}</h1><p className="mt-1 text-xs text-[#746C64] sm:text-sm">{subtitle}</p></div></div>;
 }
 
 function DocumentGroup({ title, items, empty, icon: Icon }: { title: string; items: { id: string; name: string; meta: string; onOpen: () => void; opening: boolean }[]; empty: string; icon: typeof FileText }) {
