@@ -97,7 +97,7 @@ function PainelPage() {
   const [notice, setNotice] = useState("");
   const [patientToast, setPatientToast] = useState("");
   const [exerciseToast, setExerciseToast] = useState("");
-  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | "session" | null>(null);
+  const [modal, setModal] = useState<"patient" | "exercise" | "pdf" | "session" | "access" | null>(null);
   const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [editingPdf, setEditingPdf] = useState<PdfMaterial | null>(null);
