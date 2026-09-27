@@ -433,7 +433,7 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    let pdfDocument: Awaited<ReturnType<typeof getDocument>>["promise"] extends Promise<infer T> ? T : never;
+    let pdfDocument: Awaited<ReturnType<typeof getDocument>["promise"]> | null = null;
 
     async function renderPdf() {
       try {
