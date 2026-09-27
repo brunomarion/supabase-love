@@ -309,8 +309,8 @@ function Dashboard({ name, responsibleName, patientSex, animateFirstEntry, exerc
     <div className="space-y-8">
       <section className="p-0">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#BA9051]">Painel</p>
-        <h1 className="mt-2 text-2xl font-semibold text-[#2D2823] sm:text-3xl">Olá, {responsibleName.split(" ")[0]}! Como está {article} {name.split(" ")[0]} hoje? 💛</h1>
-        <p className="mt-2 text-sm text-[#746C64]">Estamos aqui para acompanhar vocês em cada etapa!</p>
+        <h1 className="mt-2 text-xl font-semibold text-[#2D2823] sm:text-2xl">Olá, {responsibleName.split(" ")[0]}! Como está {article} {name.split(" ")[0]} hoje? 💛</h1>
+        <p className="mt-2 text-sm text-[#746C64]">Estou aqui para acompanhar vocês em cada etapa!</p>
       </section>
 
       <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
