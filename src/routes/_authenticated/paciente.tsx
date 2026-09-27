@@ -378,7 +378,7 @@ function ExercisesTab({ exercises, patientName, patientSex, loading, error, onRe
   </section>;
 }
 
-function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, openingFile, onOpenPdf, onRetry }: { pdfMaterials: PdfMaterial[]; previewUrls: Record<string, string>; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onRetry: () => void }) {
+function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, loading, error, onRetry }: { pdfMaterials: PdfMaterial[]; previewUrls: Record<string, string>; loading: boolean; error: string; onRetry: () => void }) {
   const article = patientSex === "female" ? "a" : "o";
   const personalizedSubtitle = `Orientações recomendadas pelo Tio Erick para ${article} ${patientName.split(" ")[0]}.`;
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
@@ -412,7 +412,7 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
                   />
                 ) : (
                   <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">
-                    Não foi possível incorporar este PDF. Use o botão de abrir acima para visualizá-lo.
+                    Não foi possível incorporar este PDF.
                   </div>
                 )}
               </div>
