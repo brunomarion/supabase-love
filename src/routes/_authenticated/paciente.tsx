@@ -225,7 +225,7 @@ function PatientPage() {
                   <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
                 {tab === "exercicios" && <ExercisesTab exercises={exercises} patientName={patientName} patientSex={patientSex} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
-                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} patientName={patientName} patientSex={patientSex} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}
+                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} patientName={patientName} patientSex={patientSex} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} />}
                 {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
@@ -385,7 +385,6 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
   return <section className="space-y-6">
     <SectionHeader icon={BookOpen} title="Orientações" subtitle={personalizedSubtitle} />
     <div className="space-y-5">
-      <h2 className="text-sm font-semibold text-[#A97A3C]">Materiais em PDF</h2>
       {pdfMaterials.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">
           Nenhuma orientação em PDF foi liberada para você.
@@ -394,14 +393,11 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
         <div className="space-y-5">
           {pdfMaterials.map((pdf) => (
             <article key={pdf.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
-              <div className="flex min-w-0 items-center justify-between gap-3 border-b border-[#eee5d9] px-4 py-3 sm:px-5">
+              <div className="border-b border-[#eee5d9] px-4 py-3 sm:px-5">
                 <div className="min-w-0">
                   <h3 className="truncate text-sm font-semibold text-[#2D2823]">{pdf.name}</h3>
                   <p className="mt-1 truncate text-[10px] text-[#948a81]">{pdf.file_name}</p>
                 </div>
-                <button type="button" onClick={() => onOpenPdf(pdf)} disabled={openingFile === pdf.id} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${pdf.name}`} title="Abrir em nova aba">
-                  {openingFile === pdf.id ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}
-                </button>
               </div>
               <div className="bg-[#f5f1eb] p-2 sm:p-3">
                 {previewUrls[pdf.id] ? (
