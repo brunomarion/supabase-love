@@ -14,24 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      patient_exercise_access: {
-        Row: { id: string; patient_id: string; exercise_id: string; physiotherapist_id: string; created_at: string },
-        Insert: { id?: string; patient_id: string; exercise_id: string; physiotherapist_id: string; created_at?: string },
-        Update: { id?: string; patient_id?: string; exercise_id?: string; physiotherapist_id?: string; created_at?: string },
-        Relationships: []
-      },
-      patient_pdf_access: {
-        Row: { id: string; patient_id: string; pdf_material_id: string; physiotherapist_id: string; created_at: string },
-        Insert: { id?: string; patient_id: string; pdf_material_id: string; physiotherapist_id: string; created_at?: string },
-        Update: { id?: string; patient_id?: string; pdf_material_id?: string; physiotherapist_id?: string; created_at?: string },
-        Relationships: []
-      },
-      patient_documents: {
-        Row: { id: string; patient_id: string; physiotherapist_id: string; file_name: string; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string },
-        Insert: { id?: string; patient_id: string; physiotherapist_id: string; file_name: string; storage_path: string; mime_type?: string | null; file_size?: number | null; created_at?: string },
-        Update: { id?: string; patient_id?: string; physiotherapist_id?: string; file_name?: string; storage_path?: string; mime_type?: string | null; file_size?: number | null; created_at?: string },
-        Relationships: []
-      },
       exercises: {
         Row: {
           created_at: string
@@ -72,6 +54,146 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "exercises_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_documents: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          patient_id: string
+          physiotherapist_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          patient_id: string
+          physiotherapist_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          patient_id?: string
+          physiotherapist_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_documents_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_documents_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_exercise_access: {
+        Row: {
+          created_at: string
+          exercise_id: string
+          id: string
+          patient_id: string
+          physiotherapist_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id: string
+          id?: string
+          patient_id: string
+          physiotherapist_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: string
+          id?: string
+          patient_id?: string
+          physiotherapist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_exercise_access_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_exercise_access_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_exercise_access_physiotherapist_id_fkey"
+            columns: ["physiotherapist_id"]
+            isOneToOne: false
+            referencedRelation: "physiotherapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      patient_pdf_access: {
+        Row: {
+          created_at: string
+          id: string
+          patient_id: string
+          pdf_material_id: string
+          physiotherapist_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          patient_id: string
+          pdf_material_id: string
+          physiotherapist_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          patient_id?: string
+          pdf_material_id?: string
+          physiotherapist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_pdf_access_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_pdf_access_pdf_material_id_fkey"
+            columns: ["pdf_material_id"]
+            isOneToOne: false
+            referencedRelation: "pdf_materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_pdf_access_physiotherapist_id_fkey"
             columns: ["physiotherapist_id"]
             isOneToOne: false
             referencedRelation: "physiotherapists"
