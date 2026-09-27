@@ -48,6 +48,7 @@ function PatientPage() {
   const [patientId, setPatientId] = useState<string | null>(null);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [pdfMaterials, setPdfMaterials] = useState<PdfMaterial[]>([]);
+  const [pdfPreviewUrls, setPdfPreviewUrls] = useState<Record<string, string>>({});
   const [documents, setDocuments] = useState<PatientDocument[]>([]);
   const [loadingContent, setLoadingContent] = useState(true);
   const [contentError, setContentError] = useState("");
@@ -111,6 +112,26 @@ function PatientPage() {
       setExercises(exerciseRows ?? []);
       setPdfMaterials(pdfRows ?? []);
       setDocuments((patientDocs ?? []) as PatientDocument[]);
+
+      const previewEntries = await Promise.all(
+        (pdfRows ?? []).map(async (pdf) => {
+          try {
+            const match = pdf.storage_path?.match(/^([^/]+)\/(.+)$/);
+            if (!match) return null;
+            const { data, error } = await supabase.storage
+              .from(match[1])
+              .createSignedUrl(match[2], 60 * 10);
+            if (error || !data?.signedUrl) return null;
+            return [pdf.id, data.signedUrl] as const;
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      setPdfPreviewUrls(
+        Object.fromEntries(previewEntries.filter((entry): entry is readonly [string, string] => Boolean(entry))),
+      );
     } catch (err) {
       console.error("Erro ao carregar conteúdos do paciente:", err);
       setContentError(err instanceof Error ? err.message : "Não foi possível carregar seus conteúdos.");
@@ -202,7 +223,7 @@ function PatientPage() {
                   <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
                 {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
-                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}
+                {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}
                 {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
@@ -353,11 +374,47 @@ function ExercisesTab({ exercises, loading, error, onRetry, onView }: { exercise
   </section>;
 }
 
-function OrientacoesTab({ pdfMaterials, loading, error, openingFile, onOpenPdf, onRetry }: { pdfMaterials: PdfMaterial[]; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onRetry: () => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo seu fisioterapeuta." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+function OrientacoesTab({ pdfMaterials, previewUrls, loading, error, openingFile, onOpenPdf, onRetry }: { pdfMaterials: PdfMaterial[]; previewUrls: Record<string, string>; loading: boolean; error: string; openingFile: string | null; onOpenPdf: (pdf: PdfMaterial) => void; onRetry: () => void }) {
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo Tio Erick." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
-    <SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo seu fisioterapeuta." />
-    <DocumentGroup title="Materiais em PDF" items={pdfMaterials.map((pdf) => ({ id: pdf.id, name: pdf.name, meta: pdf.file_name, onOpen: () => onOpenPdf(pdf), opening: openingFile === pdf.id }))} empty="Nenhuma orientação em PDF foi liberada para você." icon={FileText} />
+    <SectionHeader icon={BookOpen} title="Orientações" subtitle="Materiais em PDF disponibilizados pelo Tio Erick." />
+    <div className="space-y-5">
+      <h2 className="text-sm font-semibold text-[#A97A3C]">Materiais em PDF</h2>
+      {pdfMaterials.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">
+          Nenhuma orientação em PDF foi liberada para você.
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {pdfMaterials.map((pdf) => (
+            <article key={pdf.id} className="overflow-hidden rounded-[1.35rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
+              <div className="flex min-w-0 items-center justify-between gap-3 border-b border-[#eee5d9] px-4 py-3 sm:px-5">
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-semibold text-[#2D2823]">{pdf.name}</h3>
+                  <p className="mt-1 truncate text-[10px] text-[#948a81]">{pdf.file_name}</p>
+                </div>
+                <button type="button" onClick={() => onOpenPdf(pdf)} disabled={openingFile === pdf.id} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${pdf.name}`} title="Abrir em nova aba">
+                  {openingFile === pdf.id ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}
+                </button>
+              </div>
+              <div className="bg-[#f5f1eb] p-2 sm:p-3">
+                {previewUrls[pdf.id] ? (
+                  <iframe
+                    src={previewUrls[pdf.id]}
+                    title={pdf.name}
+                    className="h-[70vh] min-h-[420px] w-full rounded-xl border border-[#e3d8ca] bg-white"
+                  />
+                ) : (
+                  <div className="flex min-h-[420px] items-center justify-center rounded-xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">
+                    Não foi possível incorporar este PDF. Use o botão de abrir acima para visualizá-lo.
+                  </div>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
   </section>;
 }
 
