@@ -222,7 +222,7 @@ function PatientPage() {
                 {tab === "dashboard" && (
                   <Dashboard name={patientName} animateFirstEntry={isFirstDashboardEntry} exerciseCount={exercises.length} documentCount={documents.length} onTab={setTab} />
                 )}
-                {tab === "exercicios" && <ExercisesTab exercises={exercises} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
+                {tab === "exercicios" && <ExercisesTab exercises={exercises} patientName={patientName} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
                 {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenPdf={(pdf) => void openStorageFile(pdf.storage_path, pdf.id)} onRetry={() => void loadPatientContent()} />}
                 {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onRetry={() => void loadPatientContent()} />}
               </motion.div>
@@ -354,8 +354,8 @@ function ContentState({ loading, error, onRetry }: { loading: boolean; error: st
   return null;
 }
 
-function ExercisesTab({ exercises, loading, error, onRetry, onView }: { exercises: Exercise[]; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo Tio Erick." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+function ExercisesTab({ exercises, patientName, loading, error, onRetry, onView }: { exercises: Exercise[]; patientName: string; loading: boolean; error: string; onRetry: () => void; onView: (exercise: Exercise) => void }) {
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios recomendados pelo Tio Erick para {patientName.split(" ")[0]}." /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-5">
     <SectionHeader icon={Dumbbell} title="Exercícios" subtitle="Exercícios disponibilizados pelo seu fisioterapeuta." />
     {exercises.length === 0 ? <EmptyContent icon={Dumbbell} title="Nenhum exercício disponível" text="Seu fisioterapeuta ainda não liberou exercícios para sua conta." /> :
