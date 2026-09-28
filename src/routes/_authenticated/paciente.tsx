@@ -206,7 +206,7 @@ function PatientPage() {
 
   return (
     <main className={`h-screen overflow-hidden text-[#2D2823] lg:bg-[#faf8f4] ${tab === "dashboard" ? "bg-[linear-gradient(to_top,#c09a66_0%,#ffffff_78%,#ffffff_100%)]" : "bg-[#faf8f4]"}`}>
-      <div className="fixed right-5 top-5 z-40 hidden lg:block"><ThemeToggle /></div>
+      <div className="fixed right-3 top-3 z-[100] sm:right-5 sm:top-5"><ThemeToggle /></div>
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center justify-center border-b border-[#eee5d9] px-4">
@@ -232,7 +232,6 @@ function PatientPage() {
           <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
             <div className="flex items-center justify-center lg:hidden">
               <img src={logoMaior} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2"><ThemeToggle /></div>
             </div>
           </header>
 
