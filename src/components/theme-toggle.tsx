@@ -9,7 +9,10 @@ function applyTheme(theme: "light" | "dark") {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window === "undefined") return "light";
+    return window.localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+  });
 
   useEffect(() => {
     const saved = window.localStorage.getItem(THEME_KEY);
