@@ -209,13 +209,10 @@ function PatientPage() {
           <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
             <div className="flex items-center justify-center lg:hidden">
               <img src={logo} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
-              <button type="button" onClick={() => setConfirmLogout(true)} className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl bg-[#c94b4b] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(201,75,75,0.20)] transition hover:bg-[#b83d3d]">
-                <LogOut className="size-4" /> Sair
-              </button>
             </div>
           </header>
 
-          <div className="mx-auto h-full w-full max-w-[1400px] min-w-0 overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-14">
+          <div className="mx-auto h-full w-full max-w-[1400px] min-w-0 overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 lg:overflow-y-hidden lg:px-10 lg:py-8">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
                 key={tab}
@@ -237,12 +234,15 @@ function PatientPage() {
         </div>
       </div>
 
-      <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-4 items-stretch gap-1 rounded-2xl border border-[#dfd0bb] bg-white/95 px-2 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-30 grid grid-cols-5 items-stretch gap-1 rounded-2xl border border-[#dfd0bb] bg-white/95 px-2 py-2 shadow-[0_14px_40px_rgba(64,48,30,0.16)] backdrop-blur-xl lg:hidden">
         {nav.map(({ id, label, icon: Icon }) => (
           <button key={id} type="button" onClick={() => setTab(id)} data-active={tab === id ? "true" : "false"} className={`premium-tab-button flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[9px] font-medium transition ${tab === id ? "bg-[#BA9051]/10 text-[#A97A3C]" : "text-[#8e857c] hover:bg-[#faf7f2]"}`}>
             <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
           </button>
         ))}
+        <button type="button" onClick={() => setConfirmLogout(true)} className="premium-tab-button flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[9px] font-medium text-[#c94b4b] transition hover:bg-[#fff0f0]">
+          <LogOut className="size-[18px]" strokeWidth={1.8} /><span className="truncate">Sair</span>
+        </button>
       </nav>
 
       <AnimatePresence mode="wait">
@@ -306,19 +306,19 @@ function PatientPage() {
 function Dashboard({ name, responsibleName, patientSex, animateFirstEntry, exerciseCount, documentCount, onTab }: { name: string; responsibleName: string; patientSex: "male" | "female" | ""; animateFirstEntry: boolean; exerciseCount: number; documentCount: number; onTab: (tab: Tab) => void }) {
   const article = patientSex === "female" ? "a" : "o";
   return (
-    <div className="space-y-8">
-      <section className="p-0">
+    <div className="space-y-5 lg:flex lg:h-full lg:flex-col lg:space-y-4">
+      <section className="shrink-0 p-0">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-[#BA9051]">Painel</p>
         <h1 className="mt-2 text-xl font-semibold text-[#2D2823] sm:text-2xl">Olá, {responsibleName.split(" ")[0]}! 👋<br />Como está {article} {name.split(" ")[0]} hoje? 💛</h1>
         <p className="mt-2 text-sm text-[#746C64]">Estou aqui para acompanhar vocês em cada etapa!</p>
       </section>
 
-      <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
+      <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)] lg:min-h-0 lg:flex-1">
         <div className="border-b border-[#eee5d9] px-5 py-4 sm:px-6">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Boas Vindas</p>
         </div>
-        <div className="bg-[#171412]">
-          <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
+        <div className="bg-[#171412] lg:h-full">
+          <div className="flex aspect-video items-center justify-center lg:h-full lg:aspect-auto bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
             <div className="text-center">
               <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
                 <Play className="ml-1 size-7 fill-current" />
