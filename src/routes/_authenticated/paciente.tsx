@@ -333,19 +333,11 @@ function Dashboard({ name, responsibleName, patientSex, animateFirstEntry, exerc
         <p className="mt-2 text-sm text-[#746C64]">Estou aqui para acompanhar vocês em cada etapa!</p>
       </section>
 
-      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
-        <div className="shrink-0 border-b border-[#eee5d9] px-5 py-4 sm:px-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Boas Vindas</p>
-        </div>
-        <div className="min-h-0 flex-1 bg-[#171412]">
-          <div className="flex h-full min-h-0 items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
-            <div className="text-center">
-              <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
-                <Play className="ml-1 size-7 fill-current" />
-              </span>
-              <p className="mt-4 text-sm font-semibold text-white">Boas Vindas</p>
-            </div>
-          </div>
+      <section className="relative min-h-[320px] flex-1 overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-[#171412] shadow-[0_10px_30px_rgba(64,48,30,0.08)]">
+        <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)]">
+          <button type="button" aria-label="Reproduzir vídeo de boas-vindas" className="flex size-20 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition hover:scale-105 hover:bg-white active:scale-95 sm:size-24">
+            <Play className="ml-1 size-9 fill-current sm:size-10" />
+          </button>
         </div>
       </section>
 
@@ -558,9 +550,9 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
   );
 }
 function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onDownloadDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onDownloadDocument: (document: PatientDocument) => void; onRetry: () => void }) {
-  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e Documentos solicitados " /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
+  if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Visualize aqui documentos e relatórios emitidos" /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
-    <SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." />
+    <SectionHeader icon={FileText} title="Documentos" subtitle="Visualize aqui documentos e relatórios emitidos" />
     <DocumentGroup title="" items={documents.map((document) => ({ id: document.id, name: document.display_name || document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), onDownload: () => onDownloadDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
   </section>;
 }
