@@ -177,7 +177,10 @@ function PatientPage() {
     try {
       const { data, error } = await supabase.storage
         .from("patient-documents")
-        .createSignedUrl(document.storage_path, 60 * 10, { download: document.display_name || document.file_name });
+        .createSignedUrl(document.storage_path, 60 * 10, { download: (() => {
+          const fileName = document.display_name || document.file_name || "documento";
+          return fileName.toLowerCase().endsWith(".pdf") ? fileName : `${fileName}.pdf`;
+        })() });
       if (error) throw error;
       window.location.href = data.signedUrl;
     } catch (err) {
