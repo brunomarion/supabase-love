@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, KeyRound, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, KeyRound, Library, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -39,7 +39,7 @@ type PatientDocument = { id: string; patient_id: string; physiotherapist_id: str
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
   { id: "pacientes", label: "Pacientes", icon: Users },
-  { id: "exercicios", label: "Exercícios", icon: Dumbbell },
+  { id: "exercicios", label: "Conteúdos", icon: Library },
   { id: "relatorios", label: "Relatórios", icon: FileText },
   { id: "configuracoes", label: "Configurações", icon: Settings },
 ];
@@ -1689,7 +1689,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
                       <span className="flex size-5 items-center justify-center rounded-full border border-[#d8c3a5] bg-[#fffdf9] shadow-[0_2px_7px_rgba(186,144,81,0.08)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-checked:shadow-[0_3px_10px_rgba(186,144,81,0.24)]">
                         {contentType === "videos" && <span className="size-2 rounded-full bg-white shadow-[0_0_0_2px_rgba(255,255,255,0.25)]" />}
                       </span>
-                      <span>Vídeos</span>
+                      <span>Exercícios</span>
                     </label>
                     <label className="flex cursor-pointer items-center gap-2 text-[11px] font-semibold text-[#746c64]">
                       <input type="checkbox" checked={contentType === "pdfs"} onChange={() => setContentType("pdfs")} className="peer sr-only" />
@@ -1722,7 +1722,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
                   <span className="absolute inset-0 rounded-full border border-[#d7c7b1] bg-[#fffdf9] shadow-[inset_0_1px_2px_rgba(64,48,30,0.06)] transition-all peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/20" />
                   <span className="pointer-events-none absolute hidden size-2.5 rounded-full bg-white peer-checked:block" />
                 </span>
-                Vídeos
+                Exercícios
               </label>
               <label className="group flex cursor-pointer items-center gap-1.5 rounded-lg px-1.5 py-1 text-[11px] font-semibold text-[#5f574f] transition hover:bg-[#faf7f2]">
                 <span className="relative flex size-[17px] items-center justify-center">
