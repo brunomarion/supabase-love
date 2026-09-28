@@ -299,7 +299,7 @@ function PatientPage() {
                   <div className="min-w-0">
                     <h2 className="text-base font-semibold text-[#2D2823]">Deseja mesmo sair?</h2>
                     <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">
-                      Deseja mesmo sair do sistema? Você precisará fazer login novamente para acessar o sistema.
+                      Deseja mesmo sair? Você precisará fazer login novamente para acessar!
                     </p>
                   </div>
                 </div>
@@ -309,7 +309,7 @@ function PatientPage() {
                     onClick={() => setConfirmLogout(false)}
                     className="h-10 rounded-xl border border-[#e6d8c5] px-4 text-xs font-medium text-[#746C64]"
                   >
-                    Continuar no sistema
+                    Continuar
                   </button>
                   <button
                     type="button"
@@ -317,7 +317,7 @@ function PatientPage() {
                     className="flex h-10 items-center justify-center gap-2 rounded-xl bg-[#c94b4b] px-4 text-xs font-semibold text-white transition hover:bg-[#b83d3d]"
                   >
                     <LogOut className="size-4" />
-                    Sim, sair do sistema
+                    Sim, sair
                   </button>
                 </div>
               </div>
