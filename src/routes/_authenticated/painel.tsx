@@ -1676,7 +1676,7 @@ function Exercises({ exercises, pdfMaterials, onAdd, onAddPdf, onEdit, onDelete,
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#A97A3C]">Gestão</p>
-                <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Exercícios</h2>
+                <h2 className="mt-1 text-xl font-semibold sm:text-2xl">Conteúdos</h2>
                 <p className="mt-1 text-xs text-[#837970]">Gerencie exercícios e materiais para seus pacientes.</p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-2 lg:hidden">
