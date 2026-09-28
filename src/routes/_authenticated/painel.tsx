@@ -703,7 +703,7 @@ function PainelPage() {
             sex: patient.sex || null,
             responsible_name: patient.responsible_name.trim() || null,
             responsible_phone: patient.responsible_phone.trim() || null,
-            cpf: patient.cpf.trim(),
+            cpf: normalizedCpf,
             notes: patient.notes.trim() || null,
             status: patient.status,
             password: patient.password.trim(),
@@ -786,7 +786,7 @@ function PainelPage() {
             .from("patients")
             .select("*")
             .eq("physiotherapist_id", physiotherapistId)
-            .eq("cpf", patient.cpf.trim())
+            .eq("cpf", normalizedCpf)
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
@@ -1251,7 +1251,7 @@ function PainelPage() {
               <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
             </div>
             <div className="space-y-4">
-              <Field label="CPF" value={patient.cpf} onChange={(v) => setPatient({ ...patient, cpf: formatCpf(v) })} placeholder="000.000.000-00" inputMode="numeric" required error={patientFieldErrors.cpf} />
+              <Field label="CPF" value={patient.cpf} onChange={(v) => setPatient({ ...patient, cpf: v.replace(/\D/g, "").slice(0, 11) })} placeholder="00000000000" inputMode="numeric" required error={patientFieldErrors.cpf} />
               {editingPatient && <Field label="Nova senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Deixe em branco para manter a senha atual" error={patientFieldErrors.password} />}
               {!editingPatient && <Field label="Senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Mínimo de 6 caracteres" required error={patientFieldErrors.password} />}
               <div className="block">
