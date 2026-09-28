@@ -70,16 +70,17 @@ function PatientPage() {
     setLoadingContent(true);
     setContentError("");
     try {
-      const { data: authData, error: authError } = await supabase.auth.getUser();
-      if (authError || !authData.user) throw new Error("Sessão do paciente não encontrada.");
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData.session?.user) throw new Error("Sessão do paciente não encontrada.");
 
-      const metadataName = authData.user.user_metadata?.["full_name"];
+      const user = sessionData.session.user;
+      const metadataName = user.user_metadata?.["full_name"];
       if (typeof metadataName === "string" && metadataName.trim()) setPatientName(metadataName.trim());
 
       const { data: patientRow, error: patientError } = await supabase
         .from("patients")
         .select("id, full_name, sex, responsible_name")
-        .eq("auth_user_id", authData.user.id)
+        .eq("auth_user_id", user.id)
         .maybeSingle();
 
       if (patientError) throw patientError;
@@ -122,26 +123,7 @@ function PatientPage() {
       setPdfMaterials(pdfRows ?? []);
       setDocuments((patientDocs ?? []) as PatientDocument[]);
 
-      const previewEntries = await Promise.all(
-        (pdfRows ?? []).map(async (pdf) => {
-          try {
-            const match = pdf.storage_path?.match(/^([^/]+)\/(.+)$/);
-            if (!match) return null;
-            const { data, error } = await supabase.storage
-              .from(match[1]!)
-              .createSignedUrl(match[2]!, 60 * 10);
-            if (error || !data?.signedUrl) return null;
-            return [pdf.id, data.signedUrl] as const;
-          } catch {
-            return null;
-          }
-        }),
-      );
-
-      setPdfPreviewUrls(
-        Object.fromEntries(previewEntries.filter((entry): entry is readonly [string, string] => Boolean(entry))),
-      );
-    } catch (err) {
+      // As URLs assinadas dos PDFs são preparadas em segundo plano para não bloquear a entrada.\n      void Promise.all(\n        (pdfRows ?? []).map(async (pdf) => {\n          try {\n            const match = pdf.storage_path?.match(/^([^/]+)\\/(.+)$/);\n            if (!match) return null;\n            const { data, error } = await supabase.storage\n              .from(match[1]!)\n              .createSignedUrl(match[2]!, 60 * 10);\n            if (error || !data?.signedUrl) return null;\n            return [pdf.id, data.signedUrl] as const;\n          } catch {\n            return null;\n          }\n        }),\n      ).then((previewEntries) => {\n        setPdfPreviewUrls(\n          Object.fromEntries(previewEntries.filter((entry): entry is readonly [string, string] => Boolean(entry))),\n        );\n      });\n    } catch (err) {
       console.error("Erro ao carregar conteúdos do paciente:", err);
       setContentError(err instanceof Error ? err.message : "Não foi possível carregar seus conteúdos.");
     } finally {
