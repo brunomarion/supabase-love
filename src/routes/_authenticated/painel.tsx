@@ -203,7 +203,7 @@ function PainelPage() {
         );
         if (error) throw error;
       }
-      setPatientToast(`Acessos e conteúdos do paciente "${accessPatient.full_name}" atualizados com sucesso.`);
+      setPatientToast(`Conteúdos do paciente "${accessPatient.full_name}" atualizados com sucesso.`);
       setModal(null);
       setAccessPatient(null);
     } catch (err) {
