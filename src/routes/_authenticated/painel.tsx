@@ -1041,7 +1041,6 @@ function PainelPage() {
                 alt="Erick Paulino Fisioterapeuta"
                 className="h-auto w-[min(52vw,210px)] object-contain"
               />
-              <button type="button" onClick={() => setConfirmLogout(true)} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]"><LogOut className="size-4" /> Sair</button>
             </div>
             <div className="hidden items-center justify-between lg:flex">
               <div />
@@ -1069,6 +1068,9 @@ function PainelPage() {
             <Icon className="size-[18px]" strokeWidth={1.8} /><span className="truncate">{label}</span>
           </button>
         ))}
+        <button type="button" onClick={() => setConfirmLogout(true)} className="premium-tab-button flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[9px] font-medium text-[#c94b4b] transition hover:bg-[#fff0f0] hover:text-[#b83d3d]">
+          <LogOut className="size-[18px]" strokeWidth={1.8} /><span className="truncate">Sair</span>
+        </button>
       </nav>
 
       <AnimatePresence mode="wait">
