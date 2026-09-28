@@ -127,7 +127,7 @@ function PatientPage() {
       void Promise.all(
         (pdfRows ?? []).map(async (pdf) => {
           try {
-            const match = pdf.storage_path?.match(/^([^/]+)\\/(.+)$/);
+            const match = pdf.storage_path?.match(/^([^/]+)\/(.+)$/);
             if (!match) return null;
             const { data, error } = await supabase.storage
               .from(match[1]!)
