@@ -209,7 +209,7 @@ function PatientPage() {
           <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
             <div className="flex items-center justify-center lg:hidden">
               <img src={logo} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
-              <button type="button" onClick={() => setConfirmLogout(true)} className="absolute right-4 top-3 flex items-center gap-2 rounded-xl border border-[#f0caca] bg-[#fff5f5] px-3 py-2 text-xs font-medium text-[#c94b4b] transition hover:border-[#e58a8a] hover:bg-[#fff0f0] hover:text-[#b83d3d]">
+              <button type="button" onClick={() => setConfirmLogout(true)} className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-2 rounded-xl bg-[#c94b4b] px-3 py-2 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(201,75,75,0.20)] transition hover:bg-[#b83d3d]">
                 <LogOut className="size-4" /> Sair
               </button>
             </div>
@@ -428,7 +428,7 @@ function OrientacoesTab({ pdfMaterials, patientName, patientSex, previewUrls, lo
             <div>
               <div className="flex items-start justify-between gap-4">
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><FileText className="size-6" /></span>
-                <span className="rounded-full border border-[#E6D8C5] bg-[#fffaf2] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#A97A3C]">PDF</span>
+                
               </div>
               <h3 className="mt-5 line-clamp-2 text-base font-semibold leading-snug text-[#2D2823]">{pdf.name}</h3>
               <p className="mt-2 text-xs leading-relaxed text-[#746C64]">Material de orientação preparado pelo seu fisioterapeuta para acompanhamento em casa.</p>
