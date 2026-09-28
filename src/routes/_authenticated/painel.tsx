@@ -227,16 +227,16 @@ function PainelPage() {
     try {
       const safeName = file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-");
       const path = physiotherapistId + "/" + accessPatient.id + "/" + crypto.randomUUID() + "-" + safeName;
-      const { error: uploadError } = await supabase.storage.from("patient-documents").upload(path, file, { upsert: false, contentType: file.type || "application/octet-stream" });
+      const { error: uploadError } = await supabase.storage.from("patient-documents").upload(path, file, { upsert: false, contentType: file.type || "application/pdf" });
       if (uploadError) throw uploadError;
       const db = supabase as any;
       const { data, error: insertError } = await db.from("patient_documents").insert({
         patient_id: accessPatient.id,
         physiotherapist_id: physiotherapistId,
         file_name: file.name,
-        display_name: patientDocumentName.trim(),
+        display_name: displayName,
         storage_path: path,
-        mime_type: file.type || null,
+        mime_type: file.type || "application/pdf",
         file_size: file.size,
       }).select("*").single();
       if (insertError) throw insertError;
@@ -250,6 +250,23 @@ function PainelPage() {
     } finally {
       setUploadingPatientDocument(false);
     }
+  }
+
+  function selectPatientDocument(file: File | null) {
+    setError("");
+    setSelectedPatientDocument(file);
+    if (file && !patientDocumentName.trim()) {
+      const baseName = file.name.replace(/\.[^/.]+$/, "").trim();
+      setPatientDocumentName(baseName || file.name);
+    }
+  }
+
+  function handleUploadPatientDocument() {
+    if (!selectedPatientDocument) {
+      setError("Selecione primeiro o documento que deseja enviar.");
+      return;
+    }
+    void uploadPatientDocument(selectedPatientDocument);
   }
 
   async function removePatientDocument(document: PatientDocument) {
@@ -1091,38 +1108,47 @@ function PainelPage() {
                     type="text"
                     value={patientDocumentName}
                     onChange={(e) => setPatientDocumentName(e.target.value)}
-                    placeholder="Defina o nome que o paciente verá ao acessar este documento."
+                    placeholder="Nome que o paciente verá neste documento."
                     disabled={uploadingPatientDocument}
                     className="h-10 w-full rounded-xl border border-[#dfd2c1] bg-white px-3 text-xs text-[#403a35] outline-none transition placeholder:text-[#b1a79d] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10"
                   />
-                  <button
-                    type="button"
-                    disabled={uploadingPatientDocument}
-                    onClick={() => {
-                      if (!patientDocumentName.trim()) {
-                        setError("Informe primeiro o nome que o paciente verá para este documento.");
-                        return;
-                      }
-                      patientDocumentInputRef.current?.click();
-                    }}
-                    className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#BA9051] px-4 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45"
-                  >
-                    {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
-                    Enviar documento
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={uploadingPatientDocument}
+                      onClick={() => patientDocumentInputRef.current?.click()}
+                      className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-[#dfc28f] bg-[#fffaf2] px-4 text-[11px] font-semibold text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      <Upload className="size-3.5" />
+                      Selecionar documento
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploadingPatientDocument || !selectedPatientDocument}
+                      onClick={handleUploadPatientDocument}
+                      className="flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[#BA9051] px-4 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45"
+                    >
+                      {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                      Enviar documento
+                    </button>
+                  </div>
+                  {selectedPatientDocument && (
+                    <div className="flex items-center gap-2 rounded-xl border border-[#e6d8c5] bg-[#fdfbf8] px-3 py-2">
+                      <FileText className="size-4 shrink-0 text-[#A97A3C]" />
+                      <span className="min-w-0 flex-1 truncate text-[10px] text-[#746c64]">{selectedPatientDocument.name}</span>
+                      <button type="button" onClick={() => { setSelectedPatientDocument(null); setPatientDocumentName(""); }} disabled={uploadingPatientDocument} className="flex size-7 shrink-0 items-center justify-center rounded-lg text-[#948a81] transition hover:bg-[#f3e3cf] hover:text-[#A97A3C]" aria-label="Remover documento selecionado" title="Remover seleção"><X className="size-3.5" /></button>
+                    </div>
+                  )}
                   <input
                     ref={patientDocumentInputRef}
                     type="file"
                     className="sr-only"
                     disabled={uploadingPatientDocument}
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                    accept=".pdf"
                     onChange={(e) => {
                       const file = e.target.files?.[0] ?? null;
                       e.target.value = "";
-                      if (file) {
-                        setSelectedPatientDocument(file);
-                        void uploadPatientDocument(file);
-                      }
+                      selectPatientDocument(file);
                     }}
                   />
                 </div>
