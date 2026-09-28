@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, KeyRound, Library, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, KeyRound, Library, LogOut, Pencil, Play, Plus, RefreshCw, Search, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
@@ -41,7 +41,6 @@ const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "pacientes", label: "Pacientes", icon: Users },
   { id: "exercicios", label: "Conteúdos", icon: Library },
   { id: "relatorios", label: "Relatórios", icon: FileText },
-  { id: "configuracoes", label: "Configurações", icon: Settings },
 ];
 
 const emptyPatient = {
@@ -1059,7 +1058,6 @@ function PainelPage() {
               {tab === "pacientes" && <Patients patients={patients} patientCount={patientCount} onAdd={openPatientCreate} onSession={openSessionCreate} onEdit={openPatientEdit} onDelete={(item) => setConfirmPatient(item)} onAccess={openPatientAccess} deleting={deleting} statusFilter={patientStatusFilter} onStatusFilterChange={setPatientStatusFilter} />}
               {tab === "exercicios" && <Exercises exercises={exercises} pdfMaterials={pdfMaterials} onAdd={openExerciseCreate} onAddPdf={openPdfCreate} onEdit={openExerciseEdit} onDelete={(item) => setConfirmExercise(item)} onEditPdf={openPdfEdit} onDeletePdf={(item) => setConfirmPdf(item)} onView={setViewingExercise} deleting={deleting} />}
               {tab === "relatorios" && <Placeholder icon={FileText} title="Relatórios" text="Área destinada aos relatórios clínicos e administrativos." />}
-              {tab === "configuracoes" && <Placeholder icon={Settings} title="Configurações" text="Área destinada às configurações do sistema." />}
             </motion.div>
           </div>
         </div>
