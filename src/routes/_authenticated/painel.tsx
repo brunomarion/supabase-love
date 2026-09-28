@@ -1083,43 +1083,32 @@ function PainelPage() {
               <div className="border-t border-[#eee5d9] pt-5">
                 <div className="mb-3">
                   <h3 className="text-sm font-semibold text-[#A97A3C]">Documentos</h3>
-                  <p className="mt-0.5 text-[10px] text-[#948a81]">Defina o nome que o paciente verá ao acessar este documento.</p>
+                  <p className="mt-0.5 text-[10px] text-[#948a81]">Envie um documento e defina o nome que o paciente verá.</p>
                 </div>
-                <div className="space-y-3 rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] p-3.5">
+                <div className="space-y-3">
                   <input
                     type="text"
                     value={patientDocumentName}
                     onChange={(e) => setPatientDocumentName(e.target.value)}
-                    placeholder="Nome que o paciente verá"
+                    placeholder="Defina o nome que o paciente verá ao acessar este documento."
                     disabled={uploadingPatientDocument}
                     className="h-10 w-full rounded-xl border border-[#dfd2c1] bg-white px-3 text-xs text-[#403a35] outline-none transition placeholder:text-[#b1a79d] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10"
                   />
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <label className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#dfc28f] bg-white px-3 text-[11px] font-semibold text-[#A97A3C] transition hover:bg-[#fffaf2]">
-                      <Upload className="size-3.5" />
-                      {selectedPatientDocument ? selectedPatientDocument.name : "Selecionar documento"}
-                      <input
-                        type="file"
-                        className="sr-only"
-                        disabled={uploadingPatientDocument}
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] ?? null;
-                          e.target.value = "";
-                          setSelectedPatientDocument(file);
-                        }}
-                      />
-                    </label>
-                    <Button
-                      type="button"
-                      onClick={() => selectedPatientDocument && void uploadPatientDocument(selectedPatientDocument)}
-                      disabled={uploadingPatientDocument || !selectedPatientDocument || !patientDocumentName.trim()}
-                      className="h-10 rounded-xl bg-[#BA9051] px-4 text-[11px] font-semibold text-white hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45"
-                    >
-                      {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
-                      Anexar documento
-                    </Button>
-                  </div>
+                  <label className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#BA9051] px-4 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45">
+                    {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
+                    Enviar documento
+                    <input
+                      type="file"
+                      className="sr-only"
+                      disabled={uploadingPatientDocument || !patientDocumentName.trim()}
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        e.target.value = "";
+                        if (file) void uploadPatientDocument(file);
+                      }}
+                    />
+                  </label>
                 </div>
                 <div className="space-y-2">
                   {patientDocuments.length === 0 ? <div className="rounded-xl border border-dashed border-[#dfd2c1] bg-[#fdfbf8] px-4 py-6 text-center text-[11px] text-[#948a81]">Nenhum documento anexado para este paciente.</div> : patientDocuments.map((document) => (
