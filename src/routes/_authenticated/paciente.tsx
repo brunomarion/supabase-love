@@ -206,7 +206,8 @@ function PatientPage() {
   }
 
   return (
-    <main className={`h-screen overflow-hidden text-[#2D2823] lg:bg-[#faf8f4] ${tab === "dashboard" ? "bg-[linear-gradient(to_top,#c09a66_0%,#ffffff_78%,#ffffff_100%)]" : "bg-[#faf8f4]"}`}>
+    <main className={`h-screen overflow-hidden text-[#2D2823] lg:bg-[#faf8f4] ${tab === "dashboard" ? "bg-[linear-gradient(to_top,#c09a66_0%,#ffffff_78%,#ffffff_100%)]" : "bg-[#faf8f4]"}` patient-interface}>
+      <style>{`@media (pointer: fine) { .patient-interface button:not(:disabled) { cursor: pointer; } }`}</style>
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center justify-center border-b border-[#eee5d9] px-4">
