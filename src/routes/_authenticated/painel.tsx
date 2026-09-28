@@ -120,7 +120,8 @@ function PainelPage() {
   const [patientDocuments, setPatientDocuments] = useState<PatientDocument[]>([]);
   const [loadingAccess, setLoadingAccess] = useState(false);
   const [savingAccess, setSavingAccess] = useState(false);
-  const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);\n  const [patientDocumentName, setPatientDocumentName] = useState("");
+  const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);
+  const [patientDocumentName, setPatientDocumentName] = useState("");
 
   useEffect(() => {
     void loadData();
@@ -214,6 +215,11 @@ function PainelPage() {
 
   async function uploadPatientDocument(file: File) {
     if (!accessPatient || !physiotherapistId) return;
+    const displayName = patientDocumentName.trim();
+    if (!displayName) {
+      setError("Informe o nome que o paciente verá para este documento.");
+      return;
+    }
     setUploadingPatientDocument(true);
     setError("");
     try {
@@ -226,12 +232,14 @@ function PainelPage() {
         patient_id: accessPatient.id,
         physiotherapist_id: physiotherapistId,
         file_name: file.name,
+        display_name: patientDocumentName.trim(),
         storage_path: path,
         mime_type: file.type || null,
         file_size: file.size,
       }).select("*").single();
       if (insertError) throw insertError;
       setPatientDocuments((current) => [data as PatientDocument, ...current]);
+      setPatientDocumentName("");
       setPatientToast("Documento anexado com sucesso.");
     } catch (err) {
       console.error(err);
