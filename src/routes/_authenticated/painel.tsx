@@ -34,7 +34,7 @@ type Patient = Tables<"patients">;
 type Exercise = Tables<"exercises">;
 type PdfMaterial = Tables<"pdf_materials">;
 type PatientSession = Tables<"patient_sessions">;
-type PatientDocument = { id: string; patient_id: string; physiotherapist_id: string; file_name: string; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string };
+type PatientDocument = { id: string; patient_id: string; physiotherapist_id: string; file_name: string; display_name: string | null; storage_path: string; mime_type: string | null; file_size: number | null; created_at: string };
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
@@ -120,7 +120,7 @@ function PainelPage() {
   const [patientDocuments, setPatientDocuments] = useState<PatientDocument[]>([]);
   const [loadingAccess, setLoadingAccess] = useState(false);
   const [savingAccess, setSavingAccess] = useState(false);
-  const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);
+  const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);\n  const [patientDocumentName, setPatientDocumentName] = useState("");
 
   useEffect(() => {
     void loadData();
@@ -1083,8 +1083,8 @@ function PainelPage() {
                   {patientDocuments.length === 0 ? <div className="rounded-xl border border-dashed border-[#dfd2c1] bg-[#fdfbf8] px-4 py-6 text-center text-[11px] text-[#948a81]">Nenhum documento anexado para este paciente.</div> : patientDocuments.map((document) => (
                     <div key={document.id} className="flex items-center gap-3 rounded-xl border border-[#e6d8c5] bg-white px-3 py-2.5">
                       <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#f3e3cf] text-[#A97A3C]"><FileText className="size-4" /></span>
-                      <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium text-[#403a35]">{document.file_name}</p><p className="mt-0.5 text-[10px] text-[#948a81]">{formatFileSize(document.file_size)}</p></div>
-                      <button type="button" onClick={() => setConfirmPatientDocument(document)} disabled={deleting === document.id} className="flex size-8 shrink-0 items-center justify-center rounded-lg text-[#d66a6a] transition hover:bg-[#fff0f0]" aria-label={`Excluir ${document.file_name}`}><Trash2 className="size-3.5" /></button>
+                      <div className="min-w-0 flex-1"><p className="truncate text-xs font-medium text-[#403a35]">{document.display_name || document.file_name}</p><p className="mt-0.5 text-[10px] text-[#948a81]">{formatFileSize(document.file_size)}</p></div>
+                      <button type="button" onClick={() => setConfirmPatientDocument(document)} disabled={deleting === document.id} className="flex size-8 shrink-0 items-center justify-center rounded-lg text-[#d66a6a] transition hover:bg-[#fff0f0]" aria-label={`Excluir ${document.display_name || document.file_name}`}><Trash2 className="size-3.5" /></button>
                     </div>
                   ))}
                 </div>
@@ -2086,7 +2086,7 @@ function DeletePatientDocumentModal({ document, loading, close, confirm }: { doc
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-[#2D2823]">Excluir documento?</h2>
             <p className="mt-1.5 text-xs leading-relaxed text-[#746C64]">Você está prestes a excluir o documento:</p>
-            <p className="mt-1 text-sm font-semibold text-[#A97A3C] break-words">{document.file_name}</p>
+            <p className="mt-1 text-sm font-semibold text-[#A97A3C] break-words">{document.display_name || document.file_name}</p>
             <p className="mt-3 text-xs leading-relaxed text-[#8a8178]">Essa ação não pode ser desfeita e o documento será removido dos arquivos do paciente.</p>
           </div>
         </div>
