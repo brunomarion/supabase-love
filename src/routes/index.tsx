@@ -111,8 +111,8 @@ function LoginPage() {
       if (error) { setErrors({ form: authErrorMessage(error) }); return; }
       setRememberedEmail(remember ? email.trim() : null);
       toast.success("Login realizado com sucesso.");
-      const isPatient = data.user?.user_metadata?.["account_type"] === "patient";
-      navigate({ to: isPatient ? "/paciente" : "/painel", replace: true });
+      // A navegação após o login é feita pelo efeito que observa a sessão,
+      // evitando duas navegações concorrentes quando o Supabase dispara onAuthStateChange.
     } catch (error) { setErrors({ form: authErrorMessage(error) }); }
     finally { setSubmitting(false); }
   }
