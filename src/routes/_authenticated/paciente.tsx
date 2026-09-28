@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { getDocument } from "pdfjs-dist";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { BookOpen, ChevronLeft, ChevronRight, Download, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +9,8 @@ import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
 
 import logoMaior from "@/assets/logo maior.png";
+
+GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 export const Route = createFileRoute("/_authenticated/paciente")({
   head: () => ({
