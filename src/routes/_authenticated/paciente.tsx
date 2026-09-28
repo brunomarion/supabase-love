@@ -333,11 +333,19 @@ function Dashboard({ name, responsibleName, patientSex, animateFirstEntry, exerc
         <p className="mt-2 text-sm text-[#746C64]">Estou aqui para acompanhar vocês em cada etapa!</p>
       </section>
 
-      <section className="relative min-h-[320px] flex-1 overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-[#171412] shadow-[0_10px_30px_rgba(64,48,30,0.08)]">
-        <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)]">
-          <button type="button" aria-label="Reproduzir vídeo de boas-vindas" className="flex size-20 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition hover:scale-105 hover:bg-white active:scale-95 sm:size-24">
-            <Play className="ml-1 size-9 fill-current sm:size-10" />
-          </button>
+      <section className="relative min-h-[320px] flex-1 overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-[#2D2823] shadow-[0_10px_30px_rgba(64,48,30,0.08)]">
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,#4a4035_0%,#2D2823_62%,#171412_100%)]">
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(186,144,81,0.12)_0%,transparent_45%,rgba(255,255,255,0.04)_100%)]" />
+          <img
+            src={logoMaior}
+            alt="Erick Paulino Fisioterapia"
+            className="relative z-10 h-auto w-[min(72%,420px)] object-contain drop-shadow-[0_18px_35px_rgba(0,0,0,0.28)]"
+          />
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <button type="button" aria-label="Reproduzir vídeo de boas-vindas" className="flex size-20 items-center justify-center rounded-full border border-white/70 bg-white/95 text-[#BA9051] shadow-[0_14px_40px_rgba(0,0,0,0.28)] transition hover:scale-105 hover:bg-white active:scale-95 sm:size-24">
+              <Play className="ml-1 size-9 fill-current sm:size-10" />
+            </button>
+          </div>
         </div>
       </section>
 
