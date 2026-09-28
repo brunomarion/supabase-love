@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
 
-const logo = "/images/logo-editada-chatgpt.png";
+import logoMaior from "@/assets/logo maior.png";
 
 export const Route = createFileRoute("/_authenticated/paciente")({
   head: () => ({
@@ -207,7 +207,7 @@ function PatientPage() {
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center justify-center border-b border-[#eee5d9] px-4">
-            <img src={logo} alt="Erick Paulino Fisioterapeuta" className="h-full w-full object-contain" />
+            <img src={logoMaior} alt="Erick Paulino Fisioterapeuta" className="h-full w-full object-contain" />
           </div>
 
           <nav className="flex-1 space-y-1 px-4 py-6">
@@ -228,7 +228,7 @@ function PatientPage() {
         <div className="min-w-0 flex-1 overflow-x-hidden overflow-y-hidden pb-24 lg:pb-0">
           <header className={`sticky top-0 z-20 border-b border-[#eee5d9]/90 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden ${tab === "dashboard" ? "bg-white" : "bg-[#faf8f4]/95"}`}>
             <div className="flex items-center justify-center lg:hidden">
-              <img src={logo} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
+              <img src={logoMaior} alt="Erick Paulino Fisioterapia" className="h-auto w-[min(52vw,210px)] object-contain" />
             </div>
           </header>
 
