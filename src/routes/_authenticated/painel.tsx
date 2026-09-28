@@ -1078,7 +1078,7 @@ function PainelPage() {
         {viewingExercise && <ExerciseVideoModal exercise={viewingExercise} close={() => setViewingExercise(null)} />}
 
       {modal === "access" && accessPatient && (
-        <Modal title={`Acessos de ${accessPatient.full_name}`} close={() => !savingAccess && setModal(null)}>
+        <Modal title={`Controle de Conteúdo`} close={() => !savingAccess && setModal(null)}>
           <div className="space-y-5">
             <div className="rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Permissões individuais</p>
@@ -1165,7 +1165,7 @@ function PainelPage() {
 
               <div className="flex items-center justify-end gap-2 border-t border-[#eee5d9] pt-4">
                 <Button type="button" variant="outline" onClick={() => setModal(null)} disabled={savingAccess} className="h-10 rounded-xl border-[#dfd2c1] text-xs">Cancelar</Button>
-                <Button type="button" onClick={() => void savePatientAccess()} disabled={savingAccess} className="h-10 rounded-xl bg-[#BA9051] px-5 text-xs font-semibold text-white hover:bg-[#A97A3C]">{savingAccess ? <RefreshCw className="size-4 animate-spin" /> : null}Salvar acessos</Button>
+                <Button type="button" onClick={() => void savePatientAccess()} disabled={savingAccess} className="h-10 rounded-xl bg-[#BA9051] px-5 text-xs font-semibold text-white hover:bg-[#A97A3C]">{savingAccess ? <RefreshCw className="size-4 animate-spin" /> : null}Salvar</Button>
               </div>
             </>}
           </div>
@@ -2221,12 +2221,15 @@ function AccessSection({ title, icon: Icon, empty, children }: { title: string; 
 }
 
 function AccessCheckbox({ checked, onChange, title, subtitle }: { checked: boolean; onChange: () => void; title: string; subtitle: string }) {
-  return <label className={`flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition ${checked ? "border-[#dfc28f] bg-[#fff8ec]" : "border-transparent hover:border-[#e6d8c5] hover:bg-white"}`}>
-    <input type="checkbox" checked={checked} onChange={onChange} className="size-4 accent-[#BA9051]" />
+  return <label className={`group flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 transition-all duration-200 ${checked ? "border-[#d8b77d] bg-[linear-gradient(135deg,#fffaf2_0%,#f8efe1_100%)] shadow-[0_5px_16px_rgba(186,144,81,0.10)]" : "border-transparent bg-white/60 hover:border-[#e6d8c5] hover:bg-[#fffdf9] hover:shadow-[0_4px_14px_rgba(64,48,30,0.05)]"}`}>
+    <span className="relative flex size-5 shrink-0 items-center justify-center">
+      <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
+      <span className="absolute inset-0 rounded-[7px] border border-[#d6c4ab] bg-white shadow-[inset_0_1px_2px_rgba(64,48,30,0.06),0_2px_6px_rgba(64,48,30,0.06)] transition-all duration-200 peer-checked:border-[#BA9051] peer-checked:bg-[#BA9051] peer-checked:shadow-[0_4px_10px_rgba(186,144,81,0.24)] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/25" />
+      <span className="pointer-events-none absolute hidden size-2.5 rotate-[-45deg] border-b-[2px] border-l-[2px] border-white peer-checked:block" />
+    </span>
     <span className="min-w-0 flex-1"><span className="block truncate text-xs font-semibold text-[#403a35]">{title}</span><span className="block truncate text-[10px] text-[#948a81]">{subtitle}</span></span>
   </label>;
 }
-
 function formatFileSize(size: number | null) {
   if (!size) return "Tamanho não informado";
   if (size < 1024) return size + " B";
