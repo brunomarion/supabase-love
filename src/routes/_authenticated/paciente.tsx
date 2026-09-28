@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { getDocument } from "pdfjs-dist";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { BookOpen, ChevronLeft, ChevronRight, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Download, Dumbbell, FileText, Home, LogOut, Play, ExternalLink, RefreshCw, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
@@ -171,6 +171,23 @@ function PatientPage() {
     }
   }
 
+  async function downloadStorageFile(document: PatientDocument) {
+    if (!document.storage_path || openingFile) return;
+    setOpeningFile(document.id);
+    try {
+      const { data, error } = await supabase.storage
+        .from("patient-documents")
+        .createSignedUrl(document.storage_path, 60 * 10, { download: document.display_name || document.file_name });
+      if (error) throw error;
+      window.location.href = data.signedUrl;
+    } catch (err) {
+      console.error("Erro ao baixar arquivo:", err);
+      setContentError("Não foi possível baixar este arquivo.");
+    } finally {
+      setOpeningFile(null);
+    }
+  }
+
   useEffect(() => {
     const timer = window.setTimeout(() => setIsFirstDashboardEntry(false), 1400);
     return () => window.clearTimeout(timer);
@@ -227,7 +244,7 @@ function PatientPage() {
                 )}
                 {tab === "exercicios" && <ExercisesTab exercises={exercises} patientName={patientName} patientSex={patientSex} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingExercise} />}
                 {tab === "orientacoes" && <OrientacoesTab pdfMaterials={pdfMaterials} patientName={patientName} patientSex={patientSex} previewUrls={pdfPreviewUrls} loading={loadingContent} error={contentError} onRetry={() => void loadPatientContent()} onView={setViewingPdf} />}
-                {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onRetry={() => void loadPatientContent()} />}
+                {tab === "documentos" && <DocumentsTab documents={documents} loading={loadingContent} error={contentError} openingFile={openingFile} onOpenDocument={(document) => void openStorageFile(document.storage_path, document.id, "patient-documents")} onDownloadDocument={(document) => void downloadStorageFile(document)} onRetry={() => void loadPatientContent()} />}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -313,12 +330,12 @@ function Dashboard({ name, responsibleName, patientSex, animateFirstEntry, exerc
         <p className="mt-2 text-sm text-[#746C64]">Estou aqui para acompanhar vocês em cada etapa!</p>
       </section>
 
-      <section className="overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)] lg:min-h-0 lg:flex-1">
-        <div className="border-b border-[#eee5d9] px-5 py-4 sm:px-6">
+      <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.5rem] border border-[#E6D8C5] bg-white shadow-[0_10px_30px_rgba(64,48,30,0.06)]">
+        <div className="shrink-0 border-b border-[#eee5d9] px-5 py-4 sm:px-6">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#BA9051]">Boas Vindas</p>
         </div>
-        <div className="bg-[#171412] lg:h-full">
-          <div className="flex aspect-video items-center justify-center lg:h-full lg:aspect-auto bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
+        <div className="min-h-0 flex-1 bg-[#171412]">
+          <div className="flex h-full min-h-0 items-center justify-center bg-[radial-gradient(circle_at_center,#3a3128_0%,#171412_72%)] p-6">
             <div className="text-center">
               <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-white/95 text-[#BA9051] shadow-[0_10px_30px_rgba(0,0,0,0.24)]">
                 <Play className="ml-1 size-7 fill-current" />
@@ -537,11 +554,11 @@ function PdfDocumentViewer({ url, title }: { url: string; title: string }) {
     </div>
   );
 }
-function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onRetry: () => void }) {
+function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, onDownloadDocument, onRetry }: { documents: PatientDocument[]; loading: boolean; error: string; openingFile: string | null; onOpenDocument: (document: PatientDocument) => void; onDownloadDocument: (document: PatientDocument) => void; onRetry: () => void }) {
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e Documentos solicitados " /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
     <SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." />
-    <DocumentGroup title="" items={documents.map((document) => ({ id: document.id, name: document.display_name || document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
+    <DocumentGroup title="" items={documents.map((document) => ({ id: document.id, name: document.display_name || document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), onDownload: () => onDownloadDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
   </section>;
 }
 
@@ -549,8 +566,8 @@ function SectionHeader({ icon: Icon, title, subtitle }: { icon: typeof Home; tit
   return <div className="flex min-w-0 items-start gap-4"><span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-[#BA9051]/10 text-[#A97A3C]"><Icon className="size-6" strokeWidth={1.8} /></span><div className="min-w-0 flex-1"><h1 className="mt-1 text-lg font-semibold text-[#2D2823] sm:text-2xl">{title}</h1><p className="mt-1 text-xs text-[#746C64] sm:text-sm">{subtitle}</p></div></div>;
 }
 
-function DocumentGroup({ title, items, empty, icon: Icon }: { title: string; items: { id: string; name: string; meta: string; onOpen: () => void; opening: boolean }[]; empty: string; icon: typeof FileText }) {
-  return <div className="space-y-3">{title && <h2 className="text-sm font-semibold text-[#A97A3C]">{title}</h2>}{items.length === 0 ? <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">{empty}</div> : <div className="grid w-full min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <article key={item.id} className="flex min-w-0 w-full items-center gap-3 rounded-2xl border border-[#E6D8C5] bg-white p-4 shadow-[0_8px_24px_rgba(64,48,30,0.05)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Icon className="size-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-xs font-semibold text-[#2D2823]">{item.name}</h3><p className="mt-1 truncate text-[10px] text-[#948a81]">{item.meta}</p></div><button type="button" onClick={item.onOpen} disabled={item.opening} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${item.name}`} title={`Abrir ${item.name}`}>{item.opening ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}</button></article>)}</div>}</div>;
+function DocumentGroup({ title, items, empty, icon: Icon }: { title: string; items: { id: string; name: string; meta: string; onOpen: () => void; onDownload: () => void; opening: boolean }[]; empty: string; icon: typeof FileText }) {
+  return <div className="space-y-3">{title && <h2 className="text-sm font-semibold text-[#A97A3C]">{title}</h2>}{items.length === 0 ? <div className="rounded-2xl border border-dashed border-[#dfd2c1] bg-white p-6 text-center text-xs text-[#948a81]">{empty}</div> : <div className="grid w-full min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-3">{items.map((item) => <article key={item.id} className="flex min-w-0 w-full items-center gap-3 rounded-2xl border border-[#E6D8C5] bg-white p-4 shadow-[0_8px_24px_rgba(64,48,30,0.05)]"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#f3e3cf] text-[#A97A3C]"><Icon className="size-5" /></span><div className="min-w-0 flex-1"><h3 className="truncate text-xs font-semibold text-[#2D2823]">{item.name}</h3><p className="mt-1 truncate text-[10px] text-[#948a81]">{item.meta}</p></div><button type="button" onClick={item.onOpen} disabled={item.opening} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Abrir ${item.name}`} title={`Abrir ${item.name}`}>{item.opening ? <RefreshCw className="size-4 animate-spin" /> : <ExternalLink className="size-4" />}</button><button type="button" onClick={item.onDownload} disabled={item.opening} className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-[#dfc28f] bg-[#fffaf2] text-[#A97A3C] transition hover:bg-[#f7eddf] disabled:opacity-50" aria-label={`Baixar ${item.name}`} title={`Baixar ${item.name}`}><Download className="size-4" /></button></article>)}</div>}</div>;
 }
 
 function EmptyContent({ icon: Icon, title, text }: { icon: typeof Home; title: string; text: string }) {
