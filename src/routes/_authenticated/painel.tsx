@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
 import type { Tables } from "@/integrations/supabase/types";
 import logoMaior from "@/assets/logo maior.png";
+import { ThemeToggle } from "@/components/theme-toggle";
+import "@/theme.css";
 
 export const Route = createFileRoute("/_authenticated/painel")({
   beforeLoad: async () => {
@@ -1016,6 +1018,7 @@ function PainelPage() {
           </div>
         </div>
       )}
+      <div className="fixed right-5 top-5 z-40 hidden lg:block"><ThemeToggle /></div>
       <div className="flex min-h-screen">
         <aside className="hidden w-[250px] shrink-0 flex-col border-r border-[#E6D8C5] bg-white lg:flex">
           <div className="flex h-[92px] items-center justify-center border-b border-[#eee5d9] px-4">
@@ -1041,6 +1044,7 @@ function PainelPage() {
                 alt="Erick Paulino Fisioterapeuta"
                 className="h-auto w-[min(52vw,210px)] object-contain"
               />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2"><ThemeToggle /></div>
             </div>
             <div className="hidden items-center justify-between lg:flex">
               <div />
