@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_authenticated/paciente")({
 type Tab = "dashboard" | "exercicios" | "orientacoes" | "documentos";
 type Exercise = Tables<"exercises">;
 type PdfMaterial = Tables<"pdf_materials">;
-type PatientDocument = Tables<"patient_documents">;
+type PatientDocument = Tables<"patient_documents"> & { display_name: string | null };
 
 const nav: { id: Tab; label: string; icon: typeof Home }[] = [
   { id: "dashboard", label: "Painel", icon: Home },
@@ -541,7 +541,7 @@ function DocumentsTab({ documents, loading, error, openingFile, onOpenDocument, 
   if (loading || error) return <section className="space-y-5"><SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e Documentos solicitados " /><ContentState loading={loading} error={error} onRetry={onRetry} /></section>;
   return <section className="space-y-6">
     <SectionHeader icon={FileText} title="Documentos" subtitle="Relatórios e documentos disponibilizados pelo seu fisioterapeuta." />
-    <DocumentGroup title="" items={documents.map((document) => ({ id: document.id, name: document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
+    <DocumentGroup title="" items={documents.map((document) => ({ id: document.id, name: document.display_name || document.file_name, meta: formatFileSize(document.file_size), onOpen: () => onOpenDocument(document), opening: openingFile === document.id }))} empty="Nenhum relatório ou documento foi anexado para você." icon={FileText} />
   </section>;
 }
 
