@@ -37,10 +37,10 @@ export const Route = createFileRoute("/")({
   component: LoginPage,
 });
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[^s@]+@[^s@]+.[^s@]+$/;
 
 function normalizeCpf(value: string) {
-  return value.replace(/\D/g, "").slice(0, 11);
+  return value.replace(/D/g, "").slice(0, 11);
 }
 
 function isCpf(value: string) {
