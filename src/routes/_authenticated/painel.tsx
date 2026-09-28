@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, LogOut, Pencil, Play, Plus, RefreshCw, Search, Settings, ShieldCheck, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
@@ -123,6 +123,7 @@ function PainelPage() {
   const [uploadingPatientDocument, setUploadingPatientDocument] = useState(false);
   const [patientDocumentName, setPatientDocumentName] = useState("");
   const [selectedPatientDocument, setSelectedPatientDocument] = useState<File | null>(null);
+  const patientDocumentInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     void loadData();
@@ -1094,21 +1095,36 @@ function PainelPage() {
                     disabled={uploadingPatientDocument}
                     className="h-10 w-full rounded-xl border border-[#dfd2c1] bg-white px-3 text-xs text-[#403a35] outline-none transition placeholder:text-[#b1a79d] focus:border-[#BA9051] focus:ring-2 focus:ring-[#BA9051]/10"
                   />
-                  <label className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#BA9051] px-4 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45">
+                  <button
+                    type="button"
+                    disabled={uploadingPatientDocument}
+                    onClick={() => {
+                      if (!patientDocumentName.trim()) {
+                        setError("Informe primeiro o nome que o paciente verá para este documento.");
+                        return;
+                      }
+                      patientDocumentInputRef.current?.click();
+                    }}
+                    className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#BA9051] px-4 text-[11px] font-semibold text-white transition hover:bg-[#A97A3C] disabled:cursor-not-allowed disabled:opacity-45"
+                  >
                     {uploadingPatientDocument ? <RefreshCw className="size-3.5 animate-spin" /> : <Upload className="size-3.5" />}
                     Enviar documento
-                    <input
-                      type="file"
-                      className="sr-only"
-                      disabled={uploadingPatientDocument || !patientDocumentName.trim()}
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] ?? null;
-                        e.target.value = "";
-                        if (file) void uploadPatientDocument(file);
-                      }}
-                    />
-                  </label>
+                  </button>
+                  <input
+                    ref={patientDocumentInputRef}
+                    type="file"
+                    className="sr-only"
+                    disabled={uploadingPatientDocument}
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      e.target.value = "";
+                      if (file) {
+                        setSelectedPatientDocument(file);
+                        void uploadPatientDocument(file);
+                      }
+                    }}
+                  />
                 </div>
                 <div className="space-y-2">
                   {patientDocuments.length === 0 ? <div className="rounded-xl border border-dashed border-[#dfd2c1] bg-[#fdfbf8] px-4 py-6 text-center text-[11px] text-[#948a81]">Nenhum documento anexado para este paciente.</div> : patientDocuments.map((document) => (
