@@ -108,7 +108,8 @@ function LoginPage() {
     if (submitting || !validate()) return;
     setSubmitting(true); setErrors({});
     try {
-      const { data, error } = await signInWithPassword(email, password);
+      const loginIdentifier = isCpf(email.trim()) ? normalizeCpf(email.trim()) : email.trim();
+      const { data, error } = await signInWithPassword(loginIdentifier, password);
       if (error) { setErrors({ form: authErrorMessage(error) }); return; }
       setRememberedEmail(remember ? email.trim() : null);
       toast.success("Login realizado com sucesso.");
