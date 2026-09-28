@@ -156,18 +156,6 @@ function PainelPage() {
 
   async function openPatientAccess(target: Patient) {
     setAccessPatient(target);
-    setPatientFieldErrors({});
-    setPatient({
-      ...emptyPatient,
-      full_name: target.full_name,
-      birth_date: target.birth_date ?? "",
-      sex: (target.sex ?? "") as "" | "male" | "female",
-      responsible_name: target.responsible_name ?? "",
-      responsible_phone: target.responsible_phone ?? "",
-      cpf: target.cpf ?? "",
-      notes: target.notes ?? "",
-      status: target.status as "active" | "inactive",
-    });
     setLoadingAccess(true);
     setModal("access");
     setError("");
@@ -196,44 +184,7 @@ function PainelPage() {
     if (!accessPatient || !physiotherapistId) return;
     setSavingAccess(true);
     setError("");
-    setPatientFieldErrors({});
     try {
-      const normalizedCpf = patient.cpf.replace(/\D/g, "");
-      if (!normalizedCpf) {
-        setPatientFieldErrors({ cpf: "Informe o CPF do paciente." });
-        return;
-      }
-      if (patient.password.length > 0 && patient.password.length < 6) {
-        setPatientFieldErrors({ password: "A nova senha deve ter pelo menos 6 caracteres." });
-        return;
-      }
-
-      const { data: updateData, error: updateFunctionError } = await supabase.functions.invoke("criar_paciente", {
-        body: {
-          action: "update_patient",
-          patient_id: accessPatient.id,
-          full_name: patient.full_name.trim(),
-          birth_date: patient.birth_date || null,
-          sex: patient.sex || null,
-          responsible_name: patient.responsible_name.trim() || null,
-          responsible_phone: patient.responsible_phone.trim() || null,
-          cpf: patient.cpf.trim(),
-          notes: patient.notes.trim() || null,
-          status: patient.status,
-          password: patient.password.trim(),
-        },
-      });
-
-      if (updateFunctionError) throw new Error(await getCreatePatientErrorMessage(updateFunctionError));
-      if (updateData?.error) throw new Error(updateData.error);
-
-      const updatedPatient = updateData?.patient as Patient | undefined;
-      if (updatedPatient) {
-        setPatients((current) => current.map((item) => item.id === updatedPatient.id ? updatedPatient : item));
-        setAccessPatient(updatedPatient);
-        setPatient((current) => ({ ...current, password: "" }));
-      }
-
       const db = supabase as any;
       const { error: deleteExercisesError } = await db.from("patient_exercise_access").delete().eq("patient_id", accessPatient.id);
       if (deleteExercisesError) throw deleteExercisesError;
@@ -1130,29 +1081,9 @@ function PainelPage() {
       {modal === "access" && accessPatient && (
         <Modal title={`Controle de Conteúdo`} close={() => !savingAccess && setModal(null)}>
           <div className="space-y-5">
-            <div className="border-t border-[#eee5d9] pt-5">
-              <div className="mb-4 text-center">
-                <h3 className="text-base font-semibold text-[#A97A3C]">Dados de Acesso</h3>
-                <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
-              </div>
-              <div className="space-y-4">
-                <Field label="CPF" value={patient.cpf} onChange={(v) => setPatient({ ...patient, cpf: formatCpf(v) })} placeholder="000.000.000-00" inputMode="numeric" required error={patientFieldErrors.cpf} />
-                <Field label="Nova senha" type="password" value={patient.password} onChange={(v) => setPatient({ ...patient, password: v })} placeholder="Deixe em branco para manter a senha atual" error={patientFieldErrors.password} />
-                <div className="block">
-                  <span className="mb-1.5 block text-[11px] font-medium text-[#746c64]">Status</span>
-                  <label className={`flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3 transition ${patient.status === "active" ? "border-[#dfc28f] bg-[#f3e3cf] hover:border-[#cdb894] hover:bg-[#eedbc0]" : "border-[#efcaca] bg-[#fff0f0] hover:border-[#e58a8a] hover:bg-[#ffe8e8]"}`}>
-                    <div>
-                      <p className="text-sm font-medium text-[#4f4841]">{patient.status === "active" ? "Paciente ativo" : "Paciente inativo"}</p>
-                      <p className="mt-0.5 text-[10px] text-[#91877e]">{patient.status === "active" ? "O paciente está ativo no sistema." : "O paciente está marcado como inativo."}</p>
-                    </div>
-                    <span className="relative ml-4 inline-flex shrink-0 items-center">
-                      <input type="checkbox" checked={patient.status === "active"} onChange={(e) => setPatient({ ...patient, status: e.target.checked ? "active" : "inactive" })} className="peer sr-only" />
-                      <span className="h-7 w-12 rounded-full bg-[#d8d0c7] shadow-inner transition-colors peer-checked:bg-[#BA9051] peer-focus-visible:ring-2 peer-focus-visible:ring-[#BA9051]/30 peer-focus-visible:ring-offset-2" />
-                      <span className="pointer-events-none absolute left-1 size-5 rounded-full bg-white shadow-[0_2px_6px_rgba(64,48,30,0.22)] transition-transform peer-checked:translate-x-5" />
-                    </span>
-                  </label>
-                </div>
-              </div>
+            <div className="rounded-2xl border border-[#e6d8c5] bg-[#fdfbf8] px-4 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A97A3C]">Permissões individuais</p>
+              <p className="mt-1 text-xs leading-relaxed text-[#837970]">Selecione o conteúdo que este paciente poderá visualizar na própria conta.</p>
             </div>
 
             {loadingAccess ? <div className="flex min-h-40 items-center justify-center text-sm text-[#837970]"><RefreshCw className="mr-2 size-4 animate-spin text-[#BA9051]" />Carregando acessos...</div> : <>
@@ -1280,8 +1211,7 @@ function PainelPage() {
 
             <Field label="Observações" value={patient.notes} onChange={(v) => setPatient({ ...patient, notes: v })} placeholder="Observações do paciente" multiline />
 
-            {!editingPatient && (
-          <div className="border-t border-[#eee5d9] pt-5">
+            <div className="border-t border-[#eee5d9] pt-5">
               <div className="mb-4 text-center">
                 <h3 className="text-base font-semibold text-[#A97A3C]">Endereço do Paciente</h3>
                 <div className="mx-auto mt-2 h-px w-12 bg-[#BA9051]/40" />
@@ -1349,8 +1279,6 @@ function PainelPage() {
             </div>
             </div>
           </div>
-
-          )}
 
           <Actions close={() => setModal(null)} label={editingPatient ? "Salvar alterações" : "Cadastrar Paciente"} loading={saving} />
         </form>
