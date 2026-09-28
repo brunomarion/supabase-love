@@ -4,7 +4,7 @@ import { Moon, Sun } from "lucide-react";
 const THEME_KEY = "ep.theme";
 
 function applyTheme(theme: "light" | "dark") {
-  document.documentElement.dataset.epTheme = theme;
+  document.documentElement.dataset["epTheme"] = theme;
   document.documentElement.style.colorScheme = theme;
 }
 

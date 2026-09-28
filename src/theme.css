@@ -10,35 +10,35 @@
 [data-ep-theme="dark"] [class~="bg-white"] { background-color: #211d19 !important; }
 [data-ep-theme="dark"] [class~="bg-white/95"] { background-color: rgba(33,29,25,.96) !important; }
 [data-ep-theme="dark"] [class~="bg-white/98"] { background-color: rgba(33,29,25,.98) !important; }
-[data-ep-theme="dark"] [class~="bg-[#faf8f4]"] { background-color: #171412 !important; }
-[data-ep-theme="dark"] [class~="bg-[#fdfbf8]"] { background-color: #211d19 !important; }
-[data-ep-theme="dark"] [class~="bg-[#fffdf9]"] { background-color: #211d19 !important; }
-[data-ep-theme="dark"] [class~="bg-[#faf7f2]"] { background-color: #2a241f !important; }
-[data-ep-theme="dark"] [class~="bg-[#f4eee6]"] { background-color: #2a241f !important; }
-[data-ep-theme="dark"] [class~="bg-[#f1eee9]"] { background-color: #171412 !important; }
-[data-ep-theme="dark"] [class~="bg-[#fffaf2]"] { background-color: #2a241f !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#faf8f4\]"] { background-color: #171412 !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#fdfbf8\]"] { background-color: #211d19 !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#fffdf9\]"] { background-color: #211d19 !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#faf7f2\]"] { background-color: #2a241f !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#f4eee6\]"] { background-color: #2a241f !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#f1eee9\]"] { background-color: #171412 !important; }
+[data-ep-theme="dark"] [class~="bg-\[\#fffaf2\]"] { background-color: #2a241f !important; }
 
-[data-ep-theme="dark"] [class~="text-[#2D2823"]],
-[data-ep-theme="dark"] [class~="text-[#403a35"]] { color: #f4eee7 !important; }
+[data-ep-theme="dark"] [class~="text-\[\#2D2823\]"],
+[data-ep-theme="dark"] [class~="text-\[\#403a35\]"] { color: #f4eee7 !important; }
 
-[data-ep-theme="dark"] [class~="text-[#746C64"]],
-[data-ep-theme="dark"] [class~="text-[#746c64"]],
-[data-ep-theme="dark"] [class~="text-[#948a81"]],
-[data-ep-theme="dark"] [class~="text-[#8a8178"]] { color: #b8ada2 !important; }
+[data-ep-theme="dark"] [class~="text-\[\#746C64\]"],
+[data-ep-theme="dark"] [class~="text-\[\#746c64\]"],
+[data-ep-theme="dark"] [class~="text-\[\#948a81\]"],
+[data-ep-theme="dark"] [class~="text-\[\#8a8178\]"] { color: #b8ada2 !important; }
 
-[data-ep-theme="dark"] [class~="text-[#9b9084"]],
-[data-ep-theme="dark"] [class~="text-[#8e857c"]] { color: #a99d92 !important; }
+[data-ep-theme="dark"] [class~="text-\[\#9b9084\]"],
+[data-ep-theme="dark"] [class~="text-\[\#8e857c\]"] { color: #a99d92 !important; }
 
-[data-ep-theme="dark"] [class~="border-[#E6D8C5"]],
-[data-ep-theme="dark"] [class~="border-[#e6d8c5"]],
-[data-ep-theme="dark"] [class~="border-[#eee5d9"]],
-[data-ep-theme="dark"] [class~="border-[#eee5d9]/90"],
-[data-ep-theme="dark"] [class~="border-[#e6d9c9"]],
-[data-ep-theme="dark"] [class~="border-[#dfd0bb"]] { border-color: #3d342b !important; }
+[data-ep-theme="dark"] [class~="border-\[\#E6D8C5\]"],
+[data-ep-theme="dark"] [class~="border-\[\#e6d8c5\]"],
+[data-ep-theme="dark"] [class~="border-\[\#eee5d9\]"],
+[data-ep-theme="dark"] [class~="border-\[\#eee5d9\]/90"],
+[data-ep-theme="dark"] [class~="border-\[\#e6d9c9\]"],
+[data-ep-theme="dark"] [class~="border-\[\#dfd0bb\]"] { border-color: #3d342b !important; }
 
-[data-ep-theme="dark"] [class~="border-[#dfd2c1"]],
-[data-ep-theme="dark"] [class~="border-[#e2cfb4"]],
-[data-ep-theme="dark"] [class~="border-[#eadcc8"]] { border-color: #4a3d31 !important; }
+[data-ep-theme="dark"] [class~="border-\[\#dfd2c1\]"],
+[data-ep-theme="dark"] [class~="border-\[\#e2cfb4\]"],
+[data-ep-theme="dark"] [class~="border-\[\#eadcc8\]"] { border-color: #4a3d31 !important; }
 
 [data-ep-theme="dark"] .premium-modal-panel {
   background: #211d19 !important;
