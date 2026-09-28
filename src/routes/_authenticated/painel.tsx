@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { CalendarPlus, ChevronLeft, ChevronRight, Dumbbell, Eye, EyeOff, FileText, Home, KeyRound, Library, LogOut, Pencil, Play, Plus, RefreshCw, Search, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
+import { BookOpen, CalendarPlus, ChevronLeft, ChevronRight, Download, Dumbbell, Eye, EyeOff, ExternalLink, FileText, Home, KeyRound, Library, LogOut, Pencil, Play, Plus, RefreshCw, Search, SlidersHorizontal, Trash2, Upload, UserRound, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { signOut } from "@/lib/auth";
