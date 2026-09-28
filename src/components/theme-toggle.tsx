@@ -36,7 +36,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={isDark ? "Ativar modo claro" : "Ativar modo noturno"}
       title={isDark ? "Modo claro" : "Modo noturno"}
-      className="group relative flex h-10 w-[74px] items-center rounded-full border border-[#e2cfb1] bg-white/90 p-1 shadow-[0_8px_24px_rgba(64,48,30,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:border-[#cda96f] hover:shadow-[0_12px_30px_rgba(64,48,30,0.16)] active:translate-y-0"
+      className={"group relative flex h-10 w-[74px] items-center rounded-full border p-1 shadow-[0_8px_24px_rgba(64,48,30,0.12)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 " + (isDark ? "border-[#4a3d31] bg-[#211d19]/95 hover:border-[#6a5135] hover:shadow-[0_12px_30px_rgba(0,0,0,0.28)]" : "border-[#e2cfb1] bg-white/90 hover:border-[#cda96f] hover:shadow-[0_12px_30px_rgba(64,48,30,0.16)]")}
     >
       <span
         className={"absolute top-1 flex size-8 items-center justify-center rounded-full shadow-[0_4px_12px_rgba(64,48,30,0.16)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] " + (isDark ? "left-[34px] bg-[#2f2a26] text-[#f4d18f]" : "left-1 bg-[#BA9051] text-white")}
